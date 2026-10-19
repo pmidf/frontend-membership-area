@@ -1,0 +1,126 @@
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
+.filtros[aria-busy="true"] {
+  opacity: 0.7;
+}
+
+.alternador {
+  display: flex;
+  padding: 4px;
+  background: var(--apoio-neutro-100);
+  border-radius: var(--raio-pill);
+}
+
+.opcaoVisao {
+  padding: 10px 20px;
+  border-radius: var(--raio-pill);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--texto-secundario);
+}
+
+.opcaoVisao.ativa {
+  background: var(--fundo-superficie);
+  color: var(--texto-marca);
+}
+
+.busca {
+  flex: 1 1 240px;
+}
+
+.busca input {
+  width: 100%;
+  height: 52px;
+  padding: 15px 16px;
+  background: var(--fundo-campo);
+  border: 1px solid var(--borda-padrao);
+  border-radius: var(--raio-md);
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.busca input::placeholder {
+  color: var(--texto-placeholder);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.seletor select {
+  appearance: none;
+  height: 50px;
+  padding: 14px 36px 14px 16px;
+  background: var(--apoio-neutro-100)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%234a4f57' stroke-width='1.5' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E")
+    no-repeat right 14px center;
+  border: none;
+  border-radius: var(--raio-md);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--texto-secundario);
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .filtros {
+    gap: 20px;
+  }
+
+  .alternador {
+    gap: 4px;
+    width: 100%;
+    background: var(--fundo-superficie);
+    border: 1px solid var(--borda-padrao);
+  }
+
+  .opcaoVisao {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0;
+    border: 1px solid transparent;
+    font-weight: 500;
+  }
+
+  .opcaoVisao.ativa {
+    border-color: var(--borda-foco);
+  }
+
+  .busca {
+    flex-basis: 100%;
+  }
+
+  .busca input {
+    height: 48px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .chips {
+    gap: 8px;
+  }
+
+  .seletor select {
+    height: auto;
+    padding: 8px 30px 8px 14px;
+    background-color: var(--fundo-superficie);
+    background-position: right 12px center;
+    border: 1px solid var(--borda-padrao);
+    border-radius: var(--raio-pill);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: normal;
+    color: var(--texto-primario);
+  }
+}

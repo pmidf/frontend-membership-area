@@ -1,0 +1,35 @@
+.alerta {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--pmi-aqua-50);
+  border: 1px solid var(--pmi-aqua-500);
+  border-radius: var(--raio-lg);
+}
+
+.icone {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.titulo {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  color: var(--texto-primario);
+}
+
+.texto {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--texto-secundario);
+}

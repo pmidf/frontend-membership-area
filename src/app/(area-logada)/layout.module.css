@@ -1,0 +1,18 @@
+.casca {
+  display: flex;
+  min-height: 100vh;
+}
+
+.principal {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .principal {
+    padding-bottom: 68px; /* altura da navegação inferior */
+    background: var(--fundo-sutil);
+  }
+}
