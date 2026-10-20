@@ -42,3 +42,6 @@ next-env.d.ts
 
 # exemplo de variáveis (sem segredos) pode ser versionado
 !.env.example
+
+# dados locais do console da agenda (conciliações, auditoria, log de sincronização)
+/data/

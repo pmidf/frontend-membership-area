@@ -16,24 +16,6 @@
   white-space: nowrap;
 }
 
-.acoes {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.notificacoes {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: var(--raio-pill);
-  background: var(--apoio-neutro-100);
-  cursor: pointer;
-}
-
 .usuario {
   display: flex;
   gap: 12px;
@@ -66,12 +48,6 @@
   line-height: 22px;
 }
 
-.entrar {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--texto-marca);
-}
-
 .somenteMobile {
   display: none;
 }
@@ -85,10 +61,6 @@
   .titulo {
     font-size: 17px;
     line-height: normal;
-  }
-
-  .acoes {
-    gap: 8px;
   }
 
   .avatar {

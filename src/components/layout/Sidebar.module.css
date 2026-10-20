@@ -87,3 +87,13 @@
     display: none;
   }
 }
+
+/* Módulo ainda não disponível. */
+.desabilitado {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.desabilitado:hover {
+  background: none;
+}

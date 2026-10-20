@@ -192,10 +192,8 @@ function ConteudoEvento({
                 </li>
               ))}
             </ul>
-            {/* TODO: apontar para "Meu perfil > E-mails" (ÉP-02, US-02.03) quando o módulo existir. */}
-            <Link href="#" className={styles.linkPerfil}>
-              Usar outro e-mail? Cadastre no seu perfil
-            </Link>
+            {/* TODO: virar link para "Meu perfil > E-mails" (ÉP-02, US-02.03) quando o módulo existir. */}
+            <p className={styles.tipoEmail}>Para usar outro e-mail, cadastre e verifique o endereço no seu perfil.</p>
           </Card>
         )}
       </aside>

@@ -145,16 +145,6 @@
   color: var(--texto-secundario);
 }
 
-.linkPerfil {
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--texto-marca);
-}
-
-.linkPerfil:hover {
-  text-decoration: underline;
-}
-
 .acoesDesktop {
   display: flex;
   flex-direction: column;
@@ -269,9 +259,5 @@
   .tipoEmail {
     font-size: 11px;
     line-height: normal;
-  }
-
-  .linkPerfil {
-    font-weight: 500;
   }
 }

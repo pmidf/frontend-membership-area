@@ -49,3 +49,8 @@
 .larguraTotal {
   width: 100%;
 }
+
+.botao:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

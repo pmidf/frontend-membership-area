@@ -1,5 +1,5 @@
 // Sessão do usuário autenticado.
-// TODO: substituir pelo usuário vindo da autenticação (ÉP-01) quando o backend estiver disponível.
+// TODO(auth): a autenticação (ÉP-01) ainda não existe. Até lá, a usuária e o Admin abaixo são de exemplo.
 
 export type StatusFiliacao = "filiado" | "nao-filiado";
 
@@ -30,7 +30,21 @@ const usuarioMock: Usuario = {
 
 /** Retorna o usuário autenticado ou `null` para visitante (a agenda é pública). */
 export async function obterUsuarioAtual(): Promise<Usuario | null> {
+  // TODO(auth): ler a sessão autenticada.
   return usuarioMock;
+}
+
+export type Admin = { nome: string; papel: string };
+
+/** Admin do console. TODO(auth): virá da sessão autenticada, com o papel validado no servidor. */
+export async function obterAdminAtual(): Promise<Admin> {
+  return { nome: "Rafael Lima", papel: "Super admin" };
+}
+
+/** Quem fez a ação, para a auditoria do console (marcado enquanto não há autenticação). */
+export async function autorAuditoria(): Promise<string> {
+  const admin = await obterAdminAtual();
+  return `${admin.nome} (sem autenticação)`;
 }
 
 /** E-mails que permitem vincular a participação no Sympla (RN-05.02.3: só verificados). */

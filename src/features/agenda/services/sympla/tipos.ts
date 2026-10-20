@@ -36,10 +36,13 @@ export type SymplaEvento = {
 
 export type SymplaParticipante = {
   id: string;
-  event_id: string;
-  email: string;
-  ticket_status: string;
-  order_status: string;
+  event_id?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  ticket_name?: string;
+  ticket_status?: string;
+  order_status?: string;
   checkin?: {
     check_in: boolean;
     check_in_date?: string;

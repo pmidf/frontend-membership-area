@@ -28,6 +28,22 @@ export type Evento = {
   cancelado: boolean;
 };
 
+/**
+ * Inscrição de um participante num evento, como importada do Sympla (US-05.04).
+ * Só nome, e-mail, tipo e status do ingresso e check-in (RN-05.04.4): valores e formulários não entram.
+ */
+export type ParticipanteEvento = {
+  /** Id do participante no Sympla. */
+  id: string;
+  eventoId: string;
+  nome: string;
+  email: string;
+  tipoIngresso: string;
+  checkIn: boolean;
+  checkInEm?: string;
+  cancelado: boolean;
+};
+
 /** Situação da pessoa autenticada no evento (US-05.02). */
 export type StatusParticipacao = "inscrito" | "presente" | "ausente";
 

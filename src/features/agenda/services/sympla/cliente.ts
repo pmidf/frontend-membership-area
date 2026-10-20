@@ -18,19 +18,45 @@ export class ErroSympla extends Error {
   }
 }
 
-/** A integração só fica ativa com o token configurado; sem ele a agenda usa dados de exemplo. */
+/** O token é obrigatório: sem ele, as chamadas falham e as telas mostram o estado de erro. */
 export function symplaConfigurado() {
   return Boolean(process.env.SYMPLA_TOKEN);
 }
 
 function token() {
   const valor = process.env.SYMPLA_TOKEN;
-  if (!valor) throw new ErroSympla("SYMPLA_TOKEN não configurado.");
+  if (!valor) throw new ErroSympla("SYMPLA_TOKEN não configurado: defina o token da conta organizadora no .env.local.");
   return valor;
 }
 
 function esperar(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Limitador global do processo: o Sympla fica atrás de um Cloudflare que bloqueia o IP por um bom tempo
+ * quando recebe rajadas. Todas as chamadas (agenda e console) passam por aqui.
+ */
+const MAX_SIMULTANEAS = 3;
+const INTERVALO_MINIMO_MS = 200;
+let emAndamento = 0;
+let ultimoInicio = 0;
+const fila: (() => void)[] = [];
+
+async function comLimite<T>(tarefa: () => Promise<T>): Promise<T> {
+  // A vaga passa direto para quem está na fila, sem janela para outra chamada furar o limite.
+  if (emAndamento >= MAX_SIMULTANEAS) await new Promise<void>((resolve) => fila.push(resolve));
+  else emAndamento++;
+  try {
+    const espera = ultimoInicio + INTERVALO_MINIMO_MS - Date.now();
+    ultimoInicio = Math.max(Date.now(), ultimoInicio + INTERVALO_MINIMO_MS);
+    if (espera > 0) await esperar(espera);
+    return await tarefa();
+  } finally {
+    const proxima = fila.shift();
+    if (proxima) proxima();
+    else emAndamento--;
+  }
 }
 
 type Parametros = Record<string, string | number | undefined>;
@@ -47,10 +73,17 @@ async function get<T>(caminho: string, parametros: Parametros = {}): Promise<T |
   }
 
   for (let tentativa = 1; ; tentativa++) {
-    const resposta = await fetch(url, {
-      headers: { s_token: token(), Accept: "application/json" },
-      cache: "no-store", // o cache fica nas funções com "use cache" do agenda-service
-    });
+    const inicio = Date.now();
+    const resposta = await comLimite(() =>
+      fetch(url, {
+        headers: { s_token: token(), Accept: "application/json" },
+        cache: "no-store", // o cache fica nas funções com "use cache" dos serviços
+      }),
+    );
+    // Diagnóstico opcional: só caminho, status e tempo (a query pode conter e-mail; o token nunca é logado).
+    if (process.env.SYMPLA_DEBUG === "1") {
+      console.info(`[sympla] ${resposta.status} ${caminho} ${Date.now() - inicio}ms`);
+    }
 
     if (resposta.status === 204 || resposta.status === 404) return null;
     if (resposta.ok) return (await resposta.json()) as T;

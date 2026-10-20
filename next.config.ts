@@ -5,7 +5,10 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   // Enquanto o módulo "Início" não existe, a raiz leva para a agenda.
   async redirects() {
-    return [{ source: "/", destination: "/agenda", permanent: false }];
+    return [
+      { source: "/", destination: "/agenda", permanent: false },
+      { source: "/admin", destination: "/admin/eventos", permanent: false },
+    ];
   },
 };
 
