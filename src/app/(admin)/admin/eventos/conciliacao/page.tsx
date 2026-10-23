@@ -3,33 +3,25 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { Topbar } from "@/components/layout/Topbar";
-import { obterAdminAtual } from "@/lib/sessao";
 import { Alert } from "@/components/ui/Alert";
 import { Card, CardTitulo } from "@/components/ui/Card";
-import type { Pessoa } from "@/lib/pessoas";
+import { obterAdminAtual } from "@/lib/sessao";
 import { formatarDataCurta } from "@/features/agenda/lib/datas";
-import type { Evento, ParticipanteEvento } from "@/features/agenda/types";
 import { desfazerResolucao, marcarNaoMembro, vincularParticipacao } from "@/features/agenda-admin/acoes";
+import { conciliacao, type ItemFila, type PessoaResumo } from "@/features/agenda-admin/api";
 import { AbasEventos } from "@/features/agenda-admin/components/AbasEventos";
 import { BotaoEnviar } from "@/features/agenda-admin/components/BotaoEnviar";
 import { SeletorPeriodo } from "@/features/agenda-admin/components/SeletorPeriodo";
 import styles from "@/features/agenda-admin/components/admin.module.css";
-import conciliacao from "@/features/agenda-admin/components/conciliacao.module.css";
-import { eventosDoPeriodo, lerPeriodoAdmin, participacoesNaoVinculadas } from "@/features/agenda-admin/dados";
+import estilosConciliacao from "@/features/agenda-admin/components/conciliacao.module.css";
 import { formatarDataHora } from "@/features/agenda-admin/formatacao";
-import { formatarNumero } from "@/features/agenda-admin/numeros";
-import {
-  chaveParticipacao,
-  formatarSimilaridade,
-  LIMIAR_SUGESTAO,
-  sugerirPessoas,
-  type Sugestao,
-} from "@/features/agenda-admin/vinculos";
+import { formatarNumero, formatarSimilaridade } from "@/features/agenda-admin/numeros";
+import { lerPeriodoAdmin } from "@/features/agenda-admin/periodo";
 
 export const metadata: Metadata = { title: "Eventos · Conciliação" };
 
-const LIMITE_FILA = 50;
-const LIMITE_RESOLVIDAS = 10;
+/** Sugestões abaixo deste valor não aparecem (o backend aplica o mesmo limiar). */
+const LIMIAR_SUGESTAO = 0.4;
 
 export default async function AdminConciliacaoPage({ searchParams }: PageProps<"/admin/eventos/conciliacao">) {
   const admin = await obterAdminAtual();
@@ -49,46 +41,22 @@ export default async function AdminConciliacaoPage({ searchParams }: PageProps<"
   );
 }
 
-type ItemFila = { participante: ParticipanteEvento; evento: Evento; sugestoes: Sugestao[] };
-
 async function Conteudo({ searchParams }: { searchParams: PageProps<"/admin/eventos/conciliacao">["searchParams"] }) {
   const params = await searchParams;
   await connection();
-  const agora = new Date();
   const periodo = lerPeriodoAdmin(params.periodo);
-
-  const eventos = await eventosDoPeriodo(periodo, agora);
-  const { pendentes, todos, pessoas, estado, falhas } = await participacoesNaoVinculadas(eventos, agora);
-  const eventosPorId = new Map(eventos.map((e) => [e.id, e]));
-
-  // Ordenada pela similaridade de nome: do caso mais provável para o menos provável.
-  const fila: ItemFila[] = pendentes
-    .map((participante) => ({
-      participante,
-      evento: eventosPorId.get(participante.eventoId)!,
-      sugestoes: sugerirPessoas(participante.nome, pessoas),
-    }))
-    .sort((a, b) => (b.sugestoes[0]?.similaridade ?? 0) - (a.sugestoes[0]?.similaridade ?? 0));
+  const { total, fila, resolvidas, pessoas } = await conciliacao(periodo);
 
   const analisar = typeof params.analisar === "string" ? params.analisar : undefined;
-  const emAnalise = fila.find((i) => chaveParticipacao(i.participante) === analisar) ?? fila[0];
-  const chaveEmAnalise = emAnalise && chaveParticipacao(emAnalise.participante);
-
-  const participantesPorChave = new Map(todos.map((p) => [chaveParticipacao(p), p]));
-  const pessoasPorId = new Map(pessoas.map((p) => [p.id, p]));
-  const resolvidas = Object.entries(estado.resolucoes)
-    .filter(([chave]) => participantesPorChave.has(chave))
-    .sort(([, a], [, b]) => b.em.localeCompare(a.em))
-    .slice(0, LIMITE_RESOLVIDAS);
-
-  const hrefAnalisar = (chave: string) =>
-    `/admin/eventos/conciliacao?${new URLSearchParams({ periodo, analisar: chave })}`;
+  const emAnalise = fila.find((i) => chave(i) === analisar) ?? fila[0];
+  const hrefAnalisar = (item: ItemFila) =>
+    `/admin/eventos/conciliacao?${new URLSearchParams({ periodo, analisar: chave(item) })}`;
 
   return (
     <>
       <header className={styles.cabecalho}>
         <h1 className={styles.titulo}>Participações não vinculadas</h1>
-        <p className={styles.contador}>{formatarNumero(fila.length)} na fila</p>
+        <p className={styles.contador}>{formatarNumero(total)} na fila</p>
       </header>
       <AbasEventos ativa="conciliacao" />
 
@@ -104,17 +72,12 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/admin/even
             Aplicar
           </button>
         </noscript>
-        {falhas > 0 && (
-          <p className={styles.erro}>
-            O Sympla não respondeu para {falhas} evento(s); as participações deles não aparecem agora.
-          </p>
-        )}
       </form>
 
       {emAnalise && <EmAnalise item={emAnalise} pessoas={pessoas} />}
 
       <Card aria-labelledby="titulo-fila">
-        <form action={marcarNaoMembro} className={conciliacao.fila}>
+        <form action={marcarNaoMembro} className={estilosConciliacao.fila}>
           <div className={styles.cardCabecalho}>
             <div className={styles.cardCabecalhoTexto}>
               <CardTitulo id="titulo-fila">Fila de conciliação</CardTitulo>
@@ -130,39 +93,42 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/admin/even
           {fila.length === 0 ? (
             <p className={styles.vazio}>Nenhuma participação aguardando conciliação neste período.</p>
           ) : (
-            <ul className={conciliacao.lista}>
-              {fila.slice(0, LIMITE_FILA).map(({ participante, evento, sugestoes }) => {
-                const chave = chaveParticipacao(participante);
+            <ul className={estilosConciliacao.lista}>
+              {fila.map((item) => {
+                const { participacao, evento, sugestoes } = item;
                 const melhor = sugestoes[0];
                 return (
-                  <li key={chave} className={`${conciliacao.item} ${chave === chaveEmAnalise ? conciliacao.itemAtivo : ""}`}>
+                  <li
+                    key={chave(item)}
+                    className={`${estilosConciliacao.item} ${emAnalise && chave(item) === chave(emAnalise) ? estilosConciliacao.itemAtivo : ""}`}
+                  >
                     <input
                       type="checkbox"
-                      name="chave"
-                      value={chave}
+                      name="inscricao"
+                      value={chave(item)}
                       className={styles.checkbox}
-                      aria-label={`Selecionar ${participante.email}`}
+                      aria-label={`Selecionar ${participacao.email}`}
                     />
-                    <div className={conciliacao.itemTexto}>
-                      <span className={conciliacao.email}>{participante.email}</span>
+                    <div className={estilosConciliacao.itemTexto}>
+                      <span className={estilosConciliacao.email}>{participacao.email}</span>
                       <span className={styles.secundario}>
-                        {participante.nome} · {evento.titulo} · {formatarDataCurta(evento.inicio)}
+                        {participacao.nome} · {evento.titulo} · {formatarDataCurta(evento.inicio)}
                       </span>
                     </div>
-                    <div className={conciliacao.sugestao}>
+                    <div className={estilosConciliacao.sugestao}>
                       {melhor ? (
                         <>
-                          <span className={conciliacao.email}>{melhor.pessoa.nome}</span>
+                          <span className={estilosConciliacao.email}>{melhor.pessoa.nome}</span>
                           <span className={styles.secundario}>similaridade {formatarSimilaridade(melhor.similaridade)}</span>
                         </>
                       ) : (
                         <>
-                          <span className={conciliacao.semSugestao}>Nenhuma sugestão</span>
+                          <span className={estilosConciliacao.semSugestao}>Nenhuma sugestão</span>
                           <span className={styles.secundario}>abaixo do limiar de {formatarSimilaridade(LIMIAR_SUGESTAO)}</span>
                         </>
                       )}
                     </div>
-                    <Link href={hrefAnalisar(chave)} className={styles.link} scroll={false}>
+                    <Link href={hrefAnalisar(item)} className={styles.link} scroll={false}>
                       Analisar
                     </Link>
                   </li>
@@ -170,8 +136,10 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/admin/even
               })}
             </ul>
           )}
-          {fila.length > LIMITE_FILA && (
-            <p className={styles.nota}>Mostrando as {LIMITE_FILA} participações mais prováveis de {fila.length}.</p>
+          {total > fila.length && (
+            <p className={styles.nota}>
+              Mostrando as {fila.length} participações mais prováveis de {formatarNumero(total)}.
+            </p>
           )}
         </form>
       </Card>
@@ -180,38 +148,33 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/admin/even
         <Card aria-labelledby="titulo-resolvidas">
           <CardTitulo id="titulo-resolvidas">Resolvidas recentemente</CardTitulo>
           <p className={styles.texto}>Vinculou por engano? Desfazer devolve a participação para a fila.</p>
-          <ul className={conciliacao.lista}>
-            {resolvidas.map(([chave, resolucao]) => {
-              const participante = participantesPorChave.get(chave)!;
-              const evento = eventosPorId.get(participante.eventoId);
-              return (
-                <li key={chave} className={conciliacao.item}>
-                  <div className={conciliacao.itemTexto}>
-                    <span className={conciliacao.email}>{participante.email}</span>
-                    <span className={styles.secundario}>
-                      {participante.nome}
-                      {evento && ` · ${evento.titulo}`}
-                    </span>
-                  </div>
-                  <div className={conciliacao.sugestao}>
-                    <span className={conciliacao.email}>
-                      {resolucao.tipo === "vinculo"
-                        ? `Vinculada a ${pessoasPorId.get(resolucao.pessoaId)?.nome ?? "pessoa removida"}`
-                        : "Não é membro"}
-                    </span>
-                    <span className={styles.secundario}>
-                      {formatarDataHora(resolucao.em)} · {resolucao.por}
-                    </span>
-                  </div>
-                  <form action={desfazerResolucao}>
-                    <input type="hidden" name="chave" value={chave} />
-                    <BotaoEnviar tipo="link" enviando="Desfazendo…">
-                      Desfazer
-                    </BotaoEnviar>
-                  </form>
-                </li>
-              );
-            })}
+          <ul className={estilosConciliacao.lista}>
+            {resolvidas.map((r) => (
+              <li key={`${r.participacao.eventoId}:${r.participacao.id}`} className={estilosConciliacao.item}>
+                <div className={estilosConciliacao.itemTexto}>
+                  <span className={estilosConciliacao.email}>{r.participacao.email || "Inscrição não encontrada no Sympla"}</span>
+                  <span className={styles.secundario}>
+                    {r.participacao.nome && `${r.participacao.nome} · `}
+                    {r.evento.titulo}
+                  </span>
+                </div>
+                <div className={estilosConciliacao.sugestao}>
+                  <span className={estilosConciliacao.email}>
+                    {r.tipo === "vinculo" ? `Vinculada a ${r.pessoa?.nome ?? "pessoa removida"}` : "Não é membro"}
+                  </span>
+                  <span className={styles.secundario}>
+                    {formatarDataHora(r.em)} · {r.por}
+                  </span>
+                </div>
+                <form action={desfazerResolucao}>
+                  <input type="hidden" name="eventoId" value={r.participacao.eventoId} />
+                  <input type="hidden" name="participanteId" value={r.participacao.id} />
+                  <BotaoEnviar tipo="link" enviando="Desfazendo…">
+                    Desfazer
+                  </BotaoEnviar>
+                </form>
+              </li>
+            ))}
           </ul>
         </Card>
       )}
@@ -219,14 +182,13 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/admin/even
   );
 }
 
-function EmAnalise({ item, pessoas }: { item: ItemFila; pessoas: Pessoa[] }) {
-  const { participante, evento, sugestoes } = item;
-  const chave = chaveParticipacao(participante);
+function EmAnalise({ item, pessoas }: { item: ItemFila; pessoas: PessoaResumo[] }) {
+  const { participacao, evento, sugestoes } = item;
 
   return (
-    <Card destaque aria-labelledby="titulo-analise" className={conciliacao.analise}>
+    <Card destaque aria-labelledby="titulo-analise" className={estilosConciliacao.analise}>
       <CardTitulo id="titulo-analise">Em análise</CardTitulo>
-      <dl className={conciliacao.dados}>
+      <dl className={estilosConciliacao.dados}>
         <div>
           <dt>Evento</dt>
           <dd>
@@ -235,46 +197,38 @@ function EmAnalise({ item, pessoas }: { item: ItemFila; pessoas: Pessoa[] }) {
         </div>
         <div>
           <dt>E-mail no Sympla</dt>
-          <dd>{participante.email}</dd>
+          <dd>{participacao.email}</dd>
         </div>
         <div>
           <dt>Nome informado</dt>
-          <dd>{participante.nome || "—"}</dd>
+          <dd>{participacao.nome || "—"}</dd>
         </div>
         <div>
           <dt>Status</dt>
-          <dd>{participante.checkIn ? "Check-in confirmado" : "Sem check-in"}</dd>
+          <dd>{participacao.checkIn ? "Check-in confirmado" : "Sem check-in"}</dd>
         </div>
       </dl>
 
-      <form action={vincularParticipacao} className={conciliacao.formulario}>
-        <input type="hidden" name="chave" value={chave} />
-        <input type="hidden" name="descricao" value={`${participante.email} · ${evento.titulo}`} />
+      <form action={vincularParticipacao} className={estilosConciliacao.formulario}>
+        <input type="hidden" name="eventoId" value={participacao.eventoId} />
+        <input type="hidden" name="participanteId" value={participacao.id} />
 
         {pessoas.length === 0 ? (
           <p className={styles.texto}>
-            A base de pessoas da plataforma ainda não está disponível, então não há com quem vincular. Por enquanto
-            só é possível marcar como não membro.
+            Ainda não há pessoas cadastradas na plataforma, então não há com quem vincular. Por enquanto só é possível
+            marcar como não membro.
           </p>
         ) : sugestoes.length > 0 ? (
-          <fieldset className={conciliacao.sugestoes}>
+          <fieldset className={estilosConciliacao.sugestoes}>
             <legend className={styles.subtituloCard}>Pessoas com nome parecido na base</legend>
             {sugestoes.map(({ pessoa, similaridade }, i) => (
-              <label key={pessoa.id} className={conciliacao.opcao}>
+              <label key={pessoa.id} className={estilosConciliacao.opcao}>
                 <input type="radio" name="pessoaId" value={pessoa.id} defaultChecked={i === 0} />
                 <span>
-                  <span className={conciliacao.opcaoTitulo}>
+                  <span className={estilosConciliacao.opcaoTitulo}>
                     {pessoa.nome} · Similaridade {formatarSimilaridade(similaridade)}
                   </span>
-                  <span className={styles.secundario}>
-                    {[
-                      pessoa.emailsVerificados[0],
-                      pessoa.pmiId && `PMI ID ${pessoa.pmiId}`,
-                      `${pessoa.statusFiliacao === "filiado" ? "filiação" : "cadastro"} desde ${pessoa.desde}`,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </span>
+                  <span className={styles.secundario}>{descreverPessoa(pessoa)}</span>
                 </span>
               </label>
             ))}
@@ -284,7 +238,7 @@ function EmAnalise({ item, pessoas }: { item: ItemFila; pessoas: Pessoa[] }) {
         )}
 
         {pessoas.length > 0 && (
-          <details className={conciliacao.manual} open={sugestoes.length === 0}>
+          <details className={estilosConciliacao.manual} open={sugestoes.length === 0}>
             <summary className={styles.link}>Buscar outra pessoa manualmente</summary>
             <label>
               <span className="visually-hidden">Pessoa</span>
@@ -292,7 +246,8 @@ function EmAnalise({ item, pessoas }: { item: ItemFila; pessoas: Pessoa[] }) {
                 <option value="">Selecione uma pessoa</option>
                 {pessoas.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.nome} · {p.emailsVerificados[0]}
+                    {p.nome}
+                    {p.email ? ` · ${p.email}` : ""}
                   </option>
                 ))}
               </select>
@@ -307,10 +262,21 @@ function EmAnalise({ item, pessoas }: { item: ItemFila; pessoas: Pessoa[] }) {
           </BotaoEnviar>
         </div>
         <p className={styles.nota}>
-          O vínculo fica registrado na auditoria. Ele não cadastra este e-mail no perfil da pessoa: para os próximos
-          eventos serem reconhecidos sozinhos, ela precisa cadastrar e verificar o e-mail.
+          A decisão fica registrada na auditoria. O vínculo não cadastra este e-mail no perfil da pessoa: para os
+          próximos eventos serem reconhecidos sozinhos, ela precisa cadastrar e verificar o e-mail.
         </p>
       </form>
     </Card>
   );
+}
+
+/** Uma inscrição no Sympla é identificada pelo evento e pelo participante. */
+function chave(item: ItemFila) {
+  return `${item.participacao.eventoId}:${item.participacao.id}`;
+}
+
+function descreverPessoa(p: PessoaResumo) {
+  return [p.email, p.pmiId && `PMI ID ${p.pmiId}`, `${p.statusFiliacao === "filiado" ? "filiação" : "cadastro"} desde ${p.desde}`]
+    .filter(Boolean)
+    .join(" · ");
 }

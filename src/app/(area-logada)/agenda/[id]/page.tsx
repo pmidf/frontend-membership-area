@@ -67,7 +67,7 @@ async function DetalheEvento({
   const emails = usuario ? emailsVerificados(usuario) : null;
 
   return (
-    <ComParticipacao eventos={[eventoBase]} usuario={usuario} agora={agora}>
+    <ComParticipacao eventos={[eventoBase]} usuario={usuario}>
       {([evento]) => <ConteudoEvento evento={evento} emails={emails} agora={agora} />}
     </ComParticipacao>
   );

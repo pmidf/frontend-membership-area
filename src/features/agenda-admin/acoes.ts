@@ -1,84 +1,72 @@
 "use server";
 
-// Ações do console da agenda. TODO(auth): validar a sessão e o papel de Admin no início de cada ação —
-// server actions são endpoints públicos; hoje só o proxy (src/proxy.ts) restringe o acesso.
-import { revalidatePath } from "next/cache";
-import { autorAuditoria } from "@/lib/sessao";
-import { listarPessoas } from "@/lib/pessoas";
-import { atualizarEstado, registrarAuditoria } from "./armazenamento";
-import { executarSincronizacao } from "./sincronizacao";
+// Ações do console da agenda: repassam ao backend, que aplica as regras e registra a auditoria.
+// TODO(auth): validar a sessão e o papel de Admin aqui e no backend — server actions são endpoints públicos;
+// hoje só o proxy (src/proxy.ts) e a guarda provisória do backend restringem o acesso.
+import { revalidatePath, updateTag } from "next/cache";
+import { obterAdminAtual } from "@/lib/sessao";
+import { TAG_EVENTOS } from "@/features/agenda/services/agenda-service";
+import * as api from "./api";
 
-const CHAVE = /^[\w-]{1,64}:[\w-]{1,64}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Ids do Sympla (evento e participante): curtos e sem separadores. */
+const ID_SYMPLA = /^[\w-]{1,30}$/;
 
-const autor = autorAuditoria;
+async function autor() {
+  return (await obterAdminAtual()).nome;
+}
 
 function texto(formData: FormData, campo: string) {
   const valor = formData.get(campo);
   return typeof valor === "string" ? valor.trim() : "";
 }
 
-export async function sincronizarAgora() {
-  await executarSincronizacao(await autor());
+/** Inscrição vinda do formulário, como "eventoId:participanteId" (checkbox) ou em dois campos ocultos. */
+function inscricao(valor: unknown): api.Inscricao | null {
+  if (typeof valor !== "string") return null;
+  const [eventoId, participanteId] = valor.split(":");
+  return ID_SYMPLA.test(eventoId ?? "") && ID_SYMPLA.test(participanteId ?? "") ? { eventoId, participanteId } : null;
+}
+
+function inscricaoDoFormulario(formData: FormData) {
+  return inscricao(`${texto(formData, "eventoId")}:${texto(formData, "participanteId")}`);
+}
+
+/** "Atualizar agora": o backend lê tudo de novo do Sympla (sem esperar o cache de alguns minutos). */
+export async function atualizarAgora() {
+  await api.atualizar(await autor());
+  // A agenda pública também guarda os eventos em cache por alguns minutos: atualiza na hora.
+  updateTag(TAG_EVENTOS);
   revalidatePath("/admin", "layout");
 }
 
 /**
- * Vincula a participação a uma pessoa (US-05.06). Não cadastra o e-mail do Sympla como alternativo
- * (RN-05.06.1). TODO(gamificação): recalcular a pontuação da pessoa quando o ÉP-08 existir.
+ * Vincula a participação a uma pessoa (US-05.06). A busca manual (quando nenhuma sugestão serve)
+ * tem prioridade sobre as sugestões por nome.
  */
 export async function vincularParticipacao(formData: FormData) {
-  const chave = texto(formData, "chave");
-  // A busca manual (quando nenhuma sugestão serve) tem prioridade sobre as sugestões por nome.
+  const alvo = inscricaoDoFormulario(formData);
   const pessoaId = texto(formData, "pessoaManual") || texto(formData, "pessoaId");
-  const descricao = texto(formData, "descricao").slice(0, 300);
-  if (!CHAVE.test(chave) || !pessoaId) return;
-  const pessoa = (await listarPessoas()).find((p) => p.id === pessoaId);
-  if (!pessoa) return;
-
-  const por = await autor();
-  await atualizarEstado((estado) => {
-    estado.resolucoes[chave] = { tipo: "vinculo", pessoaId, em: new Date().toISOString(), por };
-    registrarAuditoria(estado, { por, acao: "Vínculo manual de participação", detalhes: `${descricao} → ${pessoa.nome}` });
-  });
+  if (!alvo || !UUID.test(pessoaId)) return;
+  await api.vincular(alvo, pessoaId, await autor());
   revalidatePath("/admin", "layout");
 }
 
 /** "Não é membro": sai da fila, mas continua contando nos números do evento (US-05.06). */
 export async function marcarNaoMembro(formData: FormData) {
-  const chaves = formData
-    .getAll("chave")
-    .filter((c): c is string => typeof c === "string" && CHAVE.test(c));
-  if (chaves.length === 0) return;
-
-  const por = await autor();
-  await atualizarEstado((estado) => {
-    for (const chave of chaves) {
-      estado.resolucoes[chave] = { tipo: "nao-membro", em: new Date().toISOString(), por };
-    }
-    registrarAuditoria(estado, {
-      por,
-      acao: "Participação marcada como não membro",
-      detalhes: `${chaves.length} participação(ões): ${chaves.join(", ")}`,
-    });
-  });
+  // Da fila vêm várias inscrições ("eventoId:participanteId"); do card "Em análise", uma só (campos ocultos).
+  const selecionadas = formData.getAll("inscricao").map(inscricao);
+  const inscricoes = selecionadas.length > 0 ? selecionadas : [inscricaoDoFormulario(formData)];
+  const validas = inscricoes.filter((i): i is api.Inscricao => i !== null);
+  if (validas.length === 0) return;
+  await api.marcarNaoMembros(validas, await autor());
   revalidatePath("/admin", "layout");
 }
 
 /** Desfaz um vínculo manual ou um "não é membro": a participação volta à fila. */
 export async function desfazerResolucao(formData: FormData) {
-  const chave = texto(formData, "chave");
-  if (!CHAVE.test(chave)) return;
-
-  const por = await autor();
-  await atualizarEstado((estado) => {
-    const anterior = estado.resolucoes[chave];
-    if (!anterior) return;
-    delete estado.resolucoes[chave];
-    registrarAuditoria(estado, {
-      por,
-      acao: anterior.tipo === "vinculo" ? "Vínculo manual desfeito" : "Marcação de não membro desfeita",
-      detalhes: chave,
-    });
-  });
+  const alvo = inscricaoDoFormulario(formData);
+  if (!alvo) return;
+  await api.desfazer(alvo, await autor());
   revalidatePath("/admin", "layout");
 }

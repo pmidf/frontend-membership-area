@@ -18,7 +18,8 @@ export type Usuario = {
 };
 
 const usuarioMock: Usuario = {
-  id: "usr-001",
+  // O backend espera o id_pessoa (UUID) da tabela `pessoa`. Troque por um id real do banco para testar.
+  id: "00000000-0000-4000-8000-000000000001",
   nome: "Maria Souza",
   statusFiliacao: "filiado",
   filiacaoValidaAte: "03/2027",
@@ -39,12 +40,6 @@ export type Admin = { nome: string; papel: string };
 /** Admin do console. TODO(auth): virá da sessão autenticada, com o papel validado no servidor. */
 export async function obterAdminAtual(): Promise<Admin> {
   return { nome: "Rafael Lima", papel: "Super admin" };
-}
-
-/** Quem fez a ação, para a auditoria do console (marcado enquanto não há autenticação). */
-export async function autorAuditoria(): Promise<string> {
-  const admin = await obterAdminAtual();
-  return `${admin.nome} (sem autenticação)`;
 }
 
 /** E-mails que permitem vincular a participação no Sympla (RN-05.02.3: só verificados). */

@@ -85,7 +85,7 @@ async function ConteudoAgenda({
     return (
       <>
         <AgendaFiltros visao={visao} categorias={categorias} />
-        <ComParticipacao eventos={doMes} usuario={usuario} agora={agora}>
+        <ComParticipacao eventos={doMes} usuario={usuario}>
           {(comStatus) => (
             <CalendarioMensal mes={mes} eventos={comStatus} agora={agora} hrefMes={(m) => hrefCom(params, { mes: m })} />
           )}
@@ -105,7 +105,7 @@ async function ConteudoAgenda({
   return (
     <>
       <AgendaFiltros visao={visao} categorias={categorias} />
-      <ComParticipacao eventos={visiveis} usuario={usuario} agora={agora}>
+      <ComParticipacao eventos={visiveis} usuario={usuario}>
         {(comStatus) => (
           <VisaoLista
             grupos={grupos}

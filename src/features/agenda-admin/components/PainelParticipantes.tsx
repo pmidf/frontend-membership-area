@@ -7,7 +7,7 @@ import { Tag } from "@/components/ui/Tag";
 import {
   filtrarParticipantes,
   rotuloCheckIn,
-  rotuloVinculoLinha,
+  rotuloVinculo,
   type FiltrosParticipantes,
   type LinhaParticipante,
 } from "../linhas-participantes";
@@ -113,16 +113,18 @@ export function PainelParticipantes({ eventoId, linhas, porTipo, encerrado }: Pa
               </thead>
               <tbody>
                 {filtradas.map((l) => (
-                  <tr key={l.chave}>
+                  <tr key={l.id}>
                     <td>{l.nome}</td>
                     <td className={styles.textoNormal}>{l.email}</td>
                     <td>{l.tipoIngresso}</td>
                     <td className={l.checkIn && !l.cancelado ? undefined : styles.textoNormal}>{rotuloCheckIn(l, encerrado)}</td>
                     <td>
-                      <Tag variante={l.vinculo === "vinculado" ? "aqua" : l.vinculo === "nao-membro" ? "neutra" : "violeta"}>
-                        {rotuloVinculoLinha(l)}
+                      <Tag variante={l.vinculo.tipo === "vinculado" ? "aqua" : l.vinculo.tipo === "nao-membro" ? "neutra" : "violeta"}>
+                        {rotuloVinculo(l.vinculo)}
                       </Tag>
-                      {l.vinculoManual && <span className={styles.secundario}>vínculo manual</span>}
+                      {l.vinculo.tipo === "vinculado" && l.vinculo.origem === "manual" && (
+                        <span className={styles.secundario}>vínculo manual</span>
+                      )}
                     </td>
                   </tr>
                 ))}

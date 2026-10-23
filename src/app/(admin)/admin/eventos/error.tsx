@@ -4,15 +4,15 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardTitulo } from "@/components/ui/Card";
 import styles from "@/features/agenda-admin/components/admin.module.css";
 
-// Falha ao falar com o Sympla (token ausente ou inválido, Sympla fora do ar ou bloqueando requisições).
+// Falha ao falar com o backend (fora do ar, BACKEND_URL incorreta ou erro na API do console).
 export default function ErroEventosAdmin({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <div className={styles.conteudo}>
       <Card>
-        <CardTitulo>Não foi possível falar com o Sympla</CardTitulo>
+        <CardTitulo>Não foi possível carregar o console</CardTitulo>
         <p className={styles.texto}>
-          Confira se o SYMPLA_TOKEN está configurado no servidor e tente novamente. Se o problema continuar, o Sympla
-          pode estar fora do ar ou limitando as requisições.
+          O backend da plataforma não respondeu. Confira se ele está no ar e se a BACKEND_URL está configurada,
+          e tente novamente.
         </p>
         <div>
           <Button tipo="secundaria" onClick={reset}>

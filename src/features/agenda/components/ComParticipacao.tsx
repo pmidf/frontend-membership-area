@@ -8,24 +8,23 @@ type Renderizar = (eventos: EventoComParticipacao[]) => React.ReactNode;
 type ComParticipacaoProps = {
   eventos: Evento[];
   usuario: Usuario | null;
-  agora: Date;
   children: Renderizar;
 };
 
 /**
  * Mostra os eventos na hora e completa com a situação da pessoa (Inscrito/Presente/Ausente) por streaming:
- * sem cache, a consulta ao Sympla leva alguns segundos e não deve segurar a página.
+ * é uma consulta pessoal ao backend, sem cache, e não deve segurar a página.
  */
-export function ComParticipacao({ eventos, usuario, agora, children }: ComParticipacaoProps) {
+export function ComParticipacao({ eventos, usuario, children }: ComParticipacaoProps) {
   return (
     <Suspense fallback={children(semParticipacao(eventos))}>
-      <ParticipacoesCarregadas eventos={eventos} usuario={usuario} agora={agora}>
+      <ParticipacoesCarregadas eventos={eventos} usuario={usuario}>
         {children}
       </ParticipacoesCarregadas>
     </Suspense>
   );
 }
 
-async function ParticipacoesCarregadas({ eventos, usuario, agora, children }: ComParticipacaoProps) {
-  return children(await comParticipacao(eventos, usuario, agora));
+async function ParticipacoesCarregadas({ eventos, usuario, children }: ComParticipacaoProps) {
+  return children(await comParticipacao(eventos, usuario));
 }

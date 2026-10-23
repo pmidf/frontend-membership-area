@@ -1,10 +1,10 @@
 import Link from "next/link";
 import styles from "./admin.module.css";
 
-export type AbaEventos = "sincronizacao" | "numeros" | "conciliacao";
+export type AbaEventos = "eventos" | "numeros" | "conciliacao";
 
 const ABAS: { id: AbaEventos; rotulo: string; href: string }[] = [
-  { id: "sincronizacao", rotulo: "Sincronização", href: "/admin/eventos" },
+  { id: "eventos", rotulo: "Eventos", href: "/admin/eventos" },
   { id: "numeros", rotulo: "Números", href: "/admin/eventos/numeros" },
   { id: "conciliacao", rotulo: "Conciliação", href: "/admin/eventos/conciliacao" },
 ];

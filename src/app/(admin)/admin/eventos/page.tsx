@@ -7,25 +7,19 @@ import { obterAdminAtual } from "@/lib/sessao";
 import { Card, CardTitulo } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { formatarDataCurta } from "@/features/agenda/lib/datas";
-import { atendeFiltros, formatoDoEvento, jaAconteceu, rotuloFormato } from "@/features/agenda/lib/regras";
-import { symplaConfigurado } from "@/features/agenda/services/sympla/cliente";
-import type { Evento, FormatoEvento } from "@/features/agenda/types";
-import { lerEstado, type Execucao } from "@/features/agenda-admin/armazenamento";
-import { sincronizarAgora } from "@/features/agenda-admin/acoes";
+import { rotuloFormato } from "@/features/agenda/lib/regras";
+import type { FormatoEvento } from "@/features/agenda/types";
+import { atualizarAgora } from "@/features/agenda-admin/acoes";
+import { eventosComNumeros } from "@/features/agenda-admin/api";
 import { AbasEventos } from "@/features/agenda-admin/components/AbasEventos";
 import { BotaoEnviar } from "@/features/agenda-admin/components/BotaoEnviar";
 import { SeletorAutoEnvio, SeletorPeriodo } from "@/features/agenda-admin/components/SeletorPeriodo";
 import styles from "@/features/agenda-admin/components/admin.module.css";
-import {
-  eventosDoPeriodo,
-  lerPeriodoAdmin,
-  numerosDosEventos,
-  type PeriodoAdmin,
-} from "@/features/agenda-admin/dados";
-import { formatarNumero, type NumerosEvento } from "@/features/agenda-admin/numeros";
-import { formatarDataHora } from "@/features/agenda-admin/formatacao";
+import { filtrarLinhas, type LinhaNumeros } from "@/features/agenda-admin/linhas-numeros";
+import { formatarNumero } from "@/features/agenda-admin/numeros";
+import { lerPeriodoAdmin, type PeriodoAdmin } from "@/features/agenda-admin/periodo";
 
-export const metadata: Metadata = { title: "Eventos e sincronização" };
+export const metadata: Metadata = { title: "Eventos" };
 
 const POR_PAGINA = 30;
 
@@ -39,10 +33,10 @@ export default async function AdminEventosPage({ searchParams }: PageProps<"/adm
         <header className={styles.cabecalhoTexto}>
           <h1 className={styles.titulo}>Eventos</h1>
           <p className={styles.subtitulo}>
-            O Sympla continua sendo a origem dos eventos e das inscrições. Aqui o capítulo acompanha a sincronização.
+            O Sympla é a origem dos eventos e das inscrições. Aqui o capítulo acompanha os eventos e as participações.
           </p>
         </header>
-        <AbasEventos ativa="sincronizacao" />
+        <AbasEventos ativa="eventos" />
 
         <Suspense fallback={<p className={styles.texto}>Carregando…</p>}>
           <Conteudo searchParams={searchParams} />
@@ -55,21 +49,21 @@ export default async function AdminEventosPage({ searchParams }: PageProps<"/adm
 async function Conteudo({ searchParams }: { searchParams: PageProps<"/admin/eventos">["searchParams"] }) {
   const params = await searchParams;
   await connection();
-  const agora = new Date();
   const periodo = lerPeriodoAdmin(params.periodo);
   const busca = typeof params.q === "string" ? params.q : undefined;
-  const formato = params.formato === "online" || params.formato === "presencial" ? (params.formato as FormatoEvento) : undefined;
+  const formato =
+    params.formato === "online" || params.formato === "presencial" ? (params.formato as FormatoEvento) : undefined;
   const limite = Math.min(Math.max(Number(params.limite) || POR_PAGINA, POR_PAGINA), 500);
 
-  const [estado, eventosPeriodo] = await Promise.all([lerEstado(), eventosDoPeriodo(periodo, agora)]);
-  const filtrados = eventosPeriodo.filter((e) => atendeFiltros(e, { busca, formato }));
-  const pagina = filtrados.slice(0, limite);
+  const { linhas } = await eventosComNumeros(periodo);
+  const filtradas = filtrarLinhas(linhas, { busca, formato });
+  const pagina = filtradas.slice(0, limite);
 
   return (
     <>
-      <CardIntegracao execucoes={estado.execucoes} totalEventos={eventosPeriodo.length} periodo={periodo} />
+      <CardIntegracao totalEventos={linhas.length} periodo={periodo} />
 
-      <Card aria-label="Eventos sincronizados">
+      <Card aria-label="Eventos do Sympla">
         {/* Filtros na URL (GET): funcionam sem JavaScript e podem ser compartilhados. */}
         <form className={styles.filtros} role="search">
           <label className={styles.campoBusca}>
@@ -90,114 +84,52 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/admin/even
           </button>
         </form>
 
-        <Suspense fallback={<TabelaEventos eventos={pagina} numeros={null} agora={agora} />}>
-          <TabelaComNumeros eventos={pagina} agora={agora} />
-        </Suspense>
+        <TabelaEventos linhas={pagina} />
 
-        {filtrados.length > pagina.length && (
+        {filtradas.length > pagina.length && (
           <Link
             href={`/admin/eventos?${new URLSearchParams({ ...(params as Record<string, string>), limite: String(limite + POR_PAGINA) })}`}
             className={styles.link}
             scroll={false}
           >
-            Ver mais eventos ({filtrados.length - pagina.length})
+            Ver mais eventos ({filtradas.length - pagina.length})
           </Link>
         )}
         <p className={styles.nota}>
-          Eventos vêm do Sympla e são somente leitura: título, data e formato são corrigidos no Sympla e refletidos na
-          próxima sincronização.
+          Eventos vêm do Sympla e são somente leitura: título, data e formato são corrigidos no Sympla e aparecem aqui
+          em até 5 minutos.
         </p>
       </Card>
     </>
   );
 }
 
-function CardIntegracao({
-  execucoes,
-  totalEventos,
-  periodo,
-}: {
-  execucoes: Execucao[];
-  totalEventos: number;
-  periodo: PeriodoAdmin;
-}) {
-  const ultima = execucoes[0];
-  const ultimaEventos = execucoes.find((e) => e.tipo === "eventos");
-  const conectado = symplaConfigurado();
-  const status = !conectado
-    ? { texto: "Token não configurado", variante: "erro" as const }
-    : ultimaEventos?.status === "falhou"
-      ? { texto: "Com falha", variante: "erro" as const }
-      : { texto: "Conectado", variante: "aqua" as const };
-
+/** O backend lê o Sympla na hora e guarda cada leitura por alguns minutos; "Atualizar agora" descarta esse cache. */
+function CardIntegracao({ totalEventos, periodo }: { totalEventos: number; periodo: PeriodoAdmin }) {
   return (
     <Card aria-labelledby="titulo-integracao">
       <div className={styles.cardCabecalho}>
         <div className={styles.cardCabecalhoTexto}>
           <CardTitulo id="titulo-integracao">Integração com o Sympla</CardTitulo>
           <p className={styles.texto}>
-            Eventos e participantes se atualizam sozinhos a cada 1 hora · eventos encerrados há mais de 7 dias, a cada
-            dia.
+            Eventos e participantes são lidos direto do Sympla, com até 5 minutos de atraso. Use “Atualizar agora” para
+            ver uma mudança feita no Sympla na hora.
           </p>
         </div>
-        <form action={sincronizarAgora} className={styles.acoes}>
-          <Tag variante={status.variante}>{status.texto}</Tag>
-          <BotaoEnviar tipo="secundaria" enviando="Sincronizando…">
-            Sincronizar agora
+        <form action={atualizarAgora} className={styles.acoes}>
+          <Tag variante="aqua">Conectado</Tag>
+          <BotaoEnviar tipo="secundaria" enviando="Atualizando…">
+            Atualizar agora
           </BotaoEnviar>
         </form>
       </div>
 
       <div className={styles.indicadores}>
-        <Indicador valor={ultima ? formatarDataHora(ultima.inicio) : "—"} rotulo="Última sincronização manual" />
-        <Indicador valor="A cada 1 h" rotulo="Atualização automática" />
-        <Indicador valor={formatarNumero(totalEventos)} rotulo={`Eventos sincronizados (${periodo === "12m" ? "12 meses" : "90 dias e próximos"})`} />
         <Indicador
-          valor={ultimaEventos?.detalhe ? `${ultimaEventos.detalhe.criados} · ${ultimaEventos.detalhe.atualizados} · ${ultimaEventos.detalhe.cancelados}` : "—"}
-          rotulo="Criados · atualizados · cancelados"
+          valor={formatarNumero(totalEventos)}
+          rotulo={`Eventos no Sympla (${periodo === "12m" ? "12 meses" : "90 dias e próximos"})`}
         />
       </div>
-
-      <h3 className={styles.subtituloCard}>Últimas execuções</h3>
-      {execucoes.length === 0 ? (
-        <p className={styles.texto}>Nenhuma sincronização manual registrada ainda.</p>
-      ) : (
-        <div className={styles.rolagem}>
-          <table className={styles.tabela}>
-            <thead>
-              <tr>
-                <th>Execução</th>
-                <th>Tipo</th>
-                <th className={styles.numero}>Registros lidos</th>
-                <th className={styles.numero}>Novos ou alterados</th>
-                <th className={styles.numero}>Erros</th>
-                <th>Duração</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {execucoes.slice(0, 8).map((execucao) => (
-                <tr key={execucao.id}>
-                  <td>{formatarDataHora(execucao.inicio, true)}</td>
-                  <td>{execucao.tipo === "eventos" ? "Eventos" : "Participantes"}</td>
-                  <td className={styles.numero}>{formatarNumero(execucao.lidos)}</td>
-                  <td className={styles.numero}>{formatarNumero(execucao.novosOuAlterados)}</td>
-                  <td className={styles.numero}>
-                    {execucao.erros}
-                    {execucao.mensagemErro && <span className={styles.secundario}>{execucao.mensagemErro}</span>}
-                  </td>
-                  <td>{(execucao.duracaoMs / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} s</td>
-                  <td>
-                    <Tag variante={execucao.status === "concluida" ? "aqua" : "erro"}>
-                      {execucao.status === "concluida" ? "Concluída" : "Falhou"}
-                    </Tag>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </Card>
   );
 }
@@ -211,20 +143,8 @@ function Indicador({ valor, rotulo }: { valor: string; rotulo: string }) {
   );
 }
 
-async function TabelaComNumeros({ eventos, agora }: { eventos: Evento[]; agora: Date }) {
-  return <TabelaEventos eventos={eventos} numeros={await numerosDosEventos(eventos, agora)} agora={agora} />;
-}
-
-function TabelaEventos({
-  eventos,
-  numeros,
-  agora,
-}: {
-  eventos: Evento[];
-  numeros: Map<string, NumerosEvento> | null;
-  agora: Date;
-}) {
-  if (eventos.length === 0) return <p className={styles.vazio}>Nenhum evento encontrado.</p>;
+function TabelaEventos({ linhas }: { linhas: LinhaNumeros[] }) {
+  if (linhas.length === 0) return <p className={styles.vazio}>Nenhum evento encontrado.</p>;
 
   return (
     <div className={styles.rolagem}>
@@ -240,32 +160,30 @@ function TabelaEventos({
           </tr>
         </thead>
         <tbody>
-          {eventos.map((evento) => (
-            <tr key={evento.id}>
+          {linhas.map((l) => (
+            <tr key={l.id}>
               <td>
-                {evento.titulo}
-                <span className={styles.secundario}>sympla_event_id {evento.id}</span>
+                {l.titulo}
+                <span className={styles.secundario}>sympla_event_id {l.id}</span>
               </td>
-              <td>{formatarDataCurta(evento.inicio)}</td>
-              <td>{rotuloFormato(formatoDoEvento(evento))}</td>
+              <td>{formatarDataCurta(l.inicio)}</td>
+              <td>{rotuloFormato(l.formato)}</td>
               <td>
-                {evento.cancelado ? (
+                {l.cancelado ? (
                   <Tag variante="erro">Cancelado</Tag>
-                ) : jaAconteceu(evento, agora) ? (
+                ) : l.encerrado ? (
                   <Tag variante="neutra">Encerrado</Tag>
                 ) : (
                   <Tag>Ativo</Tag>
                 )}
               </td>
               <td>
-                <Participacoes
-                  numeros={numeros?.get(evento.id)}
-                  carregando={numeros === null}
-                  encerrado={jaAconteceu(evento, agora) && !evento.cancelado}
-                />
+                {l.encerrado && !l.cancelado
+                  ? `${formatarNumero(l.inscritos)} · ${formatarNumero(l.presentes)} presentes`
+                  : `${formatarNumero(l.inscritos)} inscritos`}
               </td>
               <td>
-                <Link href={`/admin/eventos/${evento.id}/participantes`} className={styles.link}>
+                <Link href={`/admin/eventos/${l.id}/participantes`} className={styles.link}>
                   Ver participantes
                 </Link>
               </td>
@@ -274,25 +192,5 @@ function TabelaEventos({
         </tbody>
       </table>
     </div>
-  );
-}
-
-function Participacoes({
-  numeros,
-  carregando,
-  encerrado,
-}: {
-  numeros?: NumerosEvento;
-  carregando: boolean;
-  encerrado: boolean;
-}) {
-  if (carregando) return <span className={styles.carregando}>…</span>;
-  if (!numeros || numeros.indisponivel) return <span className={styles.erro}>Indisponível</span>;
-  return encerrado ? (
-    <>
-      {formatarNumero(numeros.inscritos)} · {formatarNumero(numeros.presentes)} presentes
-    </>
-  ) : (
-    <>{formatarNumero(numeros.inscritos)} inscritos</>
   );
 }

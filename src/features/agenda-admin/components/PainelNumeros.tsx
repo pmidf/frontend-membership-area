@@ -7,7 +7,7 @@ import { classesBotao } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { formatarDataCurta } from "@/features/agenda/lib/datas";
 import { rotuloFormato } from "@/features/agenda/lib/regras";
-import { sincronizarAgora } from "../acoes";
+import { atualizarAgora } from "../acoes";
 import { filtrarLinhas, type FiltrosNumeros, type LinhaNumeros } from "../linhas-numeros";
 import { agregar, formatarNumero, formatarTaxa } from "../numeros";
 import type { PeriodoAdmin } from "../periodo";
@@ -30,10 +30,9 @@ type PainelNumerosProps = {
   categorias: string[];
   periodo: PeriodoAdmin;
   rotuloPeriodo: string;
-  ultimaSincronizacao: string | null;
 };
 
-export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo, ultimaSincronizacao }: PainelNumerosProps) {
+export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: PainelNumerosProps) {
   const [filtros, setFiltros] = useState<FiltrosNumeros>({});
   const [ordem, setOrdem] = useState<{ campo: CampoOrdenacao; desc: boolean }>({ campo: "inicio", desc: true });
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
@@ -88,9 +87,9 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo, ulti
             </p>
           </div>
           <div className={styles.acoes}>
-            <form action={sincronizarAgora}>
-              <BotaoEnviar tipo="secundaria" enviando="Sincronizando…">
-                Sincronizar agora
+            <form action={atualizarAgora}>
+              <BotaoEnviar tipo="secundaria" enviando="Atualizando…">
+                Atualizar agora
               </BotaoEnviar>
             </form>
             {/* A exportação fica registrada na auditoria (RN-05.05.5). */}
@@ -109,8 +108,8 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo, ulti
           <Total valor={formatarTaxa(totais.taxa)} rotulo="Taxa de presença" />
         </div>
         <p className={styles.nota}>
-          Última sincronização manual de participantes: {ultimaSincronizacao ?? "nenhuma"} · os números também se
-          atualizam sozinhos a cada 1 hora.
+          Participantes lidos direto do Sympla, com até 5 minutos de atraso. A exportação fica registrada no log do
+          backend.
         </p>
       </Card>
 
@@ -193,19 +192,11 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo, ulti
                     </td>
                     <td>{formatarDataCurta(l.inicio)}</td>
                     <td>{rotuloFormato(l.formato)}</td>
-                    {l.indisponivel ? (
-                      <td colSpan={COLUNAS_NUMERICAS.length} className={styles.erro}>
-                        Sympla indisponível para este evento
-                      </td>
-                    ) : (
-                      <>
-                        <td className={styles.numero}>{formatarNumero(l.inscritos)}</td>
-                        <td className={styles.numero}>{formatarNumero(l.presentes)}</td>
-                        <td className={styles.numero}>{formatarNumero(l.ausentes)}</td>
-                        <td className={styles.numero}>{formatarNumero(l.cancelados)}</td>
-                        <td className={styles.numero}>{l.situacao === "ativo" ? "—" : formatarTaxa(l.taxa)}</td>
-                      </>
-                    )}
+                    <td className={styles.numero}>{formatarNumero(l.inscritos)}</td>
+                    <td className={styles.numero}>{formatarNumero(l.presentes)}</td>
+                    <td className={styles.numero}>{formatarNumero(l.ausentes)}</td>
+                    <td className={styles.numero}>{formatarNumero(l.cancelados)}</td>
+                    <td className={styles.numero}>{l.situacao === "ativo" ? "—" : formatarTaxa(l.taxa)}</td>
                     <td>
                       <Link href={`/admin/eventos/${l.id}/participantes`} className={styles.link}>
                         Ver participantes

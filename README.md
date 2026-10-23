@@ -48,23 +48,23 @@ US-05.01 (consultar a agenda):
 - datas sempre no fuso America/Sao_Paulo
 - versão mobile (até 768px): barra de navegação inferior no lugar da sidebar, calendário compacto com a lista do mês e detalhe em coluna única
 
-## Integração com o Sympla
+## Backend
 
-A agenda lê os eventos e as participações direto da API Pública do Sympla (v1.6.0). As chamadas acontecem no servidor do Next, em `src/features/agenda/services/`, e o token nunca chega ao navegador.
+Os dados vêm do [backend-membership-area](../backend-membership-area), que lê eventos e participantes direto do Sympla (com cache de 5 minutos) e guarda no Postgres só as pessoas e as decisões da conciliação. O frontend não fala com o Sympla nem conhece o token.
 
 ```bash
 cp .env.example .env.local
-# preencha SYMPLA_TOKEN com o token da conta organizadora do PMI-DF
+# BACKEND_URL=http://localhost:3333  (o backend precisa estar no ar: `docker compose up -d` no backend-membership-area)
 ```
 
-- **`SYMPLA_TOKEN` é obrigatório:** sem ele, a agenda e o console mostram a tela de erro.
-- **Em produção:** configure `SYMPLA_TOKEN` como secret do ambiente de deploy. Nunca use o prefixo `NEXT_PUBLIC_`.
-- **Cache:** os eventos ficam em cache por até 1 hora. Os participantes de cada evento também (1 dia para eventos encerrados há mais de 7 dias), compartilhados entre a agenda e o console.
+- Todas as chamadas ao backend acontecem no servidor do Next (`src/lib/backend.ts`).
+- A lista de eventos fica em cache por alguns minutos. A situação da pessoa e os dados do console não usam cache.
+- Sem o backend, a agenda e o console mostram a tela de erro.
 
 ## O que ainda é de exemplo
 
 - **Usuária logada** ("Maria Souza") e **Admin** ("Rafael Lima"), em `src/lib/sessao.ts`, até a autenticação (ÉP-01) existir.
-- **Base de pessoas:** vazia em `src/lib/pessoas.ts` até o ÉP-02. Por isso nenhum participante aparece vinculado a uma conta, e a conciliação só permite marcar "não é membro".
+- **Usuária logada:** o backend identifica a pessoa pelo `id_pessoa` (UUID da tabela `pessoa`). O id de exemplo em `src/lib/sessao.ts` só mostra a situação nos eventos se existir uma pessoa com esse id no banco.
 - **Módulos que ainda não existem** aparecem desabilitados na navegação.
 
 ## Console administrativo da agenda (`/admin/eventos`)
@@ -73,12 +73,12 @@ Telas do ÉP-05 para o Admin, seguindo o protótipo (telas 26 a 29):
 
 | Rota | Tela | O que faz |
 |---|---|---|
-| `/admin/eventos` | Sincronização (26) | Status da integração, "Sincronizar agora", log de execuções e lista de eventos com participações |
+| `/admin/eventos` | Eventos (26) | Integração com o Sympla, "Atualizar agora" e lista de eventos com participações |
 | `/admin/eventos/numeros` | Números (28) | Totais agregados, filtros, seleção, ordenação e exportação CSV |
 | `/admin/eventos/[id]/participantes` | Participantes (29) | Lista por evento com check-in e vínculo com conta, filtros e CSV |
 | `/admin/eventos/conciliacao` | Conciliação (27) | Fila de participações não vinculadas, sugestões por nome, vincular, "não é membro" e desfazer |
 
 - **Sem login por enquanto.** O acesso é controlado em `src/proxy.ts`, onde a autenticação vai entrar: liberado em `npm run dev` e, em produção, só com `ADMIN_HABILITADO=true`.
-- **Sem backend.** Números e participantes vêm do Sympla, com cache. Conciliações, auditoria (inclusive as exportações CSV) e o log de sincronização ficam em `data/agenda-admin.json`, fora do git. Isso exige um servidor com disco persistente.
-- **Período.** Por padrão, as telas olham os últimos 90 dias e os próximos eventos, para limitar as chamadas ao Sympla. "Últimos 12 meses" amplia a janela.
-- **Base de pessoas.** O vínculo com conta depende da base de pessoas do ÉP-02 (hoje vazia em `src/lib/pessoas.ts`).
+- **Dados no backend.** Números, participantes e conciliações vêm do backend, que lê o Sympla na hora. "Atualizar agora" descarta o cache de 5 minutos. As exportações CSV são geradas lá e só repassadas pelo Next.
+- **Período.** Por padrão, as telas olham os últimos 90 dias e os próximos eventos. "Últimos 12 meses" amplia a janela.
+- **Vínculo com conta.** Automático quando o e-mail da inscrição no Sympla é um e-mail verificado da pessoa; nos outros casos, pela conciliação. Cada inscrição é identificada por evento + participante do Sympla.

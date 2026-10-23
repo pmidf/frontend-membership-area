@@ -1,5 +1,4 @@
-// Modelo do evento como a plataforma o expõe ao frontend.
-// Origem: sincronização com GET /v1.6.0/events da API pública do Sympla (US-05.03).
+// Modelo do evento como o backend o expõe (lido do Sympla pelo backend — US-05.03).
 
 export type FormatoEvento = "online" | "presencial";
 
@@ -25,22 +24,6 @@ export type Evento = {
   /** Sem endereço → online; com endereço → presencial (formato inferido, não editável). */
   endereco: EnderecoEvento | null;
   categoria: string;
-  cancelado: boolean;
-};
-
-/**
- * Inscrição de um participante num evento, como importada do Sympla (US-05.04).
- * Só nome, e-mail, tipo e status do ingresso e check-in (RN-05.04.4): valores e formulários não entram.
- */
-export type ParticipanteEvento = {
-  /** Id do participante no Sympla. */
-  id: string;
-  eventoId: string;
-  nome: string;
-  email: string;
-  tipoIngresso: string;
-  checkIn: boolean;
-  checkInEm?: string;
   cancelado: boolean;
 };
 
