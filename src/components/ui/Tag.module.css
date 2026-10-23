@@ -1,0 +1,29 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: var(--raio-pill);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.aqua {
+  background: var(--pmi-aqua-50);
+  color: var(--pmi-aqua-600);
+}
+
+.violeta {
+  background: var(--pmi-violet-50);
+  color: var(--pmi-violet-500);
+}
+
+.neutra {
+  background: var(--apoio-neutro-100);
+  color: var(--texto-secundario);
+}
+
+.erro {
+  background: var(--fundo-erro);
+  color: var(--texto-erro);
+}

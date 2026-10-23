@@ -1,0 +1,21 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 22px;
+  background: var(--fundo-superficie);
+  border: 1px solid var(--borda-padrao);
+  border-radius: var(--raio-lg);
+}
+
+.destaque {
+  border: 2px solid var(--borda-foco);
+}
+
+.titulo {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+  color: var(--texto-primario);
+}

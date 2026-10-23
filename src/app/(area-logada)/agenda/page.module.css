@@ -1,0 +1,88 @@
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 32px 32px;
+}
+
+.cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.titulo {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+}
+
+.subtitulo {
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--texto-secundario);
+}
+
+.descricaoCard,
+.vazio {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--texto-secundario);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+.verTodos {
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  color: var(--texto-marca);
+}
+
+.verTodos:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .conteudo {
+    padding: 16px 16px 32px;
+  }
+
+  /* O protótipo mobile não exibe o cabeçalho; ele continua disponível para leitores de tela. */
+  .cabecalho {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  /* Seções da lista sem a moldura do card: cada item vira um card próprio. */
+  .secao {
+    gap: 10px;
+    padding: 0;
+    background: none;
+    border: none;
+  }
+
+  .secao h2 {
+    font-size: 16px;
+    line-height: normal;
+  }
+
+  .descricaoCard,
+  .vazio {
+    font-size: 12px;
+    line-height: normal;
+  }
+
+  .lista {
+    gap: 10px;
+  }
+}

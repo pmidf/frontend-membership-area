@@ -1,0 +1,365 @@
+/* Estilos compartilhados pelas telas do console da agenda (Figma: telas 26 a 29). */
+
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 26px 32px 32px;
+}
+
+.voltar {
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  color: var(--texto-marca);
+}
+
+.voltar:hover {
+  text-decoration: underline;
+}
+
+.cabecalho {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.cabecalhoTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.titulo {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+}
+
+.subtitulo,
+.texto {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--texto-secundario);
+}
+
+.contador {
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--texto-secundario);
+}
+
+.nota {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--texto-secundario);
+}
+
+/* Abas Eventos · Números · Conciliação */
+.abas {
+  display: flex;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 4px;
+  background: var(--fundo-superficie);
+  border: 1px solid var(--borda-padrao);
+  border-radius: var(--raio-pill);
+}
+
+.aba {
+  padding: 8px 18px;
+  border-radius: var(--raio-pill);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--texto-secundario);
+}
+
+.aba:hover {
+  color: var(--texto-marca);
+}
+
+.abaAtiva {
+  background: var(--acao-primaria);
+  color: var(--texto-inverso);
+}
+
+.abaAtiva:hover {
+  color: var(--texto-inverso);
+}
+
+/* Cabeçalho de card com ações à direita */
+.cardCabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardCabecalhoTexto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 240px;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.subtituloCard {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+}
+
+/* Indicadores (tela 26) */
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.indicador {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 16px;
+  background: var(--apoio-neutro-100);
+  border-radius: var(--raio-md);
+}
+
+.indicadorValor {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+  color: var(--texto-marca);
+}
+
+.indicadorRotulo {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--texto-secundario);
+}
+
+/* Totais grandes (telas 28 e 29) */
+.totais {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 14px;
+}
+
+.totalValor {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
+
+.totalRotulo {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--texto-secundario);
+}
+
+/* Filtros */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.busca {
+  flex: 1 1 260px;
+  height: 52px;
+  padding: 15px 16px;
+  background: var(--fundo-campo);
+  border: 1px solid var(--borda-padrao);
+  border-radius: var(--raio-md);
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.busca::placeholder {
+  color: var(--texto-placeholder);
+}
+
+.seletor {
+  appearance: none;
+  height: 50px;
+  padding: 14px 36px 14px 16px;
+  background: var(--apoio-neutro-100)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%234a4f57' stroke-width='1.5' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E")
+    no-repeat right 14px center;
+  border: none;
+  border-radius: var(--raio-md);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--texto-secundario);
+  cursor: pointer;
+}
+
+/* Tabelas */
+.rolagem {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.tabela th {
+  padding: 6px 10px 6px 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: left;
+  color: var(--texto-placeholder);
+  white-space: nowrap;
+}
+
+.tabela td {
+  padding: 13px 10px 13px 0;
+  vertical-align: top;
+  font-weight: 500;
+  border-top: 1px solid var(--borda-padrao);
+}
+
+.tabela .numero {
+  text-align: right;
+  padding-right: 18px;
+}
+
+.tabela th.numero {
+  text-align: right;
+}
+
+.ordenar {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ordenar:hover,
+.ordenar[aria-pressed="true"] {
+  color: var(--texto-marca);
+}
+
+.secundario {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--texto-secundario);
+}
+
+.link {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--texto-marca);
+  white-space: nowrap;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.vazio {
+  padding: 16px 0;
+  font-size: 14px;
+  color: var(--texto-secundario);
+}
+
+.carregando {
+  color: var(--texto-placeholder);
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--acao-primaria);
+  cursor: pointer;
+}
+
+.erro {
+  color: var(--texto-erro);
+}
+
+@media (max-width: 768px) {
+  .conteudo {
+    padding: 16px;
+  }
+
+  .titulo {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .cabecalho {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .abas {
+    align-self: stretch;
+    overflow-x: auto;
+  }
+}
+
+.campoBusca {
+  display: flex;
+  flex: 1 1 260px;
+}
+
+.campoBusca .busca {
+  width: 100%;
+}
+
+.botaoFiltro {
+  display: inline-flex;
+  align-items: center;
+  height: 50px;
+  padding: 0 18px;
+  background: var(--fundo-superficie);
+  border: 1px solid var(--borda-padrao);
+  border-radius: var(--raio-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--texto-marca);
+  cursor: pointer;
+}
+
+.botaoFiltro:hover {
+  background: var(--fundo-sutil);
+}
+
+.textoNormal {
+  font-weight: 400;
+  color: var(--texto-secundario);
+}
+
+.colunaEvento {
+  min-width: 240px;
+}

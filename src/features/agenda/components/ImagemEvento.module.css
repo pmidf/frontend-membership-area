@@ -1,0 +1,7 @@
+.imagem {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+  border-radius: var(--raio-md);
+  background-image: linear-gradient(147deg, #200f3b 0%, #4f17a8 70.7%);
+}

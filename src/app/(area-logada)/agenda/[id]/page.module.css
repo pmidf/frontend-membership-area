@@ -1,0 +1,263 @@
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 32px 32px;
+}
+
+.voltar {
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  color: var(--texto-marca);
+}
+
+.voltar:hover {
+  text-decoration: underline;
+}
+
+.colunas {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.coluna {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.colunaLateral {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0;
+  width: 360px;
+}
+
+.cardPrincipal {
+  gap: 14px;
+}
+
+.imagem {
+  height: 240px;
+}
+
+.selos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.titulo {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 48px;
+}
+
+.info {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--texto-secundario);
+}
+
+.descricao {
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--texto-secundario);
+  white-space: pre-line;
+}
+
+.mapa {
+  width: 100%;
+  height: 260px;
+  border: 0;
+  border-radius: var(--raio-md);
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.campos div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.campos dt {
+  color: var(--texto-secundario);
+}
+
+.campos dd {
+  text-align: right;
+  color: var(--texto-primario);
+}
+
+.ics {
+  align-self: center;
+}
+
+.aviso {
+  padding: 14px 16px;
+  background: var(--apoio-neutro-100);
+  border-radius: var(--raio-md);
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  color: var(--texto-secundario);
+}
+
+.emails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+.emails li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 14px;
+  background: var(--apoio-neutro-100);
+  border-radius: var(--raio-md);
+}
+
+.endereco {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.tipoEmail {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--texto-secundario);
+}
+
+.acoesDesktop {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.acoesMobile {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .colunas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .colunaLateral {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .conteudo {
+    padding: 16px 16px 32px;
+  }
+
+  .voltar {
+    line-height: normal;
+  }
+
+  /* Conteúdo principal direto sobre o fundo, sem a moldura do card. */
+  .cardPrincipal {
+    gap: 20px;
+    padding: 0;
+    background: none;
+    border: none;
+  }
+
+  .imagem {
+    height: 180px;
+    border-radius: 16px;
+  }
+
+  .selos {
+    gap: 6px;
+  }
+
+  .titulo {
+    font-size: 22px;
+    line-height: normal;
+  }
+
+  .info {
+    font-size: 13px;
+    line-height: normal;
+  }
+
+  .descricao {
+    font-size: 13px;
+    line-height: normal;
+    color: var(--texto-primario);
+  }
+
+  .acoesDesktop {
+    display: none;
+  }
+
+  .acoesMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .acoesMobile .ics {
+    height: 52px;
+    font-size: 16px;
+  }
+
+  .colunas,
+  .coluna,
+  .colunaLateral {
+    gap: 20px;
+  }
+
+  .colunaLateral > section,
+  .coluna > section {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .colunaLateral h2,
+  .coluna > section h2 {
+    font-size: 15px;
+    line-height: normal;
+  }
+
+  .campos dd {
+    font-weight: 500;
+  }
+
+  .emails li {
+    padding: 10px 12px;
+    background: var(--fundo-sutil);
+    border-radius: 10px;
+  }
+
+  .endereco {
+    font-size: 12px;
+    line-height: normal;
+  }
+
+  .tipoEmail {
+    font-size: 11px;
+    line-height: normal;
+  }
+}
