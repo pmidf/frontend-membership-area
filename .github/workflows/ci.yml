@@ -25,11 +25,17 @@ jobs:
       - run: npm run format:check
       - run: npm run test:coverage
       - run: npm run build
+        env:
+          EXIBIR_COMPONENTES: "true"
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e
-      - if: failure()
+        env:
+          EXIBIR_COMPONENTES: "true"
+      - if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: relatorio-playwright
-          path: playwright-report
-          retention-days: 7
+          name: relatorio-e-capturas
+          path: |
+            playwright-report
+            test-results/capturas
+          retention-days: 14

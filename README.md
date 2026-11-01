@@ -47,9 +47,10 @@ O backend libera o CORS e monta os links dos e-mails (confirmação, redefiniç�
 
 ### Variáveis de ambiente
 
-| Variável      | Para quê                                                                                                                                                  |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BACKEND_URL` | Endereço do backend para onde o Next encaminha `/api/*`. Lida no servidor; nunca use o prefixo `NEXT_PUBLIC_`. Deve estar definida também no `next build` |
+| Variável             | Para quê                                                                                                                                                  |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BACKEND_URL`        | Endereço do backend para onde o Next encaminha `/api/*`. Lida no servidor; nunca use o prefixo `NEXT_PUBLIC_`. Deve estar definida também no `next build` |
+| `EXIBIR_COMPONENTES` | `true` libera a página `/_componentes`, o catálogo do design system. Lida no `next build`; não defina em produção                                         |
 
 ## Scripts
 
