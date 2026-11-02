@@ -53,12 +53,19 @@ async function enviar(caminho: string, opcoes: OpcoesRequisicao): Promise<Respon
   }
 }
 
+async function sessaoRenovada(tokenEnviado: string | null): Promise<boolean> {
+  const tokenAtual = obterToken();
+  if (tokenAtual && tokenAtual !== tokenEnviado) return true;
+  return renovarSessao();
+}
+
 export async function buscar(caminho: string, opcoes: OpcoesRequisicao = {}): Promise<Response> {
+  const tokenEnviado = obterToken();
   let resposta = await enviar(caminho, opcoes);
   const podeRenovar = resposta.status === 401 && !caminho.startsWith("/auth/");
 
   if (podeRenovar) {
-    if (await renovarSessao()) {
+    if (await sessaoRenovada(tokenEnviado)) {
       resposta = await enviar(caminho, opcoes);
     } else {
       expirarSessao();
