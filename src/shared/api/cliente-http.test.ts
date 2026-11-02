@@ -140,6 +140,29 @@ describe("requisicao", () => {
     expect(obterToken()).toBe("novo");
   });
 
+  it("não renova de novo quando o 401 chega depois de a sessão já ter sido renovada", async () => {
+    iniciarSessao({ access_token: "vencido", expira_em_segundos: 900 });
+    const renovacoes = vi.fn();
+    servidor.use(
+      http.post("*/api/auth/refresh", () => {
+        renovacoes();
+        return HttpResponse.json({ access_token: "novo", expira_em_segundos: 900 });
+      }),
+      http.get("*/api/recurso/:id", async ({ request, params }) => {
+        if (request.headers.get("Authorization") === "Bearer novo") {
+          return HttpResponse.json({ id: params.id });
+        }
+        await new Promise((resolver) => setTimeout(resolver, Number(params.id) * 30));
+        return new HttpResponse(null, { status: 401 });
+      }),
+    );
+
+    const resultados = await Promise.all(["1", "2", "3"].map((id) => api.obter(`/recurso/${id}`)));
+
+    expect(resultados).toEqual([{ id: "1" }, { id: "2" }, { id: "3" }]);
+    expect(renovacoes).toHaveBeenCalledOnce();
+  });
+
   it("encerra a sessão local e avisa quando o refresh falha", async () => {
     iniciarSessao({ access_token: "vencido", expira_em_segundos: 900 });
     const aoExpirar = vi.fn();
