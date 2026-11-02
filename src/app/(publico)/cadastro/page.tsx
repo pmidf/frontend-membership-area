@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { AssistenteCadastro } from "@/features/auth/components/cadastro/AssistenteCadastro";
 
 export const metadata: Metadata = { title: "Criar conta" };
 
 export default function PaginaCadastro() {
-  return <EmConstrucao titulo="Criar conta" />;
+  return <AssistenteCadastro />;
 }

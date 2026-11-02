@@ -30,23 +30,25 @@ export function PainelInstitucional() {
         <p className="max-w-xs text-corpo-pequeno">{frase}</p>
       </header>
 
-      <aside className="sticky top-0 hidden h-screen w-120 shrink-0 flex-col justify-between bg-linear-to-br from-violeta-950 to-violeta-500 p-12 text-texto-inverso lg:flex">
-        <Logo />
-        <div className="flex flex-col gap-8">
-          <p className="text-display">{frase}</p>
-          <ul className="flex flex-col gap-4">
-            {destaques.map((destaque) => (
-              <li key={destaque} className="flex items-center gap-3 text-corpo">
-                <span
-                  aria-hidden="true"
-                  className="size-2 shrink-0 rounded-pill bg-acao-destaque"
-                />
-                {destaque}
-              </li>
-            ))}
-          </ul>
+      <aside className="hidden w-120 shrink-0 bg-linear-to-br from-violeta-950 to-violeta-500 text-texto-inverso lg:block">
+        <div className="sticky top-0 flex h-screen flex-col justify-between p-12">
+          <Logo />
+          <div className="flex flex-col gap-8">
+            <p className="text-display">{frase}</p>
+            <ul className="flex flex-col gap-4">
+              {destaques.map((destaque) => (
+                <li key={destaque} className="flex items-center gap-3 text-corpo">
+                  <span
+                    aria-hidden="true"
+                    className="size-2 shrink-0 rounded-pill bg-acao-destaque"
+                  />
+                  {destaque}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="text-legenda text-violeta-300">PMI-DF · Project Management Institute</p>
         </div>
-        <p className="text-legenda text-violeta-300">PMI-DF · Project Management Institute</p>
       </aside>
     </>
   );

@@ -13,6 +13,7 @@ import { useSessao } from "@/shared/sessao/useSessao";
 import { Alerta, Botao, CampoSenha, CampoTexto, useAvisos } from "@/shared/ui";
 
 import { useEntrar } from "../api/auth.queries";
+import { caminhoDeConfirmacao } from "../lib/caminhos";
 import { esquemaLogin, type DadosFormularioLogin } from "../schemas/login.schema";
 
 const CODIGOS_SEM_NOVA_TENTATIVA = new Set(["CREDENCIAIS_INVALIDAS", "CONTA_SUSPENSA"]);
@@ -28,10 +29,6 @@ function alertaDoErro(erro: unknown): AlertaLogin | null {
     mensagem: mensagemDeErro(erro),
     permiteNovaTentativa: !CODIGOS_SEM_NOVA_TENTATIVA.has(codigo),
   };
-}
-
-export function caminhoDeConfirmacao(email: string): string {
-  return `/confirmar-email?email=${encodeURIComponent(email)}`;
 }
 
 export function FormularioLogin() {

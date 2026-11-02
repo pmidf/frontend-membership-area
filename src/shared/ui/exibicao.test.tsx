@@ -57,6 +57,12 @@ describe("Alerta", () => {
     expect(screen.getByRole("button", { name: "Entrar" })).toBeInTheDocument();
   });
 
+  it("usa o tom da marca para orientações", () => {
+    render(<Alerta tom="marca" titulo="Cadastre-se com o mesmo e-mail que você usa no PMI" />);
+
+    expect(screen.getByRole("status")).toHaveClass("bg-violeta-50");
+  });
+
   it("oferece o botão de dispensar quando recebe aoFechar", async () => {
     const aoFechar = vi.fn();
     render(<Alerta titulo="Sua filiação vence em breve" aoFechar={aoFechar} />);
