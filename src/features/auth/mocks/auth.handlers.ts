@@ -53,3 +53,20 @@ export const handlersCadastro = [
       : HttpResponse.json({ erro: "true" }),
   ),
 ];
+
+export const CODIGO_TESTE = "123456";
+
+export const handlersConfirmacao = [
+  http.post("*/api/auth/confirmar-email", async ({ request }) => {
+    const { codigo } = (await request.json()) as { email: string; codigo: string };
+    if (codigo !== CODIGO_TESTE) {
+      return HttpResponse.json({ codigo: "CODIGO_INVALIDO" }, { status: 422 });
+    }
+    return HttpResponse.json({
+      access_token: TOKEN_TESTE,
+      expira_em_segundos: 900,
+      filiacao: { situacao: "SEM_VINCULO", resultado: null },
+    });
+  }),
+  http.post("*/api/auth/confirmar-email/reenviar", () => new HttpResponse(null, { status: 202 })),
+];

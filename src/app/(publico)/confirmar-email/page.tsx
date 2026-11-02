@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { ConfirmacaoEmailPelaUrl } from "@/features/auth/components/confirmacao/ConfirmacaoEmail";
+import { CarregandoSessao } from "@/shared/sessao/ExigeLogin";
 
 export const metadata: Metadata = { title: "Confirmar e-mail" };
 
 export default function PaginaConfirmarEmail() {
-  return <EmConstrucao titulo="Confirmar e-mail" />;
+  return (
+    <Suspense fallback={<CarregandoSessao />}>
+      <ConfirmacaoEmailPelaUrl />
+    </Suspense>
+  );
 }

@@ -1,6 +1,10 @@
 import { setupServer } from "msw/node";
 
-import { handlersAuth, handlersCadastro } from "@/features/auth/mocks/auth.handlers";
+import {
+  handlersAuth,
+  handlersCadastro,
+  handlersConfirmacao,
+} from "@/features/auth/mocks/auth.handlers";
 import { handlersConversao } from "@/features/conversao/mocks/conversao.handlers";
 import { handlersSaude } from "@/features/saude/mocks/saude.handlers";
 
@@ -10,6 +14,7 @@ export const servidor = setupServer(
   ...handlersSaude,
   ...handlersAuth,
   ...handlersCadastro,
+  ...handlersConfirmacao,
   ...handlersConversao,
   ...handlersSessao(null),
 );
