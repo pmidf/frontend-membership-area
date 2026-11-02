@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 import { somenteDigitos } from "@/shared/lib/mascaras";
+import { esquemaSenhaNova } from "@/shared/senha/regras-senha";
 import type { Escolaridade, Genero } from "@/shared/sessao/tipos";
 
 import { rotulosEscolaridade, rotulosGenero, UFS } from "../lib/opcoes-cadastro";
-import { esquemaSenhaNova } from "./senha.schema";
 
 export const IDADE_MINIMA = 18;
 export const FORMATO_PMI_ID = /^\d{1,20}$/;
