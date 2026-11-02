@@ -22,6 +22,35 @@ test("o catálogo não tem violações sérias de acessibilidade", async ({ page
   expect(graves).toEqual([]);
 });
 
+test("o modal prende o foco, fecha com Esc e devolve o foco ao gatilho", async ({ page }, info) => {
+  const gatilho = page.getByRole("button", { name: "Abrir modal" });
+  await gatilho.click();
+
+  const dialogo = page.getByRole("dialog", { name: "Seu código está pronto" });
+  await expect(dialogo).toBeVisible();
+  await page.screenshot({ path: `test-results/capturas/modal-${info.project.name}.png` });
+  const { violations } = await new AxeBuilder({ page }).include("dialog").analyze();
+  expect(violations.filter(({ impact }) => impact === "serious" || impact === "critical")).toEqual(
+    [],
+  );
+
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await expect(dialogo.getByRole("button", { name: "Fechar" })).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(dialogo).toBeHidden();
+  await expect(gatilho).toBeFocused();
+});
+
+test("o aviso aparece e some sozinho", async ({ page }) => {
+  await page.getByRole("button", { name: "Aviso de sucesso" }).click();
+  const regiao = page.getByRole("region", { name: "Avisos", exact: true });
+
+  await expect(regiao).toContainText("Vaga publicada");
+  await expect(regiao).not.toContainText("Vaga publicada", { timeout: 7000 });
+});
+
 test("o campo de código aceita o código colado", async ({ page }) => {
   const primeiro = page.getByRole("textbox", { name: "Dígito 1 de 6" }).first();
   await primeiro.click();

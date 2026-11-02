@@ -18,6 +18,7 @@ import {
   Interruptor,
 } from "@/shared/ui";
 
+import { CatalogoExibicao } from "./CatalogoExibicao";
 import { FormularioDemonstracao } from "./FormularioDemonstracao";
 import { SecaoCatalogo } from "./SecaoCatalogo";
 
@@ -133,6 +134,8 @@ export function CatalogoComponentes() {
       <SecaoCatalogo titulo="Formulário com validação">
         <FormularioDemonstracao />
       </SecaoCatalogo>
+
+      <CatalogoExibicao />
     </div>
   );
 }
