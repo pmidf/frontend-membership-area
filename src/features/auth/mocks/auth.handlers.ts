@@ -70,3 +70,20 @@ export const handlersConfirmacao = [
   }),
   http.post("*/api/auth/confirmar-email/reenviar", () => new HttpResponse(null, { status: 202 })),
 ];
+
+export const TOKEN_SENHA_VALIDO = "token-valido";
+
+export const handlersSenha = [
+  http.post("*/api/auth/senha/esqueci", () => new HttpResponse(null, { status: 202 })),
+  http.get("*/api/auth/senha/redefinir/validar", ({ request }) =>
+    HttpResponse.json({
+      valido: new URL(request.url).searchParams.get("token") === TOKEN_SENHA_VALIDO,
+    }),
+  ),
+  http.post("*/api/auth/senha/redefinir", async ({ request }) => {
+    const { token } = (await request.json()) as { token: string; nova_senha: string };
+    return token === TOKEN_SENHA_VALIDO
+      ? new HttpResponse(null, { status: 204 })
+      : HttpResponse.json({ codigo: "TOKEN_INVALIDO" }, { status: 422 });
+  }),
+];
