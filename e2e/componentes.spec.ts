@@ -60,3 +60,16 @@ test("o campo de código aceita o código colado", async ({ page }) => {
 
   await expect(page.getByRole("textbox", { name: "Dígito 6 de 6" }).first()).toHaveValue("4");
 });
+
+test("a prévia freemium deixa fora do teclado só os itens bloqueados", async ({ page }, info) => {
+  const secao = page.getByRole("region", { name: "Freemium" });
+  await secao.screenshot({ path: `test-results/capturas/freemium-${info.project.name}.png` });
+
+  await expect(secao.getByText("2 conteúdos exclusivos para filiados")).toBeAttached();
+  await expect(secao.locator("[data-bloqueado]")).toHaveCount(2);
+  await expect(secao.locator("[data-bloqueado]").first()).toHaveAttribute("inert", "");
+  await expect(secao.getByRole("link", { name: /Quero ser filiado/ }).first()).toHaveAttribute(
+    "target",
+    "_blank",
+  );
+});

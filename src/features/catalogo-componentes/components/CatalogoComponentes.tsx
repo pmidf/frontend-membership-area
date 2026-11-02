@@ -19,6 +19,7 @@ import {
 } from "@/shared/ui";
 
 import { CatalogoExibicao } from "./CatalogoExibicao";
+import { CatalogoFreemium } from "./CatalogoFreemium";
 import { FormularioDemonstracao } from "./FormularioDemonstracao";
 import { SecaoCatalogo } from "./SecaoCatalogo";
 
@@ -136,6 +137,8 @@ export function CatalogoComponentes() {
       </SecaoCatalogo>
 
       <CatalogoExibicao />
+
+      <CatalogoFreemium />
     </div>
   );
 }
