@@ -4,10 +4,9 @@ import { somenteDigitos } from "@/shared/lib/mascaras";
 import type { Escolaridade, Genero } from "@/shared/sessao/tipos";
 
 import { rotulosEscolaridade, rotulosGenero, UFS } from "../lib/opcoes-cadastro";
-import { TAMANHO_MAXIMO_SENHA } from "./login.schema";
+import { esquemaSenhaNova } from "./senha.schema";
 
 export const IDADE_MINIMA = 18;
-export const TAMANHO_MINIMO_SENHA = 10;
 export const FORMATO_PMI_ID = /^\d{1,20}$/;
 
 const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -46,10 +45,7 @@ export const esquemaCadastro = z
       .min(1, "Informe seu e-mail")
       .max(254, "Use no máximo 254 caracteres")
       .pipe(z.email("Informe um e-mail válido")),
-    senha: z
-      .string()
-      .min(TAMANHO_MINIMO_SENHA, `Use pelo menos ${TAMANHO_MINIMO_SENHA} caracteres`)
-      .max(TAMANHO_MAXIMO_SENHA, `Use no máximo ${TAMANHO_MAXIMO_SENHA} caracteres`),
+    senha: esquemaSenhaNova,
     aceite_termos: z.boolean().refine((aceite) => aceite, {
       error: "É preciso aceitar os Termos de Uso e a Política de Privacidade",
     }),
