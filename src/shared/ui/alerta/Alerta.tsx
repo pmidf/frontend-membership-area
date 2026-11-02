@@ -3,10 +3,11 @@ import type { ReactNode } from "react";
 
 import { cn } from "../lib/cn";
 
-export type TomAlerta = "informacao" | "sucesso" | "alerta" | "erro";
+export type TomAlerta = "informacao" | "marca" | "sucesso" | "alerta" | "erro";
 
 const estilos: Record<TomAlerta, { classe: string; icone: LucideIcon; cor: string }> = {
   informacao: { classe: "border-aqua-600 bg-aqua-50", icone: Info, cor: "text-aqua-600" },
+  marca: { classe: "border-violeta-300 bg-violeta-50", icone: Info, cor: "text-texto-marca" },
   sucesso: {
     classe: "border-sucesso-700 bg-sucesso-50",
     icone: CircleCheck,
