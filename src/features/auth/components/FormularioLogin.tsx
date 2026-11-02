@@ -10,7 +10,7 @@ import { ehErroApi } from "@/shared/api/erro-api";
 import { mensagemDeErro } from "@/shared/api/mensagens-erro";
 import { destinoDaUrlAtual } from "@/shared/sessao/destino-seguro";
 import { useSessao } from "@/shared/sessao/useSessao";
-import { Alerta, Botao, CampoSenha, CampoTexto, useAvisos } from "@/shared/ui";
+import { Alerta, Botao, CampoSenha, CampoTexto } from "@/shared/ui";
 
 import { useEntrar } from "../api/auth.queries";
 import { caminhoDeConfirmacao } from "../lib/caminhos";
@@ -34,7 +34,6 @@ function alertaDoErro(erro: unknown): AlertaLogin | null {
 export function FormularioLogin() {
   const roteador = useRouter();
   const sessao = useSessao();
-  const avisos = useAvisos();
   const login = useEntrar();
   const {
     register,
@@ -51,8 +50,7 @@ export function FormularioLogin() {
     if (!ehErroApi(erro)) return;
     if (erro.codigo === "CREDENCIAIS_INVALIDAS") resetField("senha");
     if (erro.codigo === "EMAIL_NAO_CONFIRMADO") {
-      avisos.informacao("Confirme seu e-mail para entrar.");
-      roteador.push(caminhoDeConfirmacao(dados.email));
+      roteador.push(caminhoDeConfirmacao(dados.email.trim(), "login"));
     }
     aplicarErrosDeCampo(erro, setError);
   }

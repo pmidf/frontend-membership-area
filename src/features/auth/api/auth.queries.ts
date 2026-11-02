@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { cadastrar, entrar, preConsultar } from "./auth.api";
+import { cadastrar, confirmarEmail, entrar, preConsultar, reenviarCodigo } from "./auth.api";
 import { buscarEndereco } from "./cep.api";
 
 export function useEntrar() {
@@ -17,4 +17,12 @@ export function useCadastrar() {
 
 export function useBuscarEndereco() {
   return useMutation({ mutationFn: buscarEndereco });
+}
+
+export function useConfirmarEmail() {
+  return useMutation({ mutationFn: confirmarEmail });
+}
+
+export function useReenviarCodigo() {
+  return useMutation({ mutationFn: reenviarCodigo });
 }

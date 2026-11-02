@@ -67,7 +67,7 @@ describe("FormularioLogin", () => {
     expect(screen.getByLabelText("Senha")).toHaveValue("");
   });
 
-  it("leva o e-mail não confirmado à tela de confirmação com aviso", async () => {
+  it("leva o e-mail não confirmado à tela de confirmação, indicando a origem", async () => {
     renderizar(<FormularioLogin />);
 
     await preencher("pendente@teste.pmidf.org.br", SENHA_TESTE);
@@ -75,10 +75,9 @@ describe("FormularioLogin", () => {
 
     await waitFor(() =>
       expect(roteadorFalso.push).toHaveBeenCalledWith(
-        "/confirmar-email?email=pendente%40teste.pmidf.org.br",
+        "/confirmar-email?email=pendente%40teste.pmidf.org.br&origem=login",
       ),
     );
-    expect(await screen.findByText("Confirme seu e-mail para entrar.")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
