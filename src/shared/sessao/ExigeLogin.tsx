@@ -17,13 +17,17 @@ export function CarregandoSessao() {
 }
 
 export function ExigeLogin({ children }: { children: ReactNode }) {
-  const { estado } = useSessao();
+  const { estado, saiuPorEscolha } = useSessao();
   const roteador = useRouter();
 
   useEffect(() => {
     if (estado !== "anonimo") return;
-    roteador.replace(caminhoDeLogin(`${window.location.pathname}${window.location.search}`));
-  }, [estado, roteador]);
+    roteador.replace(
+      saiuPorEscolha
+        ? "/login"
+        : caminhoDeLogin(`${window.location.pathname}${window.location.search}`),
+    );
+  }, [estado, saiuPorEscolha, roteador]);
 
   if (estado !== "autenticado") return <CarregandoSessao />;
   return <>{children}</>;

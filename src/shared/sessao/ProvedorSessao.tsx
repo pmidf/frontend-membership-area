@@ -21,6 +21,7 @@ export type ValorSessao = {
   perfil: Perfil | null;
   ehFiliado: boolean;
   ehAdmin: boolean;
+  saiuPorEscolha: boolean;
   entrar: (sessao: SessaoEmitida) => Promise<void>;
   sair: () => Promise<void>;
 };
@@ -31,6 +32,7 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
   const clienteConsultas = useQueryClient();
   const [inicializada, setInicializada] = useState(false);
   const [temToken, setTemToken] = useState(false);
+  const [saiuPorEscolha, setSaiuPorEscolha] = useState(false);
 
   const consultaPerfil = useQuery({
     queryKey: chavesSessao.perfil,
@@ -62,6 +64,7 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
   const entrar = useCallback(
     async (sessao: SessaoEmitida) => {
       iniciarSessao(sessao);
+      setSaiuPorEscolha(false);
       setTemToken(true);
       setInicializada(true);
       await clienteConsultas.invalidateQueries({ queryKey: chavesSessao.perfil });
@@ -71,6 +74,7 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
 
   const sair = useCallback(async () => {
     await encerrarSessaoNoServidor().catch(() => undefined);
+    setSaiuPorEscolha(true);
     encerrarLocalmente();
   }, [encerrarLocalmente]);
 
@@ -85,10 +89,19 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
       perfil,
       ehFiliado: perfil?.papeis.filiado ?? false,
       ehAdmin: perfil?.papeis.admin ?? false,
+      saiuPorEscolha,
       entrar,
       sair,
     };
-  }, [inicializada, temToken, consultaPerfil.data, consultaPerfil.isError, entrar, sair]);
+  }, [
+    inicializada,
+    temToken,
+    saiuPorEscolha,
+    consultaPerfil.data,
+    consultaPerfil.isError,
+    entrar,
+    sair,
+  ]);
 
   return <ContextoSessao.Provider value={valor}>{children}</ContextoSessao.Provider>;
 }

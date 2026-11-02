@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 
 import { Alerta } from "./alerta/Alerta";
 import { Avatar } from "./avatar/Avatar";
@@ -54,6 +55,15 @@ describe("Alerta", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Os dados não conferemVerifique o PMI ID.");
     expect(screen.getByRole("status")).toHaveTextContent("Filiação confirmada");
     expect(screen.getByRole("button", { name: "Entrar" })).toBeInTheDocument();
+  });
+
+  it("oferece o botão de dispensar quando recebe aoFechar", async () => {
+    const aoFechar = vi.fn();
+    render(<Alerta titulo="Sua filiação vence em breve" aoFechar={aoFechar} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Dispensar aviso" }));
+
+    expect(aoFechar).toHaveBeenCalledOnce();
   });
 });
 

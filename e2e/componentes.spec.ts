@@ -73,3 +73,9 @@ test("a prévia freemium deixa fora do teclado só os itens bloqueados", async (
     "_blank",
   );
 });
+
+test("o catálogo mostra a saúde da API", async ({ page }) => {
+  await expect(page.getByRole("region", { name: "Saúde da API" }).getByRole("status")).toHaveText(
+    "API disponível",
+  );
+});
