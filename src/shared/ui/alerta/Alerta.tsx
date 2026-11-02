@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, Info, TriangleAlert, type LucideIcon } from "lucide-react";
+import { CircleAlert, CircleCheck, Info, TriangleAlert, X, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { cn } from "../lib/cn";
@@ -25,10 +25,18 @@ type PropsAlerta = {
   titulo?: ReactNode;
   children?: ReactNode;
   acao?: ReactNode;
+  aoFechar?: () => void;
   className?: string;
 };
 
-export function Alerta({ tom = "informacao", titulo, children, acao, className }: PropsAlerta) {
+export function Alerta({
+  tom = "informacao",
+  titulo,
+  children,
+  acao,
+  aoFechar,
+  className,
+}: PropsAlerta) {
   const { classe, icone: Icone, cor } = estilos[tom];
 
   return (
@@ -42,6 +50,16 @@ export function Alerta({ tom = "informacao", titulo, children, acao, className }
         {children && <div className="text-corpo-pequeno text-texto-secundario">{children}</div>}
         {acao && <div className="mt-1">{acao}</div>}
       </div>
+      {aoFechar && (
+        <button
+          type="button"
+          onClick={aoFechar}
+          aria-label="Dispensar aviso"
+          className="-m-1 flex size-8 shrink-0 items-center justify-center rounded-sm text-texto-secundario hover:bg-branco/60 focus-visible:outline-2 focus-visible:outline-acao-destaque"
+        >
+          <X aria-hidden="true" className="size-4" />
+        </button>
+      )}
     </div>
   );
 }

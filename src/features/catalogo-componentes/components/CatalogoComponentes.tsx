@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
+import { EstadoApi } from "@/features/saude/components/EstadoApi";
 import {
   Botao,
   CaixaSelecao,
@@ -42,6 +43,10 @@ export function CatalogoComponentes() {
           Catálogo do design system da Área de Membros, para revisão visual e de acessibilidade.
         </p>
       </header>
+
+      <SecaoCatalogo titulo="Saúde da API">
+        <EstadoApi />
+      </SecaoCatalogo>
 
       <SecaoCatalogo titulo="Botões">
         <div className="flex flex-wrap items-center gap-3">

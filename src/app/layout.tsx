@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Área de Membros · PMI-DF",
+  title: { default: "Área de Membros · PMI-DF", template: "%s · Área de Membros PMI-DF" },
   description: "Benefícios, conteúdo, eventos e oportunidades para a comunidade do PMI-DF.",
 };
 

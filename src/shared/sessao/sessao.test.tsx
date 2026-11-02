@@ -12,7 +12,9 @@ import { servidor } from "@/test/servidor";
 
 import { ExigeAdmin } from "./ExigeAdmin";
 import { ExigeLogin } from "./ExigeLogin";
+import { RedirecionarPorSessao } from "./RedirecionarPorSessao";
 import { SomenteFiliado } from "./SomenteFiliado";
+import { SomenteVisitante } from "./SomenteVisitante";
 import { useSessao } from "./useSessao";
 
 function Painel() {
@@ -115,6 +117,20 @@ describe("guardas", () => {
     expect(roteadorFalso.replace).not.toHaveBeenCalled();
   });
 
+  it("ExigeLogin leva ao login sem destino quando a pessoa escolhe sair", async () => {
+    renderizar(
+      <ExigeLogin>
+        <Painel />
+      </ExigeLogin>,
+      { sessao: perfilFiliado },
+    );
+
+    await userEvent.click(await screen.findByRole("button", { name: "Sair" }));
+
+    await waitFor(() => expect(roteadorFalso.replace).toHaveBeenCalledWith("/login"));
+    expect(roteadorFalso.replace).toHaveBeenCalledTimes(1);
+  });
+
   it("ExigeAdmin bloqueia quem não é Admin sem montar o console", async () => {
     const montado = vi.fn();
     function Console() {
@@ -170,5 +186,41 @@ describe("guardas", () => {
     const { render } = await import("@testing-library/react");
     vi.spyOn(console, "error").mockImplementation(() => undefined);
     expect(() => render(<Painel />)).toThrow("useSessao precisa estar dentro de ProvedorSessao");
+  });
+});
+
+describe("redirecionamentos por sessão", () => {
+  it("SomenteVisitante mostra a página pública para quem não tem sessão", async () => {
+    renderizar(
+      <SomenteVisitante>
+        <p>Formulário de login</p>
+      </SomenteVisitante>,
+    );
+
+    expect(await screen.findByText("Formulário de login")).toBeInTheDocument();
+    expect(roteadorFalso.replace).not.toHaveBeenCalled();
+  });
+
+  it("SomenteVisitante leva quem já está logado ao destino seguro", async () => {
+    window.history.pushState({}, "", "/login?redirecionar=%2Fvagas");
+    renderizar(
+      <SomenteVisitante>
+        <p>Formulário de login</p>
+      </SomenteVisitante>,
+      { sessao: perfilNaoFiliado },
+    );
+
+    await waitFor(() => expect(roteadorFalso.replace).toHaveBeenCalledWith("/vagas"));
+    expect(screen.queryByText("Formulário de login")).not.toBeInTheDocument();
+    window.history.pushState({}, "", "/");
+  });
+
+  it("RedirecionarPorSessao manda o visitante à agenda e quem tem sessão ao início", async () => {
+    const { unmount } = renderizar(<RedirecionarPorSessao />);
+    await waitFor(() => expect(roteadorFalso.replace).toHaveBeenCalledWith("/agenda"));
+    unmount();
+
+    renderizar(<RedirecionarPorSessao />, { sessao: perfilFiliado });
+    await waitFor(() => expect(roteadorFalso.replace).toHaveBeenCalledWith("/inicio"));
   });
 });

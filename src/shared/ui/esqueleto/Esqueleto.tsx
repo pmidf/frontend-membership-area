@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 
 import { cn } from "../lib/cn";
 
-type Variante = "bloco" | "linha" | "cartao" | "tabela";
+type Variante = "bloco" | "linha" | "circulo" | "cartao" | "tabela";
 
 type PropsEsqueleto = {
   variante?: Variante;
@@ -39,6 +39,7 @@ function LinhaTabela() {
 const formas: Record<Variante, () => ReactElement> = {
   bloco: () => <Bloco className="h-24" />,
   linha: () => <Bloco className="h-4" />,
+  circulo: () => <Bloco className="size-10 rounded-pill" />,
   cartao: Cartao,
   tabela: LinhaTabela,
 };

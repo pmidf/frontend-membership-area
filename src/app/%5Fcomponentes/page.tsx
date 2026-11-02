@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { CatalogoComponentes } from "@/features/catalogo-componentes/components/CatalogoComponentes";
 
 export const metadata: Metadata = {
-  title: "Componentes · Área de Membros PMI-DF",
+  title: "Componentes",
   robots: { index: false, follow: false },
 };
 
