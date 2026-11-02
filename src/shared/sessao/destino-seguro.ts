@@ -10,3 +10,7 @@ export function destinoSeguro(destino: string | null | undefined): string {
 export function caminhoDeLogin(destinoAtual: string): string {
   return `/login?redirecionar=${encodeURIComponent(destinoAtual)}`;
 }
+
+export function destinoDaUrlAtual(): string {
+  return destinoSeguro(new URLSearchParams(window.location.search).get("redirecionar"));
+}

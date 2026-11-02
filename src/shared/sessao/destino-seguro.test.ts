@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { caminhoDeLogin, destinoSeguro } from "./destino-seguro";
+import { caminhoDeLogin, destinoDaUrlAtual, destinoSeguro } from "./destino-seguro";
 
 describe("destinoSeguro", () => {
   it.each([
@@ -18,5 +18,17 @@ describe("destinoSeguro", () => {
     expect(caminhoDeLogin("/perfil?aba=seguranca")).toBe(
       "/login?redirecionar=%2Fperfil%3Faba%3Dseguranca",
     );
+  });
+});
+
+describe("destinoDaUrlAtual", () => {
+  it("lê o redirecionar da URL atual e aplica a mesma proteção", () => {
+    window.history.pushState({}, "", "/login?redirecionar=%2Fconquistas");
+    expect(destinoDaUrlAtual()).toBe("/conquistas");
+
+    window.history.pushState({}, "", "/login?redirecionar=https%3A%2F%2Fsite-externo.com");
+    expect(destinoDaUrlAtual()).toBe("/inicio");
+
+    window.history.pushState({}, "", "/");
   });
 });

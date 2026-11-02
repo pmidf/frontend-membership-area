@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { FormularioLogin } from "@/features/auth/components/FormularioLogin";
 
 export const metadata: Metadata = { title: "Entrar" };
 
 export default function PaginaLogin() {
-  return <EmConstrucao titulo="Entrar" />;
+  return <FormularioLogin />;
 }
