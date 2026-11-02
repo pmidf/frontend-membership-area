@@ -11,7 +11,10 @@ import { Alerta, Botao, CampoTexto, useAvisos } from "@/shared/ui";
 import { classesBotao } from "@/shared/ui/botao/Botao";
 
 import { useSolicitarRecuperacao } from "../../api/senha.queries";
-import { esquemaEsqueciSenha, type DadosEsqueciSenha } from "../../schemas/senha.schema";
+import {
+  esquemaEsqueciSenha,
+  type DadosEsqueciSenha,
+} from "../../schemas/recuperacao-senha.schema";
 
 export const INTERVALO_REENVIO_INSTRUCOES = 60;
 

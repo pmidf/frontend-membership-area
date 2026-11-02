@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { esquemaLogin, TAMANHO_MAXIMO_SENHA } from "./login.schema";
+import { TAMANHO_MAXIMO_SENHA } from "@/shared/senha/regras-senha";
+
+import { esquemaLogin } from "./login.schema";
 
 function mensagens(dados: unknown) {
   const resultado = esquemaLogin.safeParse(dados);

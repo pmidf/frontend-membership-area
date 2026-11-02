@@ -1,6 +1,6 @@
 import { cn } from "@/shared/ui/lib/cn";
 
-import { classificarForcaSenha, type ForcaSenha } from "../../lib/forca-senha";
+import { classificarForcaSenha, type ForcaSenha } from "./forca-senha";
 
 const apresentacao: Record<ForcaSenha, { rotulo: string; cor: string; barras: number }> = {
   fraca: { rotulo: "fraca", cor: "bg-erro-700", barras: 1 },

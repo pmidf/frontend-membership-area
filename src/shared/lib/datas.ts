@@ -38,3 +38,40 @@ export function formatarDiaMes(dataCivil: string): string {
 export function diasAte(dataCivil: string, agora: Date = new Date()): number {
   return emDiasUtc(dataCivil) - emDiasUtc(hojeNoFuso(agora));
 }
+
+const formatoDataHora = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: FUSO_HORARIO,
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+const formatoRelativo = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" });
+
+const unidadesRelativas: [Intl.RelativeTimeFormatUnit, number][] = [
+  ["year", 365 * DIA_EM_MS],
+  ["month", 30 * DIA_EM_MS],
+  ["day", DIA_EM_MS],
+  ["hour", 3_600_000],
+  ["minute", 60_000],
+];
+
+export function formatarDataHora(instante: string): string {
+  return formatoDataHora.format(new Date(instante)).replace(",", " às");
+}
+
+export function tempoRelativo(instante: string, agora: Date = new Date()): string {
+  const diferenca = new Date(instante).getTime() - agora.getTime();
+  for (const [unidade, duracao] of unidadesRelativas) {
+    if (Math.abs(diferenca) >= duracao) {
+      return formatoRelativo.format(Math.round(diferenca / duracao), unidade);
+    }
+  }
+  return "agora mesmo";
+}
+
+export function tempoDesde(instante: string, agora: Date = new Date()): string {
+  return new Date(instante) > agora ? "agora mesmo" : tempoRelativo(instante, agora);
+}

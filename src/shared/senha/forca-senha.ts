@@ -1,4 +1,4 @@
-import { TAMANHO_MINIMO_SENHA } from "../schemas/senha.schema";
+import { TAMANHO_MINIMO_SENHA } from "./regras-senha";
 
 export type ForcaSenha = "fraca" | "media" | "forte";
 

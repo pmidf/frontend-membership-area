@@ -1,13 +1,6 @@
 import { z } from "zod";
 
-import { TAMANHO_MAXIMO_SENHA } from "./login.schema";
-
-export const TAMANHO_MINIMO_SENHA = 10;
-
-export const esquemaSenhaNova = z
-  .string()
-  .min(TAMANHO_MINIMO_SENHA, `Use pelo menos ${TAMANHO_MINIMO_SENHA} caracteres`)
-  .max(TAMANHO_MAXIMO_SENHA, `Use no máximo ${TAMANHO_MAXIMO_SENHA} caracteres`);
+import { esquemaSenhaNova } from "@/shared/senha/regras-senha";
 
 export const esquemaEsqueciSenha = z.object({
   email: z.string().trim().min(1, "Informe seu e-mail").pipe(z.email("Informe um e-mail válido")),

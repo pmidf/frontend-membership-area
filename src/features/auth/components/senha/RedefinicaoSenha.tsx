@@ -8,12 +8,12 @@ import { useForm, useWatch } from "react-hook-form";
 import { aplicarErrosDeCampo } from "@/shared/api/aplicar-erros-de-campo";
 import { ehErroApi } from "@/shared/api/erro-api";
 import { mensagemDeErro } from "@/shared/api/mensagens-erro";
+import { IndicadorForcaSenha } from "@/shared/senha/IndicadorForcaSenha";
 import { Alerta, Botao, CampoSenha, Esqueleto, useAvisos } from "@/shared/ui";
 
 import { useRedefinirSenha, useValidacaoToken } from "../../api/senha.queries";
 import { normalizarToken } from "../../lib/token-senha";
-import { esquemaNovaSenha, type DadosNovaSenha } from "../../schemas/senha.schema";
-import { IndicadorForcaSenha } from "./IndicadorForcaSenha";
+import { esquemaNovaSenha, type DadosNovaSenha } from "../../schemas/recuperacao-senha.schema";
 import { LinkInvalido } from "./LinkInvalido";
 
 export const AVISO_SENHA_ALTERADA = "Senha alterada. Entre com a nova senha.";
