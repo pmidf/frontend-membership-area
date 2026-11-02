@@ -21,6 +21,12 @@
   --color-texto-inverso: #ffffff;
   --color-texto-marca: #4f17a8;
   --color-texto-erro: #d92b2b;
+  --color-erro-50: #fef3f2;
+  --color-erro-700: #b42318;
+  --color-sucesso-50: #ecfdf3;
+  --color-sucesso-700: #067647;
+  --color-alerta-50: #fffaeb;
+  --color-alerta-700: #b54708;
   --color-fundo-pagina: #f8f8f8;
   --color-fundo-superficie: #ffffff;
   --color-fundo-campo: #ffffff;
