@@ -20,40 +20,9 @@ export const rotulosEscolaridade: Record<Escolaridade, string> = {
   DOUTORADO: "Doutorado",
 };
 
-export const UFS = [
-  "AC",
-  "AL",
-  "AP",
-  "AM",
-  "BA",
-  "CE",
-  "DF",
-  "ES",
-  "GO",
-  "MA",
-  "MT",
-  "MS",
-  "MG",
-  "PA",
-  "PB",
-  "PR",
-  "PE",
-  "PI",
-  "RJ",
-  "RN",
-  "RS",
-  "RO",
-  "RR",
-  "SC",
-  "SP",
-  "SE",
-  "TO",
-] as const;
-
 function paraOpcoes<V extends string>(rotulos: Record<V, string>): OpcaoSelecao[] {
   return (Object.entries(rotulos) as [V, string][]).map(([valor, rotulo]) => ({ valor, rotulo }));
 }
 
 export const opcoesGenero = paraOpcoes(rotulosGenero);
 export const opcoesEscolaridade = paraOpcoes(rotulosEscolaridade);
-export const opcoesUf: OpcaoSelecao[] = UFS.map((uf) => ({ valor: uf, rotulo: uf }));

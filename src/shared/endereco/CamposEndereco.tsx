@@ -1,14 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { mascararCep, somenteDigitos } from "@/shared/lib/mascaras";
 import { CampoFormulario, CampoSelecao, CampoTexto } from "@/shared/ui";
 
-import { useBuscarEndereco } from "../../api/auth.queries";
-import { opcoesUf } from "../../lib/opcoes-cadastro";
-import type { DadosCadastro } from "../../schemas/cadastro.schema";
+import { opcoesUf } from "./ufs";
+import { useBuscarEndereco } from "./useBuscarEndereco";
+
+export type DadosEndereco = {
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+};
+
+export type ClassesCamposEndereco = Partial<Record<keyof DadosEndereco, string>>;
 
 type SituacaoCep = "ocioso" | "encontrado" | "nao-encontrado";
 
@@ -18,7 +29,7 @@ const ajudasCep: Record<SituacaoCep, string | undefined> = {
   "nao-encontrado": "CEP não encontrado. Preencha o endereço manualmente.",
 };
 
-export function PassoEndereco() {
+export function CamposEndereco({ classes = {} }: { classes?: ClassesCamposEndereco }) {
   const {
     register,
     control,
@@ -26,24 +37,26 @@ export function PassoEndereco() {
     setValue,
     setFocus,
     formState: { errors },
-  } = useFormContext<DadosCadastro>();
+  } = useFormContext<DadosEndereco>();
   const busca = useBuscarEndereco();
   const [situacaoCep, setSituacaoCep] = useState<SituacaoCep>("ocioso");
+  const ultimoCepPreenchido = useRef(somenteDigitos(getValues("cep")));
 
   async function consultarCep() {
     const cep = somenteDigitos(getValues("cep"));
-    if (cep.length !== 8) return;
+    if (cep.length !== 8 || cep === ultimoCepPreenchido.current) return;
     const endereco = await busca.mutateAsync(cep);
     if (somenteDigitos(getValues("cep")) !== cep) return;
     if (!endereco) {
       setSituacaoCep("nao-encontrado");
       return;
     }
+    ultimoCepPreenchido.current = cep;
     const preencher = { shouldValidate: true, shouldDirty: true };
     setValue("logradouro", endereco.logradouro, preencher);
     setValue("bairro", endereco.bairro, preencher);
     setValue("cidade", endereco.cidade, preencher);
-    setValue("uf", endereco.uf as DadosCadastro["uf"], preencher);
+    setValue("uf", endereco.uf, preencher);
     setSituacaoCep("encontrado");
     setFocus("numero");
   }
@@ -59,6 +72,7 @@ export function PassoEndereco() {
             inputMode="numeric"
             autoComplete="postal-code"
             placeholder="00000-000"
+            className={classes.cep}
             name={nome}
             value={valor}
             onChange={(evento) => aoMudar(mascararCep(evento.target.value))}
@@ -75,12 +89,14 @@ export function PassoEndereco() {
       <CampoTexto
         rotulo="Logradouro"
         autoComplete="address-line1"
+        className={classes.logradouro}
         erro={errors.logradouro?.message}
         {...register("logradouro")}
       />
       <CampoTexto
         rotulo="Número"
         placeholder="Nº"
+        className={classes.numero}
         erro={errors.numero?.message}
         {...register("numero")}
       />
@@ -88,13 +104,20 @@ export function PassoEndereco() {
         rotulo="Complemento"
         autoComplete="address-line2"
         placeholder="Apto, bloco, sala (opcional)"
+        className={classes.complemento}
         erro={errors.complemento?.message}
         {...register("complemento")}
       />
-      <CampoTexto rotulo="Bairro" erro={errors.bairro?.message} {...register("bairro")} />
+      <CampoTexto
+        rotulo="Bairro"
+        className={classes.bairro}
+        erro={errors.bairro?.message}
+        {...register("bairro")}
+      />
       <CampoTexto
         rotulo="Cidade"
         autoComplete="address-level2"
+        className={classes.cidade}
         erro={errors.cidade?.message}
         {...register("cidade")}
       />
@@ -103,6 +126,7 @@ export function PassoEndereco() {
         opcoes={opcoesUf}
         textoVazio="Selecione"
         autoComplete="address-level1"
+        className={classes.uf}
         erro={errors.uf?.message}
         {...register("uf")}
       />

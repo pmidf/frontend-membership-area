@@ -24,6 +24,7 @@ export type ValorSessao = {
   saiuPorEscolha: boolean;
   entrar: (sessao: SessaoEmitida) => Promise<void>;
   sair: () => Promise<void>;
+  sairLocalmente: () => void;
 };
 
 export const ContextoSessao = createContext<ValorSessao | null>(null);
@@ -72,11 +73,15 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
     [clienteConsultas],
   );
 
-  const sair = useCallback(async () => {
-    await encerrarSessaoNoServidor().catch(() => undefined);
+  const sairLocalmente = useCallback(() => {
     setSaiuPorEscolha(true);
     encerrarLocalmente();
   }, [encerrarLocalmente]);
+
+  const sair = useCallback(async () => {
+    await encerrarSessaoNoServidor().catch(() => undefined);
+    sairLocalmente();
+  }, [sairLocalmente]);
 
   const valor = useMemo<ValorSessao>(() => {
     const perfil = temToken ? (consultaPerfil.data ?? null) : null;
@@ -92,6 +97,7 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
       saiuPorEscolha,
       entrar,
       sair,
+      sairLocalmente,
     };
   }, [
     inicializada,
@@ -101,6 +107,7 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
     consultaPerfil.isError,
     entrar,
     sair,
+    sairLocalmente,
   ]);
 
   return <ContextoSessao.Provider value={valor}>{children}</ContextoSessao.Provider>;

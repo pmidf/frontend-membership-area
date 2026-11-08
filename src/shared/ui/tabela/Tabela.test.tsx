@@ -71,6 +71,25 @@ describe("Tabela", () => {
     expect(within(tabela).getAllByRole("row")).toHaveLength(3);
   });
 
+  it("esconde no cartão a coluna marcada, mantendo-a na tabela", () => {
+    const comOculta: ColunaTabela<Beneficio>[] = [
+      colunas[0],
+      { ...colunas[1], ocultarNoCartao: true },
+    ];
+    simularTela(true);
+    const { unmount } = render(
+      <Tabela rotulo="Benefícios" colunas={comOculta} itens={itens} chave={(item) => item.id} />,
+    );
+    expect(screen.queryByText("Resgates")).not.toBeInTheDocument();
+    unmount();
+
+    simularTela(false);
+    render(
+      <Tabela rotulo="Benefícios" colunas={comOculta} itens={itens} chave={(item) => item.id} />,
+    );
+    expect(screen.getByRole("columnheader", { name: "Resgates" })).toBeInTheDocument();
+  });
+
   it("vira lista de cartões com rótulo e valor em tela pequena", () => {
     simularTela(true);
     render(

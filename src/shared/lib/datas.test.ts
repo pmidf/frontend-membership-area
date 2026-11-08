@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   diasAte,
+  diasDesde,
+  formatarData,
+  formatarDataCivil,
   formatarDataHora,
+  formatarDataHoraOuHoje,
   formatarDiaMes,
   formatarMesAno,
   hojeNoFuso,
@@ -15,6 +19,7 @@ describe("datas", () => {
     expect(formatarMesAno("2027-03-31T00:00:00.000Z")).toBe("03/2027");
     expect(formatarMesAno("2027-04-01")).toBe("04/2027");
     expect(formatarDiaMes("2027-04-01T00:00:00.000Z")).toBe("01/04");
+    expect(formatarDataCivil("2027-04-01T00:00:00.000Z")).toBe("01/04/2027");
   });
 
   it("considera o dia de hoje em America/Sao_Paulo", () => {
@@ -54,5 +59,23 @@ describe("tempoRelativo e formatarDataHora", () => {
 
   it("formata data e hora no fuso de Brasília", () => {
     expect(formatarDataHora("2026-11-02T02:30:00.000Z")).toBe("01/11/2026 às 23:30");
+  });
+
+  it("formata o instante como data no fuso de Brasília", () => {
+    expect(formatarData("2026-11-02T02:30:00.000Z")).toBe("01/11/2026");
+  });
+
+  it.each([
+    ["2026-11-02T12:00:00.000Z", "Hoje"],
+    ["2026-11-02T18:00:00.000Z", "Hoje"],
+    ["2026-11-02T02:59:00.000Z", "Ontem"],
+    ["2026-10-28T15:00:00.000Z", "há 5 dias"],
+  ])("conta os dias desde %s como %s", (instante, texto) => {
+    expect(diasDesde(instante, agora)).toBe(texto);
+  });
+
+  it("diz Hoje quando o instante cai no dia atual em Brasília", () => {
+    expect(formatarDataHoraOuHoje("2026-11-02T11:14:00.000Z", agora)).toBe("Hoje às 08:14");
+    expect(formatarDataHoraOuHoje("2026-11-02T02:30:00.000Z", agora)).toBe("01/11/2026 às 23:30");
   });
 });

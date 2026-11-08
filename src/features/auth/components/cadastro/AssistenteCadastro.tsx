@@ -10,6 +10,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { aplicarErrosDeCampo } from "@/shared/api/aplicar-erros-de-campo";
 import { ehErroApi } from "@/shared/api/erro-api";
 import { mensagemDeErro } from "@/shared/api/mensagens-erro";
+import { CamposEndereco } from "@/shared/endereco/CamposEndereco";
 import { Alerta, Botao, IndicadorEtapas } from "@/shared/ui";
 
 import { useCadastrar, usePreCadastro } from "../../api/auth.queries";
@@ -23,7 +24,6 @@ import {
   type DadosCadastro,
 } from "../../schemas/cadastro.schema";
 import { PassoAcesso } from "./PassoAcesso";
-import { PassoEndereco } from "./PassoEndereco";
 import { PassoPessoal } from "./PassoPessoal";
 import { PassoProfissional } from "./PassoProfissional";
 
@@ -131,7 +131,7 @@ export function AssistenteCadastro() {
         <form noValidate onSubmit={avancar} className="flex flex-col gap-5">
           {passo === 0 && <PassoAcesso />}
           {passo === 1 && <PassoPessoal filiacaoEncontrada={filiacaoEncontrada} />}
-          {passo === 2 && <PassoEndereco />}
+          {passo === 2 && <CamposEndereco />}
           {passo === 3 && <PassoProfissional />}
 
           {passo === ULTIMO_PASSO && (

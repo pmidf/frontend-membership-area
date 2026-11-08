@@ -13,6 +13,7 @@ export type ColunaTabela<T> = {
   celula: (item: T) => ReactNode;
   alinhamento?: "inicio" | "fim";
   largura?: string;
+  ocultarNoCartao?: boolean;
 };
 
 type SelecaoTabela<T> = {
@@ -86,12 +87,14 @@ export function Tabela<T>({
           >
             {selecao && <CaixaLinha item={item} chave={chave(item)} selecao={selecao} />}
             <dl className="grid flex-1 gap-2">
-              {colunas.map((coluna) => (
-                <div key={coluna.id} className="flex justify-between gap-4">
-                  <dt className="text-legenda text-texto-secundario">{coluna.cabecalho}</dt>
-                  <dd className="text-right text-corpo-pequeno">{coluna.celula(item)}</dd>
-                </div>
-              ))}
+              {colunas
+                .filter((coluna) => !coluna.ocultarNoCartao)
+                .map((coluna) => (
+                  <div key={coluna.id} className="flex justify-between gap-4">
+                    <dt className="text-legenda text-texto-secundario">{coluna.cabecalho}</dt>
+                    <dd className="text-right text-corpo-pequeno">{coluna.celula(item)}</dd>
+                  </div>
+                ))}
             </dl>
           </li>
         ))}

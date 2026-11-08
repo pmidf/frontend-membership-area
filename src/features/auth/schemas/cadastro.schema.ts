@@ -1,10 +1,11 @@
 import { z } from "zod";
 
+import { UFS } from "@/shared/endereco/ufs";
 import { somenteDigitos } from "@/shared/lib/mascaras";
 import { esquemaSenhaNova } from "@/shared/senha/regras-senha";
 import type { Escolaridade, Genero } from "@/shared/sessao/tipos";
 
-import { rotulosEscolaridade, rotulosGenero, UFS } from "../lib/opcoes-cadastro";
+import { rotulosEscolaridade, rotulosGenero } from "../lib/opcoes-cadastro";
 
 export const IDADE_MINIMA = 18;
 export const FORMATO_PMI_ID = /^\d{1,20}$/;
@@ -20,6 +21,15 @@ export function idadeEmAnos(nascimento: string, hoje: Date): number {
   return aniversarioJaPassou ? anos : anos - 1;
 }
 
+export function esquemaDataNascimento(mensagemIdade: string) {
+  return z
+    .string()
+    .regex(DATA_ISO, "Informe sua data de nascimento")
+    .refine((valor) => !DATA_ISO.test(valor) || idadeEmAnos(valor, new Date()) >= IDADE_MINIMA, {
+      error: mensagemIdade,
+    });
+}
+
 function textoObrigatorio(mensagem: string, maximo: number) {
   return z.string().trim().min(1, mensagem).max(maximo, `Use no máximo ${maximo} caracteres`);
 }
@@ -30,13 +40,40 @@ const opcional = (maximo: number) =>
 const valoresGenero = Object.keys(rotulosGenero) as [Genero, ...Genero[]];
 const valoresEscolaridade = Object.keys(rotulosEscolaridade) as [Escolaridade, ...Escolaridade[]];
 
+export const camposDadosPessoais = {
+  nome_completo: z
+    .string()
+    .trim()
+    .min(3, "Informe seu nome completo")
+    .max(150, "Use no máximo 150 caracteres"),
+  telefone: z.string().refine((valor) => /^\d{10,11}$/.test(somenteDigitos(valor)), {
+    error: "Informe o telefone com DDD",
+  }),
+  data_nascimento: esquemaDataNascimento(
+    `É preciso ter ${IDADE_MINIMA} anos ou mais para criar conta`,
+  ),
+  genero: z.enum(valoresGenero, { error: "Selecione uma opção" }),
+  escolaridade: z.enum(valoresEscolaridade, { error: "Selecione sua escolaridade" }),
+  cep: z
+    .string()
+    .refine((valor) => /^\d{8}$/.test(somenteDigitos(valor)), { error: "Informe um CEP válido" }),
+  logradouro: textoObrigatorio("Informe o logradouro", 200),
+  numero: textoObrigatorio("Informe o número", 10),
+  complemento: opcional(100),
+  bairro: textoObrigatorio("Informe o bairro", 100),
+  cidade: textoObrigatorio("Informe a cidade", 100),
+  uf: z.enum(UFS, { error: "Selecione a UF" }),
+  empresa: textoObrigatorio("Informe a empresa onde trabalha", 150),
+  cargo: textoObrigatorio("Informe seu cargo", 150),
+  linkedin_url: opcional(255).refine(
+    (valor) => !valor || (valor.startsWith("https://") && /linkedin\.com\//i.test(valor)),
+    { error: "Use o endereço completo do seu perfil (https://linkedin.com/in/...)" },
+  ),
+};
+
 export const esquemaCadastro = z
   .object({
-    nome_completo: z
-      .string()
-      .trim()
-      .min(3, "Informe seu nome completo")
-      .max(150, "Use no máximo 150 caracteres"),
+    ...camposDadosPessoais,
     filiado_pmi: z.enum(["sim", "nao"], { error: "Responda se você já é filiado ao PMI" }),
     pmi_id: z.string().trim(),
     email: z
@@ -49,32 +86,6 @@ export const esquemaCadastro = z
     aceite_termos: z.boolean().refine((aceite) => aceite, {
       error: "É preciso aceitar os Termos de Uso e a Política de Privacidade",
     }),
-    telefone: z.string().refine((valor) => /^\d{10,11}$/.test(somenteDigitos(valor)), {
-      error: "Informe o telefone com DDD",
-    }),
-    data_nascimento: z
-      .string()
-      .regex(DATA_ISO, "Informe sua data de nascimento")
-      .refine((valor) => !DATA_ISO.test(valor) || idadeEmAnos(valor, new Date()) >= IDADE_MINIMA, {
-        error: `É preciso ter ${IDADE_MINIMA} anos ou mais para criar conta`,
-      }),
-    genero: z.enum(valoresGenero, { error: "Selecione uma opção" }),
-    escolaridade: z.enum(valoresEscolaridade, { error: "Selecione sua escolaridade" }),
-    cep: z
-      .string()
-      .refine((valor) => /^\d{8}$/.test(somenteDigitos(valor)), { error: "Informe um CEP válido" }),
-    logradouro: textoObrigatorio("Informe o logradouro", 200),
-    numero: textoObrigatorio("Informe o número", 10),
-    complemento: opcional(100),
-    bairro: textoObrigatorio("Informe o bairro", 100),
-    cidade: textoObrigatorio("Informe a cidade", 100),
-    uf: z.enum(UFS, { error: "Selecione a UF" }),
-    empresa: textoObrigatorio("Informe a empresa onde trabalha", 150),
-    cargo: textoObrigatorio("Informe seu cargo", 150),
-    linkedin_url: opcional(255).refine(
-      (valor) => !valor || (valor.startsWith("https://") && /linkedin\.com\//i.test(valor)),
-      { error: "Use o endereço completo do seu perfil (https://linkedin.com/in/...)" },
-    ),
   })
   .refine((dados) => dados.filiado_pmi !== "sim" || FORMATO_PMI_ID.test(dados.pmi_id ?? ""), {
     path: ["pmi_id"],

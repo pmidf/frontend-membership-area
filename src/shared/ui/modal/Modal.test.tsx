@@ -62,6 +62,23 @@ describe("Modal", () => {
 });
 
 describe("DialogoConfirmacao", () => {
+  it("limpa o motivo quando o pai fecha o diálogo", async () => {
+    const props = {
+      aoFechar: vi.fn(),
+      aoConfirmar: vi.fn(),
+      titulo: "Suspender",
+      rotuloConfirmar: "Confirmar",
+      motivo: { rotulo: "Motivo" },
+    };
+    const { rerender } = render(<DialogoConfirmacao aberto {...props} />);
+    await userEvent.type(screen.getByLabelText("Motivo (opcional)"), "abc");
+
+    rerender(<DialogoConfirmacao aberto={false} {...props} />);
+    rerender(<DialogoConfirmacao aberto {...props} />);
+
+    expect(screen.getByLabelText("Motivo (opcional)")).toHaveValue("");
+  });
+
   it("só habilita a confirmação com motivo preenchido e envia o motivo sem espaços", async () => {
     const aoConfirmar = vi.fn();
     render(

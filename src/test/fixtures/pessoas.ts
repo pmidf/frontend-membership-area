@@ -72,7 +72,39 @@ export const perfilPendente: Perfil = {
   },
 };
 
+export const perfilIndisponivel: Perfil = {
+  ...perfilPendente,
+  filiacao: { ...perfilPendente.filiacao!, motivo_pendencia: "PMI_INDISPONIVEL" },
+};
+
+export const perfilAguardandoCodigo: Perfil = {
+  ...perfilPendente,
+  filiacao: {
+    ...perfilPendente.filiacao!,
+    situacao: "AGUARDANDO_CODIGO",
+    motivo_pendencia: null,
+  },
+};
+
 export const perfilExpirado: Perfil = {
   ...perfilNaoFiliado,
   filiacao: { ...filiacaoAprovada, situacao: "EXPIRADO", data_expiracao: "2026-09-30" },
+};
+
+export const perfilAprovadoVencido: Perfil = {
+  ...perfilNaoFiliado,
+  filiacao: { ...filiacaoAprovada, data_expiracao: "2026-09-30" },
+};
+
+export const perfilSemVinculo: Perfil = {
+  ...perfilNaoFiliado,
+  filiacao: {
+    ...filiacaoAprovada,
+    situacao: "SEM_VINCULO",
+    pmi_id: null,
+    nome_pmi: null,
+    capitulo: null,
+    data_expiracao: null,
+    data_ultima_verificacao: null,
+  },
 };

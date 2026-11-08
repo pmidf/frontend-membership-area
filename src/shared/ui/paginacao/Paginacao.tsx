@@ -16,18 +16,19 @@ export function Paginacao({ pagina, totalPaginas, aoMudar, className }: PropsPag
   return (
     <nav
       aria-label="Paginação"
-      className={cn("flex items-center justify-between gap-4", className)}
+      className={cn("flex items-center justify-between gap-2 sm:gap-4", className)}
     >
       <Botao
         variante="fantasma"
         tamanho="sm"
         disabled={pagina <= 1}
         onClick={() => aoMudar(pagina - 1)}
+        className="max-sm:px-2"
         icone={<ChevronLeft aria-hidden="true" className="size-4" />}
       >
         Anterior
       </Botao>
-      <p aria-live="polite" className="text-corpo-pequeno text-texto-secundario">
+      <p aria-live="polite" className="text-corpo-pequeno whitespace-nowrap text-texto-secundario">
         Página {pagina} de {totalPaginas}
       </p>
       <Botao
@@ -35,7 +36,7 @@ export function Paginacao({ pagina, totalPaginas, aoMudar, className }: PropsPag
         tamanho="sm"
         disabled={pagina >= totalPaginas}
         onClick={() => aoMudar(pagina + 1)}
-        className="flex-row-reverse"
+        className="flex-row-reverse max-sm:px-2"
         icone={<ChevronRight aria-hidden="true" className="size-4" />}
       >
         Próxima
