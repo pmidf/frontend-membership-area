@@ -104,3 +104,32 @@ test("a seção Filiação PMI descreve cada situação", async ({ page }, info)
     });
   }
 });
+
+test("exclui a conta depois de confirmar a senha e volta ao login", async ({ page }, info) => {
+  await abrirPerfil(page, perfilNaoFiliado);
+  await page.route("**/api/me", (rota) => {
+    if (rota.request().method() !== "DELETE") return rota.fallback();
+    const { senha } = rota.request().postDataJSON() as { senha: string };
+    return senha === "SenhaForte2026!"
+      ? rota.fulfill({ status: 204 })
+      : rota.fulfill({ status: 422, json: { codigo: "SENHA_INCORRETA" } });
+  });
+
+  await page.getByRole("button", { name: "Excluir minha conta" }).click();
+  const dialogo = page.getByRole("dialog", { name: "Excluir sua conta?" });
+  const excluir = dialogo.getByRole("button", { name: "Excluir definitivamente" });
+  await expect(excluir).toBeDisabled();
+
+  await dialogo.getByLabel("Confirme com sua senha", { exact: true }).fill("senha-errada");
+  await excluir.click();
+  await expect(dialogo.getByText("Senha incorreta.")).toBeVisible();
+  await page.screenshot({
+    path: `test-results/capturas/excluir-conta-${info.project.name}.png`,
+    animations: "disabled",
+  });
+
+  await dialogo.getByLabel("Confirme com sua senha", { exact: true }).fill("SenhaForte2026!");
+  await excluir.click();
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByText("Sua conta foi excluída.")).toBeVisible();
+});

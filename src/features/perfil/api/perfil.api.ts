@@ -23,3 +23,7 @@ export type AtualizarPerfil = Partial<{
 export function atualizarPerfil(dados: AtualizarPerfil): Promise<Perfil> {
   return api.atualizar<Perfil>("/me", dados);
 }
+
+export function excluirConta(senha: string): Promise<void> {
+  return api.remover<void>("/me", { senha });
+}

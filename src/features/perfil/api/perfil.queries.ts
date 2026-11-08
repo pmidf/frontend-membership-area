@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { chavesSessao } from "@/shared/sessao/sessao.api";
 
-import { atualizarPerfil } from "./perfil.api";
+import { atualizarPerfil, excluirConta } from "./perfil.api";
 
 export function useAtualizarPerfil() {
   const clienteConsultas = useQueryClient();
@@ -10,4 +10,8 @@ export function useAtualizarPerfil() {
     mutationFn: atualizarPerfil,
     onSuccess: (perfil) => clienteConsultas.setQueryData(chavesSessao.perfil, perfil),
   });
+}
+
+export function useExcluirConta() {
+  return useMutation({ mutationFn: excluirConta });
 }

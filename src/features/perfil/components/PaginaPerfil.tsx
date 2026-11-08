@@ -5,6 +5,7 @@ import { useSessao } from "@/shared/sessao/useSessao";
 
 import { CabecalhoPerfil } from "./CabecalhoPerfil";
 import { SecaoDadosPessoais } from "./SecaoDadosPessoais";
+import { SecaoExcluirConta } from "./SecaoExcluirConta";
 import { SecaoFiliacao } from "./SecaoFiliacao";
 
 export function PaginaPerfil() {
@@ -19,6 +20,7 @@ export function PaginaPerfil() {
       <SecaoDadosPessoais perfil={perfil} />
       <SecaoFiliacao perfil={perfil} />
       <SecaoSeguranca />
+      <SecaoExcluirConta />
     </div>
   );
 }
