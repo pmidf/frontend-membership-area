@@ -1,5 +1,5 @@
 import { formatarDataCivil, formatarDataHoraOuHoje } from "@/shared/lib/datas";
-import type { FiliacaoPerfil } from "@/shared/sessao/tipos";
+import type { FiliacaoPerfil, MotivoPendencia } from "@/shared/sessao/tipos";
 import type { Tom } from "@/shared/ui";
 
 export type DadoFiliacao = { rotulo: string; valor: string };
@@ -115,4 +115,33 @@ export function apresentarFiliacao(
     case "SEM_VINCULO":
       return NAO_VINCULADO;
   }
+}
+
+const rotulosMotivoPendencia: Record<MotivoPendencia, string> = {
+  NAO_LOCALIZADO: "Não localizado na base do PMI",
+  PMI_INDISPONIVEL: "PMI indisponível na última consulta",
+};
+
+export function apresentarFiliacaoParaAdmin(
+  filiacao: FiliacaoPerfil | null,
+  filiado: boolean,
+  agora: Date = new Date(),
+): ApresentacaoFiliacao {
+  const apresentacao = apresentarFiliacao(filiacao, filiado, agora);
+  if (!filiacao || filiacao.situacao === "SEM_VINCULO") {
+    return { ...apresentacao, mensagem: null };
+  }
+  const { capitulo, data_expiracao: expiracao, motivo_pendencia: motivo } = filiacao;
+  return {
+    ...apresentacao,
+    mensagem: null,
+    mostrarRenovacao: false,
+    pmiId: filiacao.pmi_id,
+    dados: [
+      { rotulo: "Capítulo", valor: capitulo ?? SEM_VALOR },
+      { rotulo: "Validade", valor: expiracao ? formatarDataCivil(expiracao) : SEM_VALOR },
+      ...(motivo ? [{ rotulo: "Motivo da pendência", valor: rotulosMotivoPendencia[motivo] }] : []),
+      dadoVerificacao(filiacao, agora),
+    ],
+  };
 }

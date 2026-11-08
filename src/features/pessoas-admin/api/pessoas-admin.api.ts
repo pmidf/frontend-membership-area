@@ -1,5 +1,6 @@
+import type { SessaoAtiva } from "@/features/seguranca/api/seguranca.api";
 import { api } from "@/shared/api/cliente-http";
-import type { SituacaoConta, SituacaoFiliacao } from "@/shared/sessao/tipos";
+import type { Perfil, SituacaoConta, SituacaoFiliacao } from "@/shared/sessao/tipos";
 
 export type FiltrosPessoas = { busca?: string; pagina?: number; tamanho?: number };
 
@@ -23,4 +24,28 @@ export type RespostaPaginada<T> = {
 
 export function listarPessoas(filtros: FiltrosPessoas): Promise<RespostaPaginada<PessoaResumo>> {
   return api.obter<RespostaPaginada<PessoaResumo>>("/admin/pessoas", { consulta: filtros });
+}
+
+export type SessaoPessoa = Omit<SessaoAtiva, "atual">;
+
+export type PessoaDetalheAdmin = Perfil & {
+  exibida_na_vitrine: boolean;
+  vitrine_oculta: boolean;
+  data_vitrine_oculta: string | null;
+  motivo_vitrine_oculta: string | null;
+  sessoes_ativas: SessaoPessoa[];
+};
+
+const caminhoPessoa = (id: string) => `/admin/pessoas/${encodeURIComponent(id)}`;
+
+export function detalharPessoa(id: string): Promise<PessoaDetalheAdmin> {
+  return api.obter<PessoaDetalheAdmin>(caminhoPessoa(id));
+}
+
+export function suspenderPessoa(id: string, motivo: string): Promise<void> {
+  return api.enviar<void>(`${caminhoPessoa(id)}/suspender`, { motivo });
+}
+
+export function reativarPessoa(id: string): Promise<void> {
+  return api.enviar<void>(`${caminhoPessoa(id)}/reativar`);
 }

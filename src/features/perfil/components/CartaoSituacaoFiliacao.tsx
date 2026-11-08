@@ -5,16 +5,23 @@ import type { FiliacaoPerfil } from "@/shared/sessao/tipos";
 import { Cartao, SeloStatus } from "@/shared/ui";
 import { classesBotao } from "@/shared/ui/botao/Botao";
 
-import { apresentarFiliacao } from "../lib/apresentacao-filiacao";
+import { apresentarFiliacao, apresentarFiliacaoParaAdmin } from "../lib/apresentacao-filiacao";
 
 type PropsCartaoSituacaoFiliacao = {
   filiacao: FiliacaoPerfil | null;
   filiado: boolean;
+  visao?: "propria" | "admin";
   acoes?: ReactNode;
 };
 
-export function CartaoSituacaoFiliacao({ filiacao, filiado, acoes }: PropsCartaoSituacaoFiliacao) {
-  const { rotuloSelo, tom, mensagem, pmiId, dados, mostrarRenovacao } = apresentarFiliacao(
+export function CartaoSituacaoFiliacao({
+  filiacao,
+  filiado,
+  visao = "propria",
+  acoes,
+}: PropsCartaoSituacaoFiliacao) {
+  const apresentar = visao === "admin" ? apresentarFiliacaoParaAdmin : apresentarFiliacao;
+  const { rotuloSelo, tom, mensagem, pmiId, dados, mostrarRenovacao } = apresentar(
     filiacao,
     filiado,
   );

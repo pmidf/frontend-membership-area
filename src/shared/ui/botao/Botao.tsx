@@ -3,7 +3,8 @@ import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "../lib/cn";
 
-export type VarianteBotao = "primario" | "secundario" | "fantasma" | "perigo" | "link" | "inverso";
+export type VarianteBotao =
+  "primario" | "secundario" | "fantasma" | "perigo" | "perigoContorno" | "link" | "inverso";
 export type TamanhoBotao = "md" | "sm";
 
 const variantes: Record<VarianteBotao, string> = {
@@ -12,6 +13,7 @@ const variantes: Record<VarianteBotao, string> = {
     "border border-acao-primaria bg-fundo-superficie text-texto-marca hover:bg-violeta-50",
   fantasma: "bg-transparent text-texto-marca hover:bg-violeta-50",
   perigo: "bg-texto-erro text-texto-inverso hover:brightness-90",
+  perigoContorno: "border border-texto-erro bg-fundo-superficie text-texto-erro hover:bg-erro-50",
   link: "min-h-0 bg-transparent px-0 text-texto-marca underline-offset-4 hover:underline",
   inverso: "bg-branco text-texto-marca hover:bg-violeta-50",
 };

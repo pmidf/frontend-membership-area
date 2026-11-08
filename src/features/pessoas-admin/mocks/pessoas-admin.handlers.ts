@@ -1,6 +1,8 @@
 import { http, HttpResponse } from "msw/http";
 
-import type { PessoaResumo } from "../api/pessoas-admin.api";
+import { perfilNaoFiliado } from "@/test/fixtures/pessoas";
+
+import type { PessoaDetalheAdmin, PessoaResumo } from "../api/pessoas-admin.api";
 
 const base: PessoaResumo = {
   id_pessoa: "00000000-0000-4000-8000-000000000000",
@@ -74,5 +76,47 @@ export function handlersPessoasAdmin(pessoas: PessoaResumo[] = pessoasTeste) {
     http.get("*/api/admin/pessoas", ({ request }) =>
       HttpResponse.json(filtrarPessoas(pessoas, new URL(request.url))),
     ),
+  ];
+}
+
+export const pessoaDetalheTeste: PessoaDetalheAdmin = {
+  ...perfilNaoFiliado,
+  id_pessoa: "00000000-0000-4000-8000-000000000001",
+  nome_completo: "Bruno Tavares",
+  email: "bruno.tavares@teste.pmidf.org.br",
+  data_cadastro: "2026-08-30T15:00:00.000Z",
+  exibida_na_vitrine: false,
+  vitrine_oculta: false,
+  data_vitrine_oculta: null,
+  motivo_vitrine_oculta: null,
+  sessoes_ativas: [
+    {
+      id_sessao: "8d7e6f5a-4b3c-4d2e-8f1a-9b8c7d6e5f4a",
+      ip: "189.40.50.60",
+      user_agent:
+        "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+      data_criacao: "2026-10-20T08:00:00.000Z",
+      data_ultimo_uso: "2026-10-30T09:00:00.000Z",
+    },
+  ],
+};
+
+export function handlersDetalhePessoa(inicial: PessoaDetalheAdmin = pessoaDetalheTeste) {
+  let pessoa = inicial;
+  const semConteudo = () => new HttpResponse(null, { status: 204 });
+  return [
+    http.get("*/api/admin/pessoas/:id", ({ params }) =>
+      params.id === pessoa.id_pessoa
+        ? HttpResponse.json(pessoa)
+        : new HttpResponse(null, { status: 404 }),
+    ),
+    http.post("*/api/admin/pessoas/:id/suspender", () => {
+      pessoa = { ...pessoa, situacao_conta: "SUSPENSA", sessoes_ativas: [] };
+      return semConteudo();
+    }),
+    http.post("*/api/admin/pessoas/:id/reativar", () => {
+      pessoa = { ...pessoa, situacao_conta: "ATIVA" };
+      return semConteudo();
+    }),
   ];
 }

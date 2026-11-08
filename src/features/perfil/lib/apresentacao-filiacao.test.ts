@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { FiliacaoPerfil } from "@/shared/sessao/tipos";
 
-import { apresentarFiliacao } from "./apresentacao-filiacao";
+import { apresentarFiliacao, apresentarFiliacaoParaAdmin } from "./apresentacao-filiacao";
 
 const agora = new Date("2026-11-08T15:00:00.000Z");
 
@@ -125,6 +125,56 @@ describe("apresentarFiliacao", () => {
       tom: "neutro",
       mensagem: "Você ainda não tem uma filiação reconhecida pelo PMI-DF.",
       pmiId: null,
+    });
+  });
+});
+
+describe("apresentarFiliacaoParaAdmin", () => {
+  it("mostra capítulo, validade e verificação, sem mensagem à pessoa", () => {
+    expect(apresentarFiliacaoParaAdmin(aprovada, true, agora)).toEqual({
+      rotuloSelo: "Filiado PMI-DF",
+      tom: "aqua",
+      mensagem: null,
+      pmiId: "1000001",
+      dados: [
+        { rotulo: "Capítulo", valor: "C219" },
+        { rotulo: "Validade", valor: "31/03/2027" },
+        { rotulo: "Última verificação", valor: "Hoje às 08:14" },
+      ],
+      mostrarRenovacao: false,
+    });
+  });
+
+  it.each([
+    ["NAO_LOCALIZADO", "Não localizado na base do PMI"],
+    ["PMI_INDISPONIVEL", "PMI indisponível na última consulta"],
+  ] as const)("descreve o motivo %s", (motivo, valor) => {
+    const { dados, pmiId, mensagem } = apresentarFiliacaoParaAdmin(
+      { ...aprovada, situacao: "PENDENTE", motivo_pendencia: motivo, capitulo: null },
+      false,
+      agora,
+    );
+
+    expect(dados).toContainEqual({ rotulo: "Motivo da pendência", valor });
+    expect(dados).toContainEqual({ rotulo: "Capítulo", valor: "—" });
+    expect(pmiId).toBe("1000001");
+    expect(mensagem).toBeNull();
+  });
+
+  it("não oferece renovação na filiação vencida", () => {
+    expect(
+      apresentarFiliacaoParaAdmin({ ...aprovada, situacao: "EXPIRADO" }, false, agora),
+    ).toMatchObject({ rotuloSelo: "Filiação vencida em 31/03/2027", mostrarRenovacao: false });
+  });
+
+  it.each([
+    ["sem filiação", null],
+    ["SEM_VINCULO", { ...aprovada, situacao: "SEM_VINCULO" } as FiliacaoPerfil],
+  ])("mostra %s como não vinculado, sem dados nem mensagem", (_, filiacao) => {
+    expect(apresentarFiliacaoParaAdmin(filiacao, false, agora)).toMatchObject({
+      rotuloSelo: "Não vinculado",
+      mensagem: null,
+      dados: [],
     });
   });
 });

@@ -32,8 +32,7 @@ function motivoValido(texto: string, configuracao: ConfiguracaoMotivo | undefine
   return texto.trim().length >= (configuracao.tamanhoMinimo ?? 1);
 }
 
-export function DialogoConfirmacao({
-  aberto,
+function ConteudoDialogo({
   aoFechar,
   aoConfirmar,
   titulo,
@@ -44,23 +43,18 @@ export function DialogoConfirmacao({
   motivo,
   carregando = false,
   erro,
-}: PropsDialogoConfirmacao) {
+}: Omit<PropsDialogoConfirmacao, "aberto">) {
   const [texto, setTexto] = useState("");
-
-  function fechar() {
-    setTexto("");
-    aoFechar();
-  }
 
   return (
     <Modal
-      aberto={aberto}
-      aoFechar={fechar}
+      aberto
+      aoFechar={aoFechar}
       titulo={titulo}
       descricao={descricao}
       rodape={
         <>
-          <Botao variante="secundario" onClick={fechar} disabled={carregando}>
+          <Botao variante="secundario" onClick={aoFechar} disabled={carregando}>
             {rotuloCancelar}
           </Botao>
           <Botao
@@ -94,4 +88,9 @@ export function DialogoConfirmacao({
       )}
     </Modal>
   );
+}
+
+export function DialogoConfirmacao({ aberto, ...props }: PropsDialogoConfirmacao) {
+  if (!aberto) return null;
+  return <ConteudoDialogo {...props} />;
 }

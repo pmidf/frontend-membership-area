@@ -6,12 +6,14 @@ import { Botao, SeloStatus } from "@/shared/ui";
 import type { SessaoAtiva } from "../api/seguranca.api";
 import { descreverDispositivo, formatarIp } from "../lib/descrever-dispositivo";
 
-type PropsItemSessao = {
-  sessao: SessaoAtiva;
-  aoEncerrar: (sessao: SessaoAtiva) => void;
+export type SessaoExibida = Omit<SessaoAtiva, "atual"> & { atual?: boolean };
+
+type PropsItemSessao<T extends SessaoExibida> = {
+  sessao: T;
+  aoEncerrar?: (sessao: T) => void;
 };
 
-export function ItemSessao({ sessao, aoEncerrar }: PropsItemSessao) {
+export function ItemSessao<T extends SessaoExibida>({ sessao, aoEncerrar }: PropsItemSessao<T>) {
   const { tipo, descricao } = descreverDispositivo(sessao.user_agent);
   const Icone = tipo === "celular" ? Smartphone : Monitor;
 
@@ -36,7 +38,7 @@ export function ItemSessao({ sessao, aoEncerrar }: PropsItemSessao) {
           </time>
         </p>
       </div>
-      {!sessao.atual && (
+      {aoEncerrar && !sessao.atual && (
         <Botao
           variante="secundario"
           tamanho="sm"
