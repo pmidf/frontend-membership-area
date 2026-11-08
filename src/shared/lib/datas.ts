@@ -53,6 +53,13 @@ const formatoDataHora = new Intl.DateTimeFormat("pt-BR", {
   minute: "2-digit",
 });
 
+const formatoData = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: FUSO_HORARIO,
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 const formatoRelativo = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" });
 
 const unidadesRelativas: [Intl.RelativeTimeFormatUnit, number][] = [
@@ -65,6 +72,16 @@ const unidadesRelativas: [Intl.RelativeTimeFormatUnit, number][] = [
 
 export function formatarDataHora(instante: string): string {
   return formatoDataHora.format(new Date(instante)).replace(",", " às");
+}
+
+export function formatarData(instante: string): string {
+  return formatoData.format(new Date(instante));
+}
+
+export function diasDesde(instante: string, agora: Date = new Date()): string {
+  const dias = -diasAte(hojeNoFuso(new Date(instante)), agora);
+  if (dias <= 0) return "Hoje";
+  return dias === 1 ? "Ontem" : `há ${dias} dias`;
 }
 
 export function formatarDataHoraOuHoje(instante: string, agora: Date = new Date()): string {
