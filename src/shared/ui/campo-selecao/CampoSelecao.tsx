@@ -34,7 +34,10 @@ export function CampoSelecao({
           id={ids.idCampo}
           aria-invalid={erro ? true : undefined}
           aria-describedby={ids.descricao}
-          className={classesEntrada(Boolean(erro), "h-12 appearance-none pr-10")}
+          className={classesEntrada(
+            Boolean(erro),
+            "h-12 appearance-none pr-10 read-only:bg-fundo-campo",
+          )}
           {...props}
         >
           {textoVazio !== undefined && <option value="">{textoVazio}</option>}

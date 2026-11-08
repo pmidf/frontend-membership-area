@@ -7,6 +7,7 @@ import {
   handlersSenha,
 } from "@/features/auth/mocks/auth.handlers";
 import { handlersConversao } from "@/features/conversao/mocks/conversao.handlers";
+import { handlersPerfil } from "@/features/perfil/mocks/perfil.handlers";
 import { handlersSaude } from "@/features/saude/mocks/saude.handlers";
 import { handlersSeguranca } from "@/features/seguranca/mocks/seguranca.handlers";
 
@@ -20,5 +21,6 @@ export const servidor = setupServer(
   ...handlersSenha,
   ...handlersConversao,
   ...handlersSeguranca(),
+  ...handlersPerfil(),
   ...handlersSessao(null),
 );
