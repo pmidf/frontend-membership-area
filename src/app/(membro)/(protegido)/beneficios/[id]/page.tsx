@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { PaginaDetalheBeneficio } from "@/features/beneficios/components/PaginaDetalheBeneficio";
+import { Esqueleto } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Benefício" };
 
-export default function PaginaDetalheBeneficio() {
-  return <EmConstrucao titulo="Benefício" />;
+export default function Pagina() {
+  return (
+    <Suspense fallback={<Esqueleto variante="cartao" rotulo="Carregando o benefício…" />}>
+      <PaginaDetalheBeneficio />
+    </Suspense>
+  );
 }

@@ -13,6 +13,7 @@ type PropsCampoBusca = {
   placeholder?: string;
   atraso?: number;
   maxLength?: number;
+  desabilitado?: boolean;
   className?: string;
 };
 
@@ -23,6 +24,7 @@ export function CampoBusca({
   placeholder,
   atraso = 300,
   maxLength,
+  desabilitado = false,
   className,
 }: PropsCampoBusca) {
   const id = useId();
@@ -57,6 +59,7 @@ export function CampoBusca({
         type="search"
         value={termo}
         maxLength={maxLength}
+        disabled={desabilitado}
         placeholder={placeholder}
         onChange={(evento) => setTermo(evento.target.value)}
         className={classesEntrada(
