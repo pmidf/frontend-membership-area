@@ -35,6 +35,11 @@ export function formatarDiaMes(dataCivil: string): string {
   return `${dia}/${mes}`;
 }
 
+export function formatarDataCivil(dataCivil: string): string {
+  const { ano, mes, dia } = lerDataCivil(dataCivil);
+  return `${dia}/${mes}/${ano}`;
+}
+
 export function diasAte(dataCivil: string, agora: Date = new Date()): number {
   return emDiasUtc(dataCivil) - emDiasUtc(hojeNoFuso(agora));
 }
@@ -60,6 +65,12 @@ const unidadesRelativas: [Intl.RelativeTimeFormatUnit, number][] = [
 
 export function formatarDataHora(instante: string): string {
   return formatoDataHora.format(new Date(instante)).replace(",", " às");
+}
+
+export function formatarDataHoraOuHoje(instante: string, agora: Date = new Date()): string {
+  const texto = formatarDataHora(instante);
+  const ehHoje = hojeNoFuso(new Date(instante)) === hojeNoFuso(agora);
+  return ehHoje ? texto.replace(/^.* às/, "Hoje às") : texto;
 }
 
 export function tempoRelativo(instante: string, agora: Date = new Date()): string {

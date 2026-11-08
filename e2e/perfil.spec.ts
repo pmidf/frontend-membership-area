@@ -3,11 +3,17 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { sessoesTeste } from "../src/features/seguranca/mocks/seguranca.handlers";
 import type { Perfil } from "../src/shared/sessao/tipos";
-import { perfilFiliado, perfilNaoFiliado } from "../src/test/fixtures/pessoas";
+import {
+  perfilExpirado,
+  perfilFiliado,
+  perfilIndisponivel,
+  perfilNaoFiliado,
+  perfilPendente,
+} from "../src/test/fixtures/pessoas";
 
 import { simularSessao } from "./sessao";
 
-async function abrirPerfil(page: Page, perfilInicial: Perfil) {
+async function abrirPerfil(page: Page, perfilInicial: Perfil, caminho = "/perfil") {
   let perfil = perfilInicial;
   const corpos: unknown[] = [];
   await simularSessao(page, perfil);
@@ -19,7 +25,7 @@ async function abrirPerfil(page: Page, perfilInicial: Perfil) {
     return rota.fulfill({ json: perfil });
   });
   await page.route("**/api/me/sessoes**", (rota) => rota.fulfill({ json: sessoesTeste }));
-  await page.goto("/perfil");
+  await page.goto(caminho);
   await expect(page.getByRole("heading", { name: "Dados pessoais" })).toBeVisible();
   return corpos;
 }
@@ -58,7 +64,7 @@ test("o Filiado vê o nome bloqueado e a página passa no axe", async ({ page },
   await abrirPerfil(page, perfilFiliado);
 
   await expect(page.getByRole("textbox", { name: "Nome completo" })).not.toBeEditable();
-  await expect(page.getByText("Filiado PMI-DF")).toBeVisible();
+  await expect(page.getByText("Filiado PMI-DF").first()).toBeVisible();
   await page.screenshot({
     path: `test-results/capturas/perfil-filiado-${info.project.name}.png`,
     animations: "disabled",
@@ -69,4 +75,32 @@ test("o Filiado vê o nome bloqueado e a página passa no axe", async ({ page },
   expect(violations.filter(({ impact }) => impact === "serious" || impact === "critical")).toEqual(
     [],
   );
+});
+
+test("chegar por #filiacao mostra a seção e foca o título", async ({ page }) => {
+  await abrirPerfil(page, perfilFiliado, "/perfil#filiacao");
+
+  const titulo = page.getByRole("heading", { name: "Filiação PMI" });
+  await expect(titulo).toBeFocused();
+  await expect(titulo).toBeInViewport();
+});
+
+test("a seção Filiação PMI descreve cada situação", async ({ page }, info) => {
+  const situacoes = [
+    ["aprovado", perfilFiliado, "Filiado PMI-DF"],
+    ["nao-localizado", perfilPendente, "Aguardando localização na base do PMI"],
+    ["indisponivel", perfilIndisponivel, "Aguardando verificação"],
+    ["vencido", perfilExpirado, "Filiação vencida em 30/09/2026"],
+    ["sem-vinculo", perfilNaoFiliado, "Não vinculado"],
+  ] as const;
+
+  for (const [nome, perfil, selo] of situacoes) {
+    await abrirPerfil(page, perfil);
+    const secao = page.getByRole("region", { name: "Filiação PMI" });
+    await expect(secao.getByText(selo, { exact: true })).toBeVisible();
+    await secao.screenshot({
+      path: `test-results/capturas/filiacao-${nome}-${info.project.name}.png`,
+      animations: "disabled",
+    });
+  }
 });

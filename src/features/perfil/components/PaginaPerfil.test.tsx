@@ -218,7 +218,7 @@ describe("Cabeçalho e mini bio", () => {
   it("mostra selo do Filiado e a mini bio como texto simples", async () => {
     await renderizarPagina({ ...perfilFiliado, mini_bio: "<b>Gerencio</b> obras." });
 
-    expect(screen.getByText("Filiado PMI-DF")).toBeInTheDocument();
+    expect(screen.getAllByText("Filiado PMI-DF")).toHaveLength(2);
     expect(screen.getByText("<b>Gerencio</b> obras.")).toBeInTheDocument();
     expect(screen.queryByText(/Adicione uma mini bio/)).not.toBeInTheDocument();
   });

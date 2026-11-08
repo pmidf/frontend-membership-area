@@ -8,6 +8,10 @@ if (!HTMLDialogElement.prototype.showModal) {
   };
 }
 
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => undefined;
+}
+
 if (!window.matchMedia) {
   window.matchMedia = (consulta: string) => ({
     matches: false,
