@@ -10,6 +10,8 @@ export default defineConfig({
   reporter: emCi ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: "http://localhost:3001",
+    locale: "pt-BR",
+    timezoneId: "America/Sao_Paulo",
     trace: "on-first-retry",
   },
   projects: [
@@ -32,5 +34,6 @@ export default defineConfig({
     url: "http://localhost:3001",
     reuseExistingServer: !emCi,
     timeout: 120_000,
+    env: { EXIBIR_COMPONENTES: "true" },
   },
 });
