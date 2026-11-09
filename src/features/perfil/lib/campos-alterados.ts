@@ -1,3 +1,4 @@
+import { camposDiferentes } from "@/shared/lib/campos-diferentes";
 import { mascararCep, mascararTelefone, somenteDigitos } from "@/shared/lib/mascaras";
 import type { Perfil } from "@/shared/sessao/tipos";
 
@@ -45,10 +46,5 @@ function normalizar(dados: DadosPerfil): AtualizarPerfil {
 }
 
 export function camposAlterados(iniciais: DadosPerfil, atuais: DadosPerfil): AtualizarPerfil {
-  const antes = normalizar(iniciais);
-  return Object.fromEntries(
-    Object.entries(normalizar(atuais)).filter(
-      ([campo, valor]) => valor !== antes[campo as keyof AtualizarPerfil],
-    ),
-  );
+  return camposDiferentes(normalizar(iniciais), normalizar(atuais));
 }

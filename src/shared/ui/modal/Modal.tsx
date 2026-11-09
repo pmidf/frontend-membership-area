@@ -24,6 +24,7 @@ export type PropsModal = {
   aberto: boolean;
   aoFechar: () => void;
   titulo: ReactNode;
+  topo?: ReactNode;
   descricao?: ReactNode;
   children?: ReactNode;
   rodape?: ReactNode;
@@ -34,6 +35,7 @@ export type PropsModal = {
 function ConteudoModal({
   aoFechar,
   titulo,
+  topo,
   descricao,
   children,
   rodape,
@@ -106,7 +108,8 @@ function ConteudoModal({
     >
       <div className="flex max-h-[90vh] flex-col max-sm:h-full max-sm:max-h-none">
         <header className="flex items-start justify-between gap-4 p-6 pb-2">
-          <div className="flex flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            {topo && <div className="mb-3">{topo}</div>}
             <h2 id={idTitulo} className="text-h3">
               {titulo}
             </h2>

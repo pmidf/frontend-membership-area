@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { useParametrosUrl } from "@/shared/hooks/useParametrosUrl";
+import { paginaDaUrl } from "@/shared/lib/pagina-da-url";
 import {
   CabecalhoPagina,
   CampoBusca,
@@ -19,11 +20,6 @@ import { TabelaPessoas } from "./TabelaPessoas";
 
 const TAMANHO_MINIMO_BUSCA = 3;
 const TAMANHO_MAXIMO_BUSCA = 150;
-
-function paginaDaUrl(valor: string | null): number {
-  const pagina = Number(valor);
-  return Number.isInteger(pagina) && pagina >= 1 ? pagina : 1;
-}
 
 export function PaginaPessoas() {
   const { parametros, atualizar } = useParametrosUrl();

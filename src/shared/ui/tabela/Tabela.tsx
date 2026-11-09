@@ -14,6 +14,8 @@ export type ColunaTabela<T> = {
   alinhamento?: "inicio" | "fim";
   largura?: string;
   ocultarNoCartao?: boolean;
+  cabecalhoCartao?: ReactNode;
+  ordenacao?: "ascending" | "descending" | "none";
 };
 
 type SelecaoTabela<T> = {
@@ -91,7 +93,9 @@ export function Tabela<T>({
                 .filter((coluna) => !coluna.ocultarNoCartao)
                 .map((coluna) => (
                   <div key={coluna.id} className="flex justify-between gap-4">
-                    <dt className="text-legenda text-texto-secundario">{coluna.cabecalho}</dt>
+                    <dt className="text-legenda text-texto-secundario">
+                      {coluna.cabecalhoCartao ?? coluna.cabecalho}
+                    </dt>
                     <dd className="text-right text-corpo-pequeno">{coluna.celula(item)}</dd>
                   </div>
                 ))}
@@ -125,6 +129,7 @@ export function Tabela<T>({
               <th
                 key={coluna.id}
                 scope="col"
+                aria-sort={coluna.ordenacao}
                 style={coluna.largura ? { width: coluna.largura } : undefined}
                 className={cn(
                   "px-3 py-3 font-medium",
