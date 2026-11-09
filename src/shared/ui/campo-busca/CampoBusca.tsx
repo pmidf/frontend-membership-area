@@ -64,7 +64,7 @@ export function CampoBusca({
         onChange={(evento) => setTermo(evento.target.value)}
         className={classesEntrada(
           false,
-          "h-12 pr-12 pl-11 [&::-webkit-search-cancel-button]:hidden",
+          cn("h-12 pl-11 [&::-webkit-search-cancel-button]:hidden", termo ? "pr-12" : "pr-4"),
         )}
       />
       {termo && (
