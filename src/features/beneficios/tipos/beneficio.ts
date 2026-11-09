@@ -43,3 +43,16 @@ export type FiltrosBeneficios = {
   categoria?: CategoriaBeneficio;
   page?: number;
 };
+
+type ResgateComum = {
+  id_beneficio: string;
+  titulo: string;
+  data_resgate: string;
+  conteudo_entregue: string;
+};
+
+export type ResgateCupom = ResgateComum & { tipo_resgate: "CUPOM"; site_url: string | null };
+
+export type ResgateInstrucao = ResgateComum & { tipo_resgate: "INSTRUCAO" };
+
+export type ResgateBeneficio = ResgateCupom | ResgateInstrucao;

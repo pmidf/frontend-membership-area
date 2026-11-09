@@ -1,10 +1,10 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ehErroApi } from "@/shared/api/erro-api";
 import { useSessao } from "@/shared/sessao/useSessao";
 
 import type { FiltrosBeneficios } from "../tipos/beneficio";
-import { detalharBeneficio, listarBeneficios } from "./beneficios.api";
+import { detalharBeneficio, listarBeneficios, resgatarBeneficio } from "./beneficios.api";
 
 export const chavesBeneficios = {
   listas: ["beneficios", "lista"] as const,
@@ -37,5 +37,24 @@ export function useBeneficio(id: string) {
     queryFn: () => detalharBeneficio(id),
     retry: (falhas, erro) =>
       !filiacaoNecessaria(erro) && !beneficioNaoEncontrado(erro) && falhas < 1,
+  });
+}
+
+export function useResgatarBeneficio(id: string) {
+  const clienteConsultas = useQueryClient();
+
+  function atualizarBeneficio() {
+    void clienteConsultas.invalidateQueries({ queryKey: chavesBeneficios.listas });
+    void clienteConsultas.invalidateQueries({ queryKey: chavesBeneficios.detalhe(id) });
+  }
+
+  return useMutation({
+    mutationFn: () => resgatarBeneficio(id),
+    onSuccess: ({ novo }) => {
+      if (novo) atualizarBeneficio();
+    },
+    onError: (erro) => {
+      if (beneficioNaoEncontrado(erro)) atualizarBeneficio();
+    },
   });
 }

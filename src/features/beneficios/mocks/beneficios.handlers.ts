@@ -8,6 +8,7 @@ import type {
   ItemBeneficio,
   ListaBeneficios,
   PreviaBeneficios,
+  ResgateBeneficio,
   RespostaBeneficios,
 } from "../tipos/beneficio";
 
@@ -118,5 +119,37 @@ export function handlersCatalogo(itens: ItemBeneficio[] = itensTeste) {
     http.get("*/api/beneficios", ({ request }) =>
       HttpResponse.json(filtrarLista(itens, new URL(request.url))),
     ),
+  ];
+}
+
+export const resgateCupomTeste: ResgateBeneficio = {
+  id_beneficio: detalheTeste.id_beneficio,
+  titulo: detalheTeste.titulo,
+  data_resgate: "2026-08-31T17:22:00.000Z",
+  tipo_resgate: "CUPOM",
+  conteudo_entregue: "PMIDF-BRISK-30OFF",
+  site_url: "https://brisk.test",
+};
+
+export const resgateInstrucaoTeste: ResgateBeneficio = {
+  id_beneficio: detalheTeste.id_beneficio,
+  titulo: detalheTeste.titulo,
+  data_resgate: "2026-08-31T17:22:00.000Z",
+  tipo_resgate: "INSTRUCAO",
+  conteudo_entregue: "<p>Fale com o <strong>parceiro</strong>.</p><script>window.xss = 1</script>",
+};
+
+export function handlersResgate(
+  detalheInicial: DetalheBeneficio = detalheTeste,
+  resgate: ResgateBeneficio = resgateCupomTeste,
+) {
+  let detalhe = detalheInicial;
+  return [
+    http.get("*/api/beneficios/:id", () => HttpResponse.json(detalhe)),
+    http.post("*/api/beneficios/:id/resgate", () => {
+      const status = detalhe.resgatado ? 200 : 201;
+      detalhe = { ...detalhe, resgatado: true };
+      return HttpResponse.json(resgate, { status });
+    }),
   ];
 }

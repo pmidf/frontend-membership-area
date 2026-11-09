@@ -6,6 +6,7 @@ import {
   filtrarLista,
   itensTeste,
   previaTeste,
+  resgateCupomTeste,
 } from "../src/features/beneficios/mocks/beneficios.handlers";
 import type { Perfil } from "../src/shared/sessao/tipos";
 import { perfilFiliado, perfilNaoFiliado } from "../src/test/fixtures/pessoas";
@@ -93,4 +94,42 @@ test("o Filiado busca no catálogo, abre um benefício e volta com os filtros", 
   await page.getByRole("link", { name: "Voltar para o clube de benefícios" }).click();
   await expect(page).toHaveURL(/\/beneficios\?q=PMP$/);
   await expect(page.getByRole("searchbox")).toHaveValue("PMP");
+});
+
+test("o Filiado resgata, copia o código e reabre sem o alerta", async ({ page, context }, info) => {
+  let resgatado = false;
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await simularSessao(page, perfilFiliado);
+  await page.route("**/api/beneficios/*", (rota) =>
+    rota.fulfill({ json: { ...detalheTeste, resgatado } }),
+  );
+  await page.route("**/api/beneficios/*/resgate", (rota) => {
+    const status = resgatado ? 200 : 201;
+    resgatado = true;
+    return rota.fulfill({ status, json: resgateCupomTeste });
+  });
+
+  await page.goto(`/beneficios/${detalheTeste.id_beneficio}`);
+  await page.getByRole("button", { name: "Resgatar vantagem" }).click();
+
+  const modal = page.getByRole("dialog", { name: "Seu código está pronto" });
+  await expect(modal.getByText("Resgate registrado")).toBeVisible();
+  await modal.getByRole("button", { name: "Copiar código" }).click();
+  await expect(modal.getByRole("button", { name: "Código copiado" })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    resgateCupomTeste.conteudo_entregue,
+  );
+  await page.screenshot({
+    path: `test-results/capturas/beneficios-codigo-${info.project.name}.png`,
+    animations: "disabled",
+  });
+  const { violations } = await new AxeBuilder({ page }).analyze();
+  expect(violations.filter(({ impact }) => impact === "serious" || impact === "critical")).toEqual(
+    [],
+  );
+
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Ver código" }).click();
+  await expect(modal.getByText(resgateCupomTeste.conteudo_entregue)).toBeVisible();
+  await expect(modal.getByText("Resgate registrado")).toHaveCount(0);
 });

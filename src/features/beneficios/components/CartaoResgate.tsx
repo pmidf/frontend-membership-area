@@ -25,6 +25,10 @@ export function CartaoResgate({ beneficio, children }: PropsCartaoResgate) {
         </dd>
       </dl>
       {children}
+      <p className="text-legenda text-texto-secundario">
+        Ao resgatar, registramos data, hora e seu status de filiação no momento da ação. Isso serve
+        de comprovação junto ao parceiro.
+      </p>
     </Cartao>
   );
 }

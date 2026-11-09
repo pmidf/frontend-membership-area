@@ -16,6 +16,7 @@ import {
 } from "../api/beneficios.queries";
 import { rotulosCategoria } from "../lib/rotulos-beneficio";
 import type { DetalheBeneficio } from "../tipos/beneficio";
+import { BotaoResgatar } from "./BotaoResgatar";
 import { CartaoResgate } from "./CartaoResgate";
 import { ImagemBeneficio } from "./ImagemBeneficio";
 
@@ -43,7 +44,9 @@ function ConteudoDetalhe({ beneficio }: { beneficio: DetalheBeneficio }) {
         </p>
       </Cartao>
       <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
-        <CartaoResgate beneficio={beneficio} />
+        <CartaoResgate beneficio={beneficio}>
+          <BotaoResgatar beneficio={beneficio} />
+        </CartaoResgate>
       </div>
       <Cartao className="p-6 lg:col-start-1 lg:rounded-t-none lg:border-t-0 lg:pt-3">
         <p className="break-words whitespace-pre-line">{beneficio.descricao}</p>

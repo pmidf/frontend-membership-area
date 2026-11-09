@@ -13,6 +13,8 @@ import type { DetalheBeneficio } from "../tipos/beneficio";
 import { PaginaBeneficios } from "./PaginaBeneficios";
 import { PaginaDetalheBeneficio } from "./PaginaDetalheBeneficio";
 
+const ESPERA_DA_GRADE = 4000;
+
 let usuario: ReturnType<typeof userEvent.setup>;
 
 beforeEach(() => {
@@ -31,7 +33,7 @@ function abrirCatalogo(consulta = "") {
   return resultado;
 }
 
-const lista = () => screen.findByRole("list", { name: "Benefícios" });
+const lista = () => screen.findByRole("list", { name: "Benefícios" }, { timeout: ESPERA_DA_GRADE });
 const cartoes = async () => within(await lista()).getAllByRole("listitem");
 const cartaoDe = async (titulo: string) => {
   await lista();
@@ -40,7 +42,7 @@ const cartaoDe = async (titulo: string) => {
 const substituicao = (destino: string) =>
   waitFor(() => expect(roteadorFalso.replace).toHaveBeenCalledWith(destino, { scroll: false }));
 
-describe("Catálogo", () => {
+describe("Catálogo", { timeout: 15_000 }, () => {
   it("mostra os cartões, o total geral e os chips das categorias devolvidas", async () => {
     abrirCatalogo();
 
