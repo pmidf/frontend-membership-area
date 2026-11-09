@@ -21,7 +21,7 @@ export function ImagemBeneficio({ src, alt = "", className }: PropsImagemBenefic
         className,
       )}
     >
-      {!falhou && (
+      {src && !falhou && (
         <Image
           src={src}
           alt={alt}

@@ -24,7 +24,7 @@ export function CartaoBeneficio({ beneficio, href }: PropsCartaoBeneficio) {
 
   return (
     <Cartao interativo={Boolean(href)} className="relative flex h-full flex-col gap-3 p-4">
-      <ImagemBeneficio src={imagem} />
+      <ImagemBeneficio key={imagem} src={imagem} />
       <div>
         <Etiqueta tom={tom}>{rotulo}</Etiqueta>
       </div>

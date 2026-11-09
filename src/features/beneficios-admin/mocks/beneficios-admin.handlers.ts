@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw/http";
 
 import type { Pagina } from "@/shared/api/tipos";
 
+import type { BeneficioAdmin } from "../api/beneficios-admin.api";
 import type { ItemBeneficioAdmin } from "../tipos/beneficio-admin";
 
 const id = (numero: number) => `40000000-0000-4000-8000-${String(numero).padStart(12, "0")}`;
@@ -93,6 +94,53 @@ export function handlersBeneficiosAdmin(itens: ItemBeneficioAdmin[] = beneficios
       HttpResponse.text("título,parceiro\nA,B", {
         headers: { "Content-Disposition": 'attachment; filename="beneficios-2026-11-09.csv"' },
       }),
+    ),
+  ];
+}
+
+export const beneficioAdminTeste: BeneficioAdmin = {
+  id_beneficio: id(1),
+  titulo: "Voucher do exame PMP",
+  legenda: "Desconto no exame",
+  descricao: "Primeira linha.\nSegunda linha.",
+  imagem: "https://exemplo.test/beneficio.png",
+  cod_parceiro: "50000000-0000-4000-8000-000000000001",
+  parceiro: "PMI Global",
+  categoria: "CERTIFICACAO",
+  tipo_resgate: "CUPOM",
+  cod_cupom: "PMI-2026",
+  desc_instrucao: null,
+  situacao: "RASCUNHO",
+  vigencia_inicio: "2026-01-01",
+  vigencia_fim: "2026-12-31",
+  data_publicacao: null,
+  quantidade_resgates: 0,
+};
+
+export function handlersBeneficioAdmin(inicial: BeneficioAdmin = beneficioAdminTeste) {
+  let beneficio = inicial;
+  const situacao = (nova: BeneficioAdmin["situacao"]) => () => {
+    beneficio = { ...beneficio, situacao: nova };
+    return HttpResponse.json(beneficio);
+  };
+  return [
+    http.get("*/api/admin/beneficios/:id", ({ params }) =>
+      params.id === beneficio.id_beneficio
+        ? HttpResponse.json(beneficio)
+        : HttpResponse.json({ codigo: "BENEFICIO_NAO_ENCONTRADO" }, { status: 404 }),
+    ),
+    http.patch("*/api/admin/beneficios/:id", async ({ request }) => {
+      beneficio = { ...beneficio, ...((await request.json()) as Partial<BeneficioAdmin>) };
+      return HttpResponse.json(beneficio);
+    }),
+    http.post("*/api/admin/beneficios/:id/publicar", situacao("PUBLICADO")),
+    http.post("*/api/admin/beneficios/:id/despublicar", situacao("RASCUNHO")),
+    http.post("*/api/admin/beneficios/:id/arquivar", situacao("ARQUIVADO")),
+    http.post("*/api/admin/beneficios/:id/duplicar", () =>
+      HttpResponse.json(
+        { ...beneficio, id_beneficio: id(99), situacao: "RASCUNHO" },
+        { status: 201 },
+      ),
     ),
   ];
 }
