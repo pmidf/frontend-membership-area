@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw/http";
 
 import { hojeNoFuso } from "@/shared/lib/datas";
 
+import type { HistoricoResgates } from "../api/resgates.api";
 import type {
   CategoriaBeneficio,
   DetalheBeneficio,
@@ -152,4 +153,43 @@ export function handlersResgate(
       return HttpResponse.json(resgate, { status });
     }),
   ];
+}
+
+export const historicoTeste: HistoricoResgates = {
+  codigos_ocultos: false,
+  itens: [
+    {
+      id_beneficio: "30000000-0000-4000-8000-000000000001",
+      titulo: "Trilha de Business Agility",
+      parceiro: "BRA LAB",
+      tipo_resgate: "CUPOM",
+      data_resgate: "2026-06-12T15:00:00.000Z",
+      beneficio_encerrado: false,
+      conteudo_entregue: "BRALAB-PMIDF-4471",
+    },
+    {
+      id_beneficio: "30000000-0000-4000-8000-000000000002",
+      titulo: "Consultoria de carreira",
+      parceiro: "Impact Hub",
+      tipo_resgate: "INSTRUCAO",
+      data_resgate: "2026-03-02T15:00:00.000Z",
+      beneficio_encerrado: false,
+      conteudo_entregue: "<p>Agende pelo <strong>site</strong>.</p>",
+    },
+    {
+      id_beneficio: "30000000-0000-4000-8000-000000000003",
+      titulo: "Voucher CAPM",
+      parceiro: "PMI Global",
+      tipo_resgate: "CUPOM",
+      data_resgate: "2026-01-18T15:00:00.000Z",
+      beneficio_encerrado: true,
+      conteudo_entregue: "PMIG-CAPM-88213",
+    },
+  ],
+};
+
+export function handlersResgates(
+  historico: HistoricoResgates = { codigos_ocultos: false, itens: [] },
+) {
+  return [http.get("*/api/me/resgates", () => HttpResponse.json(historico))];
 }

@@ -5,6 +5,7 @@ import { useSessao } from "@/shared/sessao/useSessao";
 
 import type { FiltrosBeneficios } from "../tipos/beneficio";
 import { detalharBeneficio, listarBeneficios, resgatarBeneficio } from "./beneficios.api";
+import { chavesResgates } from "./resgates.queries";
 
 export const chavesBeneficios = {
   listas: ["beneficios", "lista"] as const,
@@ -51,7 +52,9 @@ export function useResgatarBeneficio(id: string) {
   return useMutation({
     mutationFn: () => resgatarBeneficio(id),
     onSuccess: ({ novo }) => {
-      if (novo) atualizarBeneficio();
+      if (!novo) return;
+      atualizarBeneficio();
+      void clienteConsultas.invalidateQueries({ queryKey: chavesResgates.meus });
     },
     onError: (erro) => {
       if (beneficioNaoEncontrado(erro)) atualizarBeneficio();

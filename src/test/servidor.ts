@@ -6,7 +6,10 @@ import {
   handlersConfirmacao,
   handlersSenha,
 } from "@/features/auth/mocks/auth.handlers";
-import { handlersBeneficios } from "@/features/beneficios/mocks/beneficios.handlers";
+import {
+  handlersBeneficios,
+  handlersResgates,
+} from "@/features/beneficios/mocks/beneficios.handlers";
 import { handlersConversao } from "@/features/conversao/mocks/conversao.handlers";
 import { handlersPerfil } from "@/features/perfil/mocks/perfil.handlers";
 import {
@@ -26,6 +29,7 @@ export const servidor = setupServer(
   ...handlersSenha,
   ...handlersConversao,
   ...handlersBeneficios(),
+  ...handlersResgates(),
   ...handlersSeguranca(),
   ...handlersPerfil(),
   ...handlersPessoasAdmin(),

@@ -7,6 +7,7 @@ import { useBeneficios } from "../api/beneficios.queries";
 import { ehPrevia } from "../lib/eh-previa";
 import { filtrosDaUrl, filtrosParaApi } from "../lib/filtros-url";
 import { CatalogoBeneficios } from "./CatalogoBeneficios";
+import { MeusResgates } from "./MeusResgates";
 import { PreviaClube } from "./PreviaClube";
 
 function subtitulo(total: number): string {
@@ -41,6 +42,7 @@ export function PaginaBeneficios() {
             aoMudar={atualizar}
           />
         ))}
+      {data && <MeusResgates />}
       {beneficios.isPending && (
         <Esqueleto
           variante="cartao"

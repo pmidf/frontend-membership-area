@@ -5,6 +5,7 @@ import {
   detalheTeste,
   filtrarLista,
   itensTeste,
+  historicoTeste,
   previaTeste,
   resgateCupomTeste,
 } from "../src/features/beneficios/mocks/beneficios.handlers";
@@ -15,6 +16,9 @@ import { simularSessao } from "./sessao";
 
 async function abrirPrevia(page: Page, perfil: Perfil | null) {
   await simularSessao(page, perfil);
+  await page.route("**/api/me/resgates", (rota) =>
+    rota.fulfill({ json: { codigos_ocultos: true, itens: [] } }),
+  );
   await page.route("**/api/beneficios", (rota) => rota.fulfill({ json: previaTeste }));
   await page.goto("/beneficios");
   await expect(page.getByRole("region", { name: "Exclusivo para filiados" })).toBeVisible();
@@ -60,6 +64,7 @@ test("o Filiado busca no catálogo, abre um benefício e volta com os filtros", 
   page,
 }, info) => {
   await simularSessao(page, perfilFiliado);
+  await page.route("**/api/me/resgates", (rota) => rota.fulfill({ json: historicoTeste }));
   await page.route("**/api/beneficios*", (rota) =>
     rota.fulfill({ json: filtrarLista(itensTeste, new URL(rota.request().url())) }),
   );
@@ -68,6 +73,7 @@ test("o Filiado busca no catálogo, abre um benefício e volta com os filtros", 
   await page.goto("/beneficios");
   const lista = page.getByRole("list", { name: "Benefícios" });
   await expect(lista.getByRole("listitem")).toHaveCount(20);
+  await expect(page.getByText("BRALAB-PMIDF-4471")).toBeVisible();
   await page.screenshot({
     path: `test-results/capturas/beneficios-catalogo-${info.project.name}.png`,
     animations: "disabled",
