@@ -51,7 +51,7 @@ export function FiltrosBeneficiosAdmin({
         valorInicial={valorInicialBusca}
         maxLength={TAMANHO_MAXIMO_BUSCA}
         aoBuscar={aoBuscar}
-        className="sm:col-span-2 lg:col-span-1"
+        className="sm:col-span-2 lg:col-span-1 lg:mb-1.5"
       />
       <CampoSelecao
         rotulo="Status"
