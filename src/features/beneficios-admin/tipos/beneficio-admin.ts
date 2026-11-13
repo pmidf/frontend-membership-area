@@ -1,7 +1,8 @@
 import type { CategoriaBeneficio, TipoResgate } from "@/features/beneficios/tipos/beneficio";
+import { SITUACOES_PUBLICACAO, type SituacaoPublicacao } from "@/shared/publicacao/situacao";
 
-export const SITUACOES_BENEFICIO = ["RASCUNHO", "PUBLICADO", "ARQUIVADO"] as const;
-export type SituacaoBeneficio = (typeof SITUACOES_BENEFICIO)[number];
+export const SITUACOES_BENEFICIO = SITUACOES_PUBLICACAO;
+export type SituacaoBeneficio = SituacaoPublicacao;
 
 export const TIPOS_RESGATE = ["CUPOM", "INSTRUCAO"] as const;
 

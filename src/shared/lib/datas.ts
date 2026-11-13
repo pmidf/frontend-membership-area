@@ -40,6 +40,14 @@ export function formatarDataCivil(dataCivil: string): string {
   return `${dia}/${mes}/${ano}`;
 }
 
+export function somarDias(dataCivil: string, dias: number): string {
+  return new Date((emDiasUtc(dataCivil) + dias) * DIA_EM_MS).toISOString().slice(0, 10);
+}
+
+export function diasEntre(inicio: string, fim: string): number {
+  return emDiasUtc(fim) - emDiasUtc(inicio);
+}
+
 export function diasAte(dataCivil: string, agora: Date = new Date()): number {
   return emDiasUtc(dataCivil) - emDiasUtc(hojeNoFuso(agora));
 }

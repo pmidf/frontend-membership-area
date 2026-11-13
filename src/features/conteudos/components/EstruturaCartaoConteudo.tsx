@@ -4,16 +4,17 @@ import { SeloExclusivo } from "@/features/conversao/components/SeloExclusivo";
 import { Cartao, cn } from "@/shared/ui";
 
 import { duracaoNaCapa } from "../lib/duracao";
+import { rotulosTipo } from "../lib/tipo-conteudo";
 import type { TipoConteudo } from "../tipos/conteudo";
 
 const aparenciaPorTipo: Record<TipoConteudo, { rotulo: string; capa: string; selo: string }> = {
   VIDEO: {
-    rotulo: "Vídeo",
+    rotulo: rotulosTipo.VIDEO,
     capa: "from-violeta-800 to-violeta-500",
     selo: "bg-acao-primaria",
   },
   MATERIAL: {
-    rotulo: "Material",
+    rotulo: rotulosTipo.MATERIAL,
     capa: "from-aqua-600 to-acao-destaque",
     selo: "bg-alerta-700",
   },

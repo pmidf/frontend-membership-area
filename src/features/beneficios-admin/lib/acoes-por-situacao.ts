@@ -1,6 +1,8 @@
+import type { AcaoPublicacao } from "@/shared/publicacao/AcoesPublicacao";
+
 import type { SituacaoBeneficio } from "../tipos/beneficio-admin";
 
-export type AcaoBeneficio = "salvar" | "publicar" | "despublicar" | "arquivar" | "duplicar";
+export type AcaoBeneficio = AcaoPublicacao | "duplicar";
 
 const acoes: Record<SituacaoBeneficio, AcaoBeneficio[]> = {
   RASCUNHO: ["salvar", "publicar", "arquivar"],

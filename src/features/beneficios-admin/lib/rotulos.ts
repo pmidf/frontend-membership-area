@@ -1,18 +1,7 @@
 import type { TipoResgate } from "@/features/beneficios/tipos/beneficio";
 import { formatarDataCivil, formatarDiaMes } from "@/shared/lib/datas";
-import type { Tom } from "@/shared/ui";
 
-import type {
-  ItemBeneficioAdmin,
-  SituacaoBeneficio,
-  VigenciaBeneficio,
-} from "../tipos/beneficio-admin";
-
-export const rotulosSituacao: Record<SituacaoBeneficio, { rotulo: string; tom: Tom }> = {
-  RASCUNHO: { rotulo: "Rascunho", tom: "neutro" },
-  PUBLICADO: { rotulo: "Publicado", tom: "aqua" },
-  ARQUIVADO: { rotulo: "Arquivado", tom: "alerta" },
-};
+import type { ItemBeneficioAdmin, VigenciaBeneficio } from "../tipos/beneficio-admin";
 
 export const rotulosFormaResgate: Record<TipoResgate, string> = {
   CUPOM: "Cupom compartilhado",

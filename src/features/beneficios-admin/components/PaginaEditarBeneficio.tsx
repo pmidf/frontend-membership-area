@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -11,12 +10,18 @@ import { aplicarErrosDeCampo } from "@/shared/api/aplicar-erros-de-campo";
 import { ehErroApi } from "@/shared/api/erro-api";
 import { mensagemDeErro } from "@/shared/api/mensagens-erro";
 import { useAvisoAoSair } from "@/shared/hooks/useAvisoAoSair";
+import { AcoesPublicacao } from "@/shared/publicacao/AcoesPublicacao";
+import { CartaoPublicacao } from "@/shared/publicacao/CartaoPublicacao";
+import { rotulosSituacao } from "@/shared/publicacao/situacao";
 import {
+  Alerta,
+  Botao,
   CabecalhoPagina,
   DialogoConfirmacao,
+  Esqueleto,
   EstadoErro,
   EstadoVazio,
-  Esqueleto,
+  LinkVoltar,
   SeloStatus,
   useAvisos,
 } from "@/shared/ui";
@@ -33,11 +38,9 @@ import {
   usePublicarBeneficio,
   useRecarregarBeneficio,
 } from "../api/beneficios-admin.queries";
-import { rotulosSituacao } from "../lib/rotulos";
+import { acoesPorSituacao } from "../lib/acoes-por-situacao";
 import { camposAlteradosDoBeneficio, valoresDoBeneficio } from "../lib/valores-beneficio";
 import { esquemaBeneficio, type DadosBeneficio } from "../schemas/beneficio.schema";
-import { AcoesBeneficio } from "./AcoesBeneficio";
-import { CartaoPublicacao } from "./CartaoPublicacao";
 import { FormularioBeneficio } from "./FormularioBeneficio";
 import { PreviaCardBeneficio } from "./PreviaCardBeneficio";
 
@@ -165,18 +168,31 @@ function EdicaoBeneficio({ beneficio }: { beneficio: BeneficioAdmin }) {
           </fieldset>
         </form>
         <div className="flex flex-col gap-6">
-          <CartaoPublicacao situacao={situacao}>
-            <AcoesBeneficio
+          <CartaoPublicacao
+            situacao={situacao}
+            detalhes={[{ termo: "Visível para", valor: "Filiados ativos" }]}
+            nota="Publicar torna o benefício visível na hora, respeitando a vigência. Toda edição posterior fica registrada na auditoria."
+          >
+            <AcoesPublicacao
               idFormulario={ID_FORMULARIO}
-              situacao={situacao}
+              acoes={acoesPorSituacao(situacao)}
+              rotuloPublicar="Publicar benefício"
               semAlteracoes={!isDirty}
               salvando={atualizacao.isPending}
               publicando={publicacao.isPending}
-              duplicando={duplicacao.isPending}
               aoPublicar={() => void publicar()}
               aoDespublicar={() => setConfirmando("despublicar")}
               aoArquivar={() => setConfirmando("arquivar")}
-              aoDuplicar={duplicar}
+              somenteLeitura={
+                <>
+                  <Alerta tom="alerta" titulo="Benefício arquivado.">
+                    Para renovar a parceria, duplique-o como um novo rascunho.
+                  </Alerta>
+                  <Botao larguraTotal carregando={duplicacao.isPending} onClick={duplicar}>
+                    Duplicar como rascunho
+                  </Botao>
+                </>
+              }
             />
           </CartaoPublicacao>
           <PreviaCardBeneficio parceiro={beneficio.parceiro} />
@@ -249,13 +265,7 @@ export function PaginaEditarBeneficio() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <Link
-        href={destinoVolta}
-        className="inline-flex items-center gap-1 self-start text-corpo-pequeno font-medium text-texto-marca underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-acao-destaque"
-      >
-        <ChevronLeft aria-hidden="true" className="size-4" />
-        Voltar para a lista de benefícios
-      </Link>
+      <LinkVoltar href={destinoVolta}>Voltar para a lista de benefícios</LinkVoltar>
       {conteudo()}
     </div>
   );

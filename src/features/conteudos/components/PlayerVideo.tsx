@@ -9,9 +9,7 @@ import { Botao } from "@/shared/ui";
 import { filiacaoNecessaria, usePlayer } from "../api/conteudos.queries";
 import { CAMINHO_CATALOGO } from "../lib/origem-catalogo";
 import type { ConteudoAcessivel } from "../tipos/conteudo";
-
-const PERMISSOES_PLAYER =
-  "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+import { EmbedYoutube } from "./EmbedYoutube";
 
 export function PlayerVideo({ conteudo }: { conteudo: ConteudoAcessivel }) {
   const { id_conteudo, titulo, bol_exclusivo } = conteudo;
@@ -26,14 +24,7 @@ export function PlayerVideo({ conteudo }: { conteudo: ConteudoAcessivel }) {
   return (
     <div className="aspect-video w-full overflow-hidden rounded-lg bg-linear-148 from-violeta-950 to-violeta-500 to-70%">
       {player.data ? (
-        <iframe
-          src={player.data.embed_url}
-          title={titulo}
-          allow={PERMISSOES_PLAYER}
-          allowFullScreen
-          referrerPolicy="strict-origin-when-cross-origin"
-          className="size-full"
-        />
+        <EmbedYoutube src={player.data.embed_url} titulo={titulo} className="size-full" />
       ) : (
         <div className="flex size-full flex-col items-center justify-center gap-3.5 p-4 text-center">
           {player.isError && !semFiliacao ? (
