@@ -14,6 +14,7 @@ type PropsCampoBusca = {
   atraso?: number;
   maxLength?: number;
   desabilitado?: boolean;
+  focoInicial?: boolean;
   className?: string;
 };
 
@@ -25,12 +26,21 @@ export function CampoBusca({
   atraso = 300,
   maxLength,
   desabilitado = false,
+  focoInicial = false,
   className,
 }: PropsCampoBusca) {
   const id = useId();
   const [termo, setTermo] = useState(valorInicial);
   const ultimoBuscado = useRef(valorInicial);
   const aoBuscarAtual = useRef(aoBuscar);
+  const campo = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!focoInicial || !campo.current) return;
+    const fim = campo.current.value.length;
+    campo.current.focus();
+    campo.current.setSelectionRange(fim, fim);
+  }, [focoInicial]);
 
   useEffect(() => {
     aoBuscarAtual.current = aoBuscar;
@@ -55,6 +65,7 @@ export function CampoBusca({
         className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-texto-placeholder"
       />
       <input
+        ref={campo}
         id={id}
         type="search"
         value={termo}

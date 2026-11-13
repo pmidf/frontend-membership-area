@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
+import { useCorrigirPaginaInexistente } from "@/shared/hooks/useCorrigirPaginaInexistente";
 import { useParametrosUrl } from "@/shared/hooks/useParametrosUrl";
 import {
   Botao,
@@ -45,13 +46,13 @@ export function PaginaBeneficiosAdmin() {
   const [limpezas, setLimpezas] = useState(0);
   const { data, isPlaceholderData } = beneficios;
 
-  const passouDoFim =
-    data !== undefined && !isPlaceholderData && data.itens.length === 0 && filtros.pagina > 1;
   const ultimaPagina = data?.total_paginas ?? 0;
 
-  useEffect(() => {
-    if (passouDoFim) atualizar({ pagina: ultimaPagina > 1 ? ultimaPagina : null });
-  }, [passouDoFim, ultimaPagina, atualizar]);
+  useCorrigirPaginaInexistente(
+    data !== undefined && !isPlaceholderData && data.itens.length === 0 && filtros.pagina > 1,
+    ultimaPagina,
+    atualizar,
+  );
 
   function limparFiltros() {
     setLimpezas((atual) => atual + 1);

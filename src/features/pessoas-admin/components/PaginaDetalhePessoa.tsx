@@ -1,12 +1,11 @@
 "use client";
 
-import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { CartaoSituacaoFiliacao } from "@/features/perfil/components/CartaoSituacaoFiliacao";
-import { EstadoErro, EstadoVazio, Esqueleto } from "@/shared/ui";
+import { Esqueleto, EstadoErro, EstadoVazio, LinkVoltar } from "@/shared/ui";
 import { classesBotao } from "@/shared/ui/botao/Botao";
 
 import { pessoaNaoEncontrada, usePessoa } from "../api/pessoas-admin.queries";
@@ -89,13 +88,7 @@ export function PaginaDetalhePessoa() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-      <Link
-        href={destinoVolta}
-        className="inline-flex items-center gap-1 self-start text-corpo-pequeno font-medium text-texto-marca underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-acao-destaque"
-      >
-        <ChevronLeft aria-hidden="true" className="size-4" />
-        Voltar para Pessoas
-      </Link>
+      <LinkVoltar href={destinoVolta}>Voltar para Pessoas</LinkVoltar>
       <ConteudoDetalhe id={id} destinoVolta={destinoVolta} />
     </div>
   );

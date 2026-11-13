@@ -6,7 +6,7 @@ import {
   filtrosDeExportacao,
   temFiltroAplicado,
 } from "./filtros-url";
-import { rotulosSituacao, textoVigencia } from "./rotulos";
+import { textoVigencia } from "./rotulos";
 
 const parametros = (consulta: string) => new URLSearchParams(consulta);
 
@@ -80,9 +80,5 @@ describe("rótulos", () => {
     expect(textoVigencia({ vigencia_inicio: "2026-01-01", vigencia_fim: null })).toBe(
       "Sem data de término",
     );
-  });
-
-  it("nomeia as situações", () => {
-    expect(rotulosSituacao.ARQUIVADO.rotulo).toBe("Arquivado");
   });
 });

@@ -4,16 +4,12 @@ import type { ChangeEvent } from "react";
 
 import { rotulosCategoria } from "@/features/beneficios/lib/rotulos-beneficio";
 import { CATEGORIAS_BENEFICIO } from "@/features/beneficios/tipos/beneficio";
+import { opcoesSituacao } from "@/shared/publicacao/situacao";
 import { CampoBusca, CampoSelecao } from "@/shared/ui";
 
 import { TAMANHO_MAXIMO_BUSCA, type FiltrosTela } from "../lib/filtros-url";
-import { rotulosSituacao, rotulosVigencia } from "../lib/rotulos";
-import { SITUACOES_BENEFICIO, TIPOS_RESGATE, VIGENCIAS_BENEFICIO } from "../tipos/beneficio-admin";
-
-const opcoesSituacao = SITUACOES_BENEFICIO.map((valor) => ({
-  valor,
-  rotulo: rotulosSituacao[valor].rotulo,
-}));
+import { rotulosVigencia } from "../lib/rotulos";
+import { TIPOS_RESGATE, VIGENCIAS_BENEFICIO } from "../tipos/beneficio-admin";
 const opcoesForma = TIPOS_RESGATE.map((valor) => ({
   valor,
   rotulo: valor === "CUPOM" ? "Cupom" : "Instrução",

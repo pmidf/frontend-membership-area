@@ -1,12 +1,11 @@
 "use client";
 
-import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { formatarDataCivil } from "@/shared/lib/datas";
-import { Cartao, EstadoErro, EstadoVazio, Esqueleto, Etiqueta } from "@/shared/ui";
+import { Cartao, Esqueleto, EstadoErro, EstadoVazio, Etiqueta, LinkVoltar } from "@/shared/ui";
 import { classesBotao } from "@/shared/ui/botao/Botao";
 
 import {
@@ -99,13 +98,7 @@ export function PaginaDetalheBeneficio() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <Link
-        href={destinoVolta}
-        className="inline-flex items-center gap-1 self-start text-corpo-pequeno font-medium text-texto-marca underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-acao-destaque"
-      >
-        <ChevronLeft aria-hidden="true" className="size-4" />
-        Voltar para o clube de benefícios
-      </Link>
+      <LinkVoltar href={destinoVolta}>Voltar para o clube de benefícios</LinkVoltar>
       {conteudo()}
     </div>
   );

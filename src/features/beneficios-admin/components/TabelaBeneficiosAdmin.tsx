@@ -5,9 +5,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { rotulosCategoria } from "@/features/beneficios/lib/rotulos-beneficio";
+import { rotulosSituacao } from "@/shared/publicacao/situacao";
 import { SeloStatus, Tabela, type ColunaTabela } from "@/shared/ui";
 
-import { rotulosFormaResgate, rotulosSituacao, textoVigencia } from "../lib/rotulos";
+import { rotulosFormaResgate, textoVigencia } from "../lib/rotulos";
 import type { ItemBeneficioAdmin, OrdenacaoBeneficio } from "../tipos/beneficio-admin";
 
 type PropsTabela = {
