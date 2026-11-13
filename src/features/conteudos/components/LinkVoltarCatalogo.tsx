@@ -1,8 +1,10 @@
 import Link from "next/link";
 
-export function LinkVoltarCatalogo() {
+import { CAMINHO_CATALOGO } from "../lib/origem-catalogo";
+
+export function LinkVoltarCatalogo({ href = CAMINHO_CATALOGO }: { href?: string }) {
   return (
-    <Link href="/conteudos" className="self-start text-rotulo text-texto-marca hover:underline">
+    <Link href={href} className="self-start text-rotulo text-texto-marca hover:underline">
       ‹ Voltar para o catálogo
     </Link>
   );

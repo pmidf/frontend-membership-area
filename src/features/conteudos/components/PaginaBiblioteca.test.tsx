@@ -72,7 +72,7 @@ describe("Catálogo do Filiado", () => {
     expect(tecnologia.getByText("Visto")).toBeInTheDocument();
     expect(tecnologia.getByRole("link", { name: videoVisto.titulo })).toHaveAttribute(
       "href",
-      `/conteudos/${videoVisto.id_conteudo}`,
+      expect.stringContaining(`/conteudos/${videoVisto.id_conteudo}?de=`),
     );
   });
 
@@ -248,7 +248,7 @@ describe("Prévia para quem não é Filiado", () => {
 
     expect(tecnologia.getByRole("link", { name: videoPublico.titulo })).toHaveAttribute(
       "href",
-      `/conteudos/${videoPublico.id_conteudo}`,
+      expect.stringContaining(`/conteudos/${videoPublico.id_conteudo}?de=`),
     );
     expect(container.querySelectorAll("[data-bloqueado='true'] a")).toHaveLength(0);
   });

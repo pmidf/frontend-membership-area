@@ -5,6 +5,9 @@ import {
   catalogoFiliado,
   catalogoPrevia,
   categoriasTeste,
+  detalheMaterial,
+  detalheVideo,
+  playerTeste,
 } from "../src/features/conteudos/mocks/conteudos.handlers";
 import type { Catalogo } from "../src/features/conteudos/tipos/conteudo";
 import type { Perfil } from "../src/shared/sessao/tipos";
@@ -89,4 +92,57 @@ test("o resumo do Não-Filiado traz o exclusivo em Adicionados recentemente", as
   await expect(page.locator("[data-bloqueado='true']")).toHaveCount(1);
   await capturar(page, "resumo-previa", info.project.name);
   await conferirAcessibilidade(page);
+});
+
+test("o Filiado abre um vídeo, assiste e marca como assistido", async ({ page }, info) => {
+  await simularSessao(page, perfilFiliado);
+  await page.route(/youtube-nocookie\.com/, (r) =>
+    r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Vídeo</title>" }),
+  );
+  let consumido = false;
+  await page.route(`**/api/conteudos/${detalheVideo.id_conteudo}`, (r) =>
+    r.fulfill({ json: { ...detalheVideo, consumido } }),
+  );
+  await page.route(`**/api/conteudos/${detalheVideo.id_conteudo}/player`, (r) =>
+    r.fulfill({ json: playerTeste }),
+  );
+  await page.route(`**/api/conteudos/${detalheVideo.id_conteudo}/consumido`, (r) => {
+    consumido = r.request().method() === "PUT";
+    return r.fulfill({ status: 204 });
+  });
+
+  await page.goto(`/conteudos/${detalheVideo.id_conteudo}?de=%2Fconteudos%2Fhistorico`);
+  await expect(page.getByTitle(detalheVideo.titulo)).toBeVisible();
+  await capturar(page, "detalhe-video", info.project.name);
+  await conferirAcessibilidade(page);
+  await expect(page.getByRole("link", { name: /Voltar para o catálogo/ })).toHaveAttribute(
+    "href",
+    "/conteudos/historico",
+  );
+
+  await page.getByRole("button", { name: "Marcar como assistido" }).click();
+  await expect(page.getByRole("button", { name: "Assistido — desmarcar" })).toBeVisible();
+});
+
+test("o material abre em nova aba", async ({ page, context }, info) => {
+  await simularSessao(page, perfilFiliado);
+  await context.route("https://exemplo.test/**", (r) =>
+    r.fulfill({ contentType: "text/html", body: "<!doctype html><title>Material</title>" }),
+  );
+  await page.route(`**/api/conteudos/${detalheMaterial.id_conteudo}`, (r) =>
+    r.fulfill({ json: detalheMaterial }),
+  );
+  await page.route(`**/api/conteudos/${detalheMaterial.id_conteudo}/acessos`, (r) =>
+    r.fulfill({ status: 201, json: { url: "https://exemplo.test/material.pdf" } }),
+  );
+
+  await page.goto(`/conteudos/${detalheMaterial.id_conteudo}`);
+  await expect(page.getByRole("heading", { level: 1, name: detalheMaterial.titulo })).toBeVisible();
+  await capturar(page, "detalhe-material", info.project.name);
+  await conferirAcessibilidade(page);
+
+  const novaAba = context.waitForEvent("page");
+  await page.getByRole("button", { name: "Abrir material" }).click();
+  const aba = await novaAba;
+  await aba.waitForURL("https://exemplo.test/material.pdf");
 });

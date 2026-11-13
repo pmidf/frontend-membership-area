@@ -29,4 +29,23 @@ describe("conteudosAssistidos", () => {
   it("mantém só os itens consumidos, sem os bloqueados", () => {
     expect(conteudosAssistidos([videoVisto, videoPublico, itemBloqueado])).toEqual([videoVisto]);
   });
+
+  it("ordena pela data em que a pessoa assistiu, não pela publicação", () => {
+    const antigoVistoHoje = {
+      ...videoVisto,
+      id_conteudo: "antigo",
+      data_publicacao: "2025-01-01T00:00:00Z",
+      data_consumo: "2026-11-10T00:00:00Z",
+    };
+    const novoVistoAntes = {
+      ...videoVisto,
+      id_conteudo: "novo",
+      data_publicacao: "2026-11-01T00:00:00Z",
+      data_consumo: "2026-11-02T00:00:00Z",
+    };
+
+    expect(
+      conteudosAssistidos([novoVistoAntes, antigoVistoHoje]).map((item) => item.id_conteudo),
+    ).toEqual(["antigo", "novo"]);
+  });
 });

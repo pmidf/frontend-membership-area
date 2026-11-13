@@ -9,6 +9,7 @@ export type ItemCatalogoCompleto = {
   data_publicacao: string | null;
   bol_exclusivo: boolean;
   consumido: boolean;
+  data_consumo: string | null;
   bloqueado: false;
 };
 
@@ -49,3 +50,14 @@ export type FiltrosConteudos = {
   tipo?: TipoConteudo;
   page?: number;
 };
+
+export type CategoriaResumo = { cod_categoria: string; desc_categoria: string };
+
+export type ConteudoAcessivel = ItemCatalogoCompleto & { categoria: CategoriaResumo };
+
+export type DetalheConteudo =
+  ConteudoAcessivel | (ItemCatalogoPrevia & { categoria: CategoriaResumo });
+
+export type PlayerConteudo = { video_id: string; embed_url: string };
+
+export type AcessoMaterial = { url: string };
