@@ -16,7 +16,9 @@ type CardProximoEventoProps = {
 };
 
 export function CardProximoEvento({ evento, emails }: CardProximoEventoProps) {
-  const local = evento.endereco ? `${evento.endereco.nome}, ${evento.endereco.logradouro}` : "Online";
+  const local = evento.endereco
+    ? `${evento.endereco.nome}, ${evento.endereco.logradouro}`
+    : "Online";
   const participacao = rotuloParticipacao(evento);
 
   return (
@@ -34,7 +36,8 @@ export function CardProximoEvento({ evento, emails }: CardProximoEventoProps) {
           <Link href={`/agenda/${evento.id}`}>{evento.titulo}</Link>
         </h2>
         <p className={styles.info}>
-          {formatarDataLonga(evento.inicio)} · {formatarFaixaHorario(evento.inicio, evento.fim)} · {local}
+          {formatarDataLonga(evento.inicio)} · {formatarFaixaHorario(evento.inicio, evento.fim)} ·{" "}
+          {local}
         </p>
         <p className={`${styles.info} ${styles.descricao}`}>{evento.descricao}</p>
 
@@ -46,7 +49,7 @@ export function CardProximoEvento({ evento, emails }: CardProximoEventoProps) {
           ) : (
             <BotaoInscricaoSympla urlSympla={evento.urlSympla} emails={emails} />
           )}
-          <a href={`/api/agenda/${evento.id}/ics`} className={classesBotao({ tipo: "link" })} download>
+          <a href={`/agenda/${evento.id}/ics`} className={classesBotao({ tipo: "link" })} download>
             Adicionar ao meu calendário
           </a>
         </div>

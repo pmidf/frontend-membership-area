@@ -1,74 +1,100 @@
-/* Tokens do design system PMI-DF (Figma: Membership Area · Marca PMI) */
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-violeta-50: #efedf3;
+  --color-violeta-300: #b465ff;
+  --color-violeta-500: #4f17a8;
+  --color-violeta-800: #200f3b;
+  --color-violeta-950: #100522;
+  --color-aqua-50: #eefafa;
+  --color-aqua-600: #005c77;
+  --color-neutro-100: #f8f8f8;
+  --color-branco: #ffffff;
+
+  --color-acao-primaria: #4f17a8;
+  --color-acao-destaque: #05bfe0;
+  --color-texto-primario: #200f3b;
+  --color-texto-secundario: #4a4f57;
+  --color-texto-placeholder: #808080;
+  --color-texto-inverso: #ffffff;
+  --color-texto-marca: #4f17a8;
+  --color-texto-erro: #d92b2b;
+  --color-erro-50: #fef3f2;
+  --color-erro-700: #b42318;
+  --color-sucesso-50: #ecfdf3;
+  --color-sucesso-700: #067647;
+  --color-alerta-50: #fffaeb;
+  --color-alerta-700: #b54708;
+  --color-fundo-pagina: #f8f8f8;
+  --color-fundo-superficie: #ffffff;
+  --color-fundo-campo: #ffffff;
+  --color-borda-padrao: #d4d4d4;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --text-display: 2.5rem;
+  --text-display--line-height: 3rem;
+  --text-display--font-weight: 700;
+  --text-h2: 1.75rem;
+  --text-h2--line-height: 2.25rem;
+  --text-h2--font-weight: 700;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.75rem;
+  --text-h3--font-weight: 700;
+  --text-corpo: 1rem;
+  --text-corpo--line-height: 1.625rem;
+  --text-corpo-pequeno: 0.875rem;
+  --text-corpo-pequeno--line-height: 1.375rem;
+  --text-rotulo: 0.875rem;
+  --text-rotulo--line-height: 1.25rem;
+  --text-rotulo--font-weight: 500;
+  --text-botao: 1rem;
+  --text-botao--line-height: 1.5rem;
+  --text-botao--font-weight: 500;
+  --text-legenda: 0.75rem;
+  --text-legenda--line-height: 1.125rem;
+}
+
+@layer base {
+  body {
+    @apply bg-fundo-pagina font-sans text-corpo text-texto-primario antialiased;
+  }
+}
+
+/* Compatibilidade: tokens antigos usados pelos CSS modules da agenda (ÉP-05). Remover ao migrar para Tailwind. */
 :root {
-  /* Paleta PMI */
-  --pmi-violet-50: #efedf3;
-  --pmi-violet-500: #4f17a8;
-  --pmi-violet-800: #200f3b;
-  --pmi-violet-950: #100522;
-  --pmi-aqua-50: #eefafa;
+  --pmi-violet-50: var(--color-violeta-50);
+  --pmi-violet-500: var(--color-violeta-500);
+  --pmi-violet-800: var(--color-violeta-800);
+  --pmi-violet-950: var(--color-violeta-950);
+  --pmi-aqua-50: var(--color-aqua-50);
   --pmi-aqua-300: #05bfe0;
   --pmi-aqua-500: #00799e;
-  --pmi-aqua-600: #005c77;
-
-  /* Apoio */
-  --apoio-branco: #ffffff;
-  --apoio-neutro-100: #f8f8f8;
-
-  /* Semânticos */
-  --texto-primario: #200f3b;
-  --texto-secundario: #4a4f57;
-  --texto-placeholder: #808080;
-  --texto-inverso: #ffffff;
-  --texto-marca: #4f17a8;
-  --texto-erro: #d92b2b;
-  --fundo-superficie: #ffffff;
-  --fundo-campo: #ffffff;
-  --fundo-sutil: #efedf3;
+  --pmi-aqua-600: var(--color-aqua-600);
+  --apoio-branco: var(--color-branco);
+  --apoio-neutro-100: var(--color-neutro-100);
+  --texto-primario: var(--color-texto-primario);
+  --texto-secundario: var(--color-texto-secundario);
+  --texto-placeholder: var(--color-texto-placeholder);
+  --texto-inverso: var(--color-texto-inverso);
+  --texto-marca: var(--color-texto-marca);
+  --texto-erro: var(--color-texto-erro);
+  --fundo-superficie: var(--color-fundo-superficie);
+  --fundo-campo: var(--color-fundo-campo);
+  --fundo-sutil: var(--color-violeta-50);
   --fundo-erro: #fdeeee;
-  --borda-padrao: #d4d4d4;
-  --borda-foco: #4f17a8;
-  --acao-primaria: #4f17a8;
+  --borda-padrao: var(--color-borda-padrao);
+  --borda-foco: var(--color-violeta-500);
+  --acao-primaria: var(--color-acao-primaria);
   --acao-primaria-hover: #3f128a;
-
-  /* Raios */
-  --raio-md: 12px;
-  --raio-lg: 20px;
-  --raio-pill: 999px;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html,
-body {
-  max-width: 100vw;
-}
-
-body {
-  font-family: var(--font-inter), system-ui, sans-serif;
-  color: var(--texto-primario);
-  background: var(--apoio-neutro-100);
-  -webkit-font-smoothing: antialiased;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-select {
-  font: inherit;
-  color: inherit;
-}
-
-:focus-visible {
-  outline: 2px solid var(--borda-foco);
-  outline-offset: 2px;
+  --raio-md: var(--radius-md);
+  --raio-lg: var(--radius-lg);
+  --raio-pill: var(--radius-pill);
 }
 
 .visually-hidden {

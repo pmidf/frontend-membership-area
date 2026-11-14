@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 /**
- * Guarda do console administrativo (/admin): páginas, exportações CSV e server actions passam por aqui.
+ * Guarda do console de eventos (/admin/eventos): páginas, exportações CSV e server actions passam por aqui.
+ * O restante do /admin já é protegido pela sessão (ExigeAdmin).
  *
  * TODO(auth): quando a autenticação existir, verificar aqui a sessão e o papel de Admin
  * (toda verificação de permissão ocorre no servidor — regra transversal do ÉP-05).
@@ -22,5 +23,5 @@ export function proxy() {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/:path*"],
+  matcher: ["/admin/eventos", "/admin/eventos/:path*"],
 };

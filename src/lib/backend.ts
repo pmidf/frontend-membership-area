@@ -15,7 +15,8 @@ export class ErroBackend extends Error {
 function urlBase() {
   const url = process.env.BACKEND_URL;
   if (!url) throw new ErroBackend("BACKEND_URL não configurada.", 500);
-  return url.replace(/\/+$/, "");
+  // Mesma convenção do rewrite em next.config.ts: BACKEND_URL sem o prefixo /api.
+  return `${url.replace(/\/+$/, "").replace(/\/api$/, "")}/api`;
 }
 
 type Opcoes = {
@@ -25,7 +26,10 @@ type Opcoes = {
   autor?: string;
 };
 
-async function requisitar(caminho: string, { method = "GET", corpo, autor }: Opcoes = {}): Promise<Response> {
+async function requisitar(
+  caminho: string,
+  { method = "GET", corpo, autor }: Opcoes = {},
+): Promise<Response> {
   const resposta = await fetch(urlBase() + caminho, {
     method,
     cache: "no-store",
@@ -36,7 +40,11 @@ async function requisitar(caminho: string, { method = "GET", corpo, autor }: Opc
     },
     body: corpo !== undefined ? JSON.stringify(corpo) : undefined,
   });
-  if (!resposta.ok) throw new ErroBackend(`Backend respondeu ${resposta.status} em ${method} ${caminho}.`, resposta.status);
+  if (!resposta.ok)
+    throw new ErroBackend(
+      `Backend respondeu ${resposta.status} em ${method} ${caminho}.`,
+      resposta.status,
+    );
   return resposta;
 }
 

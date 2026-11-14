@@ -1,14 +1,20 @@
 import type { NextConfig } from "next";
 
+const urlBackend = process.env.BACKEND_URL ?? "http://localhost:3333";
+
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
-  // Enquanto o módulo "Início" não existe, a raiz leva para a agenda.
-  async redirects() {
-    return [
-      { source: "/", destination: "/agenda", permanent: false },
-      { source: "/admin", destination: "/admin/eventos", permanent: false },
-    ];
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
+  async rewrites() {
+    return [{ source: "/api/:caminho*", destination: `${urlBackend}/api/:caminho*` }];
   },
 };
 
