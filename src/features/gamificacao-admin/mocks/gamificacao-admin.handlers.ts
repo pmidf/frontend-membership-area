@@ -2,6 +2,8 @@ import { http, HttpResponse } from "msw/http";
 
 import type {
   CriarQuebraCabeca,
+  EditarQuebraCabeca,
+  QuebraCabecaAdmin,
   ItemQuebraCabecaAdmin,
   QuebraCabecaCriado,
 } from "../tipos/quebra-cabeca-admin";
@@ -43,6 +45,25 @@ export const listaTeste: ItemQuebraCabecaAdmin[] = [
   },
 ];
 
+export const recorteTeste = (indice: number) => `https://img.test/peca-${indice}.png`;
+
+export function detalheTeste(item: ItemQuebraCabecaAdmin): QuebraCabecaAdmin {
+  return {
+    id_quebra_cabeca: item.id_quebra_cabeca,
+    nome: item.nome,
+    legenda: "Legenda de teste",
+    historia: "História de teste.",
+    imagem_original: "https://img.test/completa.jpg",
+    situacao: item.situacao,
+    pecas: Array.from({ length: 8 }, (_, indice) => ({
+      id_peca: `peca-${indice}`,
+      indice,
+      recorte: recorteTeste(indice),
+    })),
+    pode_trocar_imagem: item.em_andamento + item.concluidos === 0,
+  };
+}
+
 export function handlersGamificacaoAdmin(listaInicial: ItemQuebraCabecaAdmin[] = listaTeste) {
   const lista = structuredClone(listaInicial);
   let proximo = 100;
@@ -69,6 +90,27 @@ export function handlersGamificacaoAdmin(listaInicial: ItemQuebraCabecaAdmin[] =
       });
       lista.sort((a, b) => a.nome.localeCompare(b.nome));
       return HttpResponse.json(criado, { status: 201 });
+    }),
+    http.get("*/api/admin/quebra-cabecas/:id", ({ params }) => {
+      const item = lista.find((atual) => atual.id_quebra_cabeca === params.id);
+      return item
+        ? HttpResponse.json(detalheTeste(item))
+        : HttpResponse.json({ codigo: "QUEBRA_CABECA_NAO_ENCONTRADO" }, { status: 404 });
+    }),
+    http.patch("*/api/admin/quebra-cabecas/:id", async ({ params, request }) => {
+      const item = lista.find((atual) => atual.id_quebra_cabeca === params.id);
+      if (!item) {
+        return HttpResponse.json({ codigo: "QUEBRA_CABECA_NAO_ENCONTRADO" }, { status: 404 });
+      }
+      if (item.situacao === "FORA_DO_AR") {
+        return HttpResponse.json({ codigo: "QUEBRA_CABECA_FORA_DO_AR" }, { status: 409 });
+      }
+      const dados = (await request.json()) as EditarQuebraCabeca;
+      if (dados.recortes && item.em_andamento + item.concluidos > 0) {
+        return HttpResponse.json({ codigo: "IMAGEM_BLOQUEADA" }, { status: 409 });
+      }
+      if (dados.nome) item.nome = dados.nome;
+      return HttpResponse.json({ ...detalheTeste(item), ...dados });
     }),
     http.post("*/api/admin/quebra-cabecas/:id/publicar", ({ params }) => {
       const item = lista.find((atual) => atual.id_quebra_cabeca === params.id);

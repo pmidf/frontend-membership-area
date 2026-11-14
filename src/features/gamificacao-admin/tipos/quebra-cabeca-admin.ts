@@ -26,3 +26,16 @@ export type QuebraCabecaCriado = {
   imagem_original: string;
   situacao: SituacaoQuebraCabeca;
 };
+
+export type EditarQuebraCabeca = Partial<CriarQuebraCabeca>;
+
+export type QuebraCabecaAdmin = {
+  id_quebra_cabeca: string;
+  nome: string;
+  legenda: string;
+  historia: string;
+  imagem_original: string;
+  situacao: SituacaoQuebraCabeca;
+  pecas: { id_peca: string; indice: number; recorte: string }[];
+  pode_trocar_imagem: boolean;
+};

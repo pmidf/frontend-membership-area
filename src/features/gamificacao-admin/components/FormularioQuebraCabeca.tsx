@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
-import { CampoAreaTexto, CampoTexto, Cartao } from "@/shared/ui";
+import { Alerta, CampoAreaTexto, CampoTexto, Cartao } from "@/shared/ui";
 
 import {
   TAMANHO_MAXIMO_LEGENDA,
@@ -32,7 +32,10 @@ function Bloco({
   );
 }
 
-export function FormularioQuebraCabeca() {
+export const MENSAGEM_IMAGEM_BLOQUEADA =
+  "Imagem bloqueada: filiados já começaram a montar este quebra-cabeça. Você ainda pode editar nome, legenda e história.";
+
+export function FormularioQuebraCabeca({ imagemBloqueada = false }: { imagemBloqueada?: boolean }) {
   const {
     register,
     control,
@@ -69,15 +72,19 @@ export function FormularioQuebraCabeca() {
         titulo="Imagem e peças"
         subtitulo="JPG, PNG ou WebP · proporção 4:2 (deitada) · sempre 8 peças (grade 2×4). A imagem só é revelada aos filiados quando o quebra-cabeça é concluído."
       >
-        <CampoTexto
-          rotulo="URL da imagem completa"
-          type="url"
-          inputMode="url"
-          placeholder="https://…/imagem-completa.jpg"
-          erro={errors.imagem_original?.message}
-          {...register("imagem_original")}
-        />
-        <CamposRecortes />
+        {imagemBloqueada && <Alerta tom="marca">{MENSAGEM_IMAGEM_BLOQUEADA}</Alerta>}
+        <fieldset disabled={imagemBloqueada} className="flex min-w-0 flex-col gap-5">
+          <legend className="sr-only">Imagem e peças</legend>
+          <CampoTexto
+            rotulo="URL da imagem completa"
+            type="url"
+            inputMode="url"
+            placeholder="https://…/imagem-completa.jpg"
+            erro={errors.imagem_original?.message}
+            {...register("imagem_original")}
+          />
+          <CamposRecortes />
+        </fieldset>
       </Bloco>
       <Bloco
         titulo="Ordem das peças"

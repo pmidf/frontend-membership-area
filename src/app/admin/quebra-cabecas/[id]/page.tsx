@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { PaginaEditarQuebraCabeca } from "@/features/gamificacao-admin/components/PaginaEditarQuebraCabeca";
 
 export const metadata: Metadata = { title: "Editar quebra-cabeça" };
 
 export default function Pagina() {
-  return <EmConstrucao titulo="Editar quebra-cabeça" />;
+  return <PaginaEditarQuebraCabeca />;
 }
