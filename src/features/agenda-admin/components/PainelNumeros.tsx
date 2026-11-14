@@ -34,13 +34,20 @@ type PainelNumerosProps = {
 
 export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: PainelNumerosProps) {
   const [filtros, setFiltros] = useState<FiltrosNumeros>({});
-  const [ordem, setOrdem] = useState<{ campo: CampoOrdenacao; desc: boolean }>({ campo: "inicio", desc: true });
+  const [ordem, setOrdem] = useState<{ campo: CampoOrdenacao; desc: boolean }>({
+    campo: "inicio",
+    desc: true,
+  });
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
 
   const filtradas = useMemo(() => filtrarLinhas(linhas, filtros), [linhas, filtros]);
   const ordenadas = useMemo(() => {
     const valor = (l: LinhaNumeros) =>
-      ordem.campo === "inicio" ? new Date(l.inicio).getTime() : ordem.campo === "taxa" ? (l.taxa ?? -1) : l[ordem.campo];
+      ordem.campo === "inicio"
+        ? new Date(l.inicio).getTime()
+        : ordem.campo === "taxa"
+          ? (l.taxa ?? -1)
+          : l[ordem.campo];
     return [...filtradas].sort((a, b) => (valor(a) - valor(b)) * (ordem.desc ? -1 : 1));
   }, [filtradas, ordem]);
 
@@ -68,11 +75,13 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
     if (filtros.situacao) query.set("situacao", filtros.situacao);
     if (filtros.formato) query.set("formato", filtros.formato);
     if (filtros.categoria) query.set("categoria", filtros.categoria);
-    if (selecionadasVisiveis.length > 0) query.set("ids", selecionadasVisiveis.map((l) => l.id).join(","));
+    if (selecionadasVisiveis.length > 0)
+      query.set("ids", selecionadasVisiveis.map((l) => l.id).join(","));
     return `/admin/eventos/numeros/exportar?${query}`;
   }, [periodo, filtros, selecionadasVisiveis]);
 
-  const atualizar = (mudanca: Partial<FiltrosNumeros>) => setFiltros((atual) => ({ ...atual, ...mudanca }));
+  const atualizar = (mudanca: Partial<FiltrosNumeros>) =>
+    setFiltros((atual) => ({ ...atual, ...mudanca }));
 
   return (
     <>
@@ -108,8 +117,8 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
           <Total valor={formatarTaxa(totais.taxa)} rotulo="Taxa de presença" />
         </div>
         <p className={styles.nota}>
-          Participantes lidos direto do Sympla, com até 5 minutos de atraso. A exportação fica registrada no log do
-          backend.
+          Participantes lidos direto do Sympla, com até 5 minutos de atraso. A exportação fica
+          registrada no log do backend.
         </p>
       </Card>
 
@@ -124,15 +133,27 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
             onChange={(e) => atualizar({ busca: e.target.value || undefined })}
           />
         </label>
-        <SeletorFiltro rotulo="Situação" valor={filtros.situacao} aoMudar={(v) => atualizar({ situacao: v as FiltrosNumeros["situacao"] })}>
+        <SeletorFiltro
+          rotulo="Situação"
+          valor={filtros.situacao}
+          aoMudar={(v) => atualizar({ situacao: v as FiltrosNumeros["situacao"] })}
+        >
           <option value="ativo">Ativos</option>
           <option value="inativo">Inativos</option>
         </SeletorFiltro>
-        <SeletorFiltro rotulo="Formato" valor={filtros.formato} aoMudar={(v) => atualizar({ formato: v as FiltrosNumeros["formato"] })}>
+        <SeletorFiltro
+          rotulo="Formato"
+          valor={filtros.formato}
+          aoMudar={(v) => atualizar({ formato: v as FiltrosNumeros["formato"] })}
+        >
           <option value="online">Online</option>
           <option value="presencial">Presencial</option>
         </SeletorFiltro>
-        <SeletorFiltro rotulo="Categoria" valor={filtros.categoria} aoMudar={(v) => atualizar({ categoria: v })}>
+        <SeletorFiltro
+          rotulo="Categoria"
+          valor={filtros.categoria}
+          aoMudar={(v) => atualizar({ categoria: v })}
+        >
           {categorias.map((c) => (
             <option key={c} value={c}>
               {c}
@@ -156,14 +177,22 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
                   <th className={styles.colunaEvento}>Evento</th>
                   <th>Situação</th>
                   <th>
-                    <BotaoOrdenar ativo={ordem.campo === "inicio"} desc={ordem.desc} aoClicar={() => ordenarPor("inicio")}>
+                    <BotaoOrdenar
+                      ativo={ordem.campo === "inicio"}
+                      desc={ordem.desc}
+                      aoClicar={() => ordenarPor("inicio")}
+                    >
                       Data
                     </BotaoOrdenar>
                   </th>
                   <th>Formato</th>
                   {COLUNAS_NUMERICAS.map(({ campo, rotulo }) => (
                     <th key={campo} className={styles.numero}>
-                      <BotaoOrdenar ativo={ordem.campo === campo} desc={ordem.desc} aoClicar={() => ordenarPor(campo)}>
+                      <BotaoOrdenar
+                        ativo={ordem.campo === campo}
+                        desc={ordem.desc}
+                        aoClicar={() => ordenarPor(campo)}
+                      >
                         {rotulo}
                       </BotaoOrdenar>
                     </th>
@@ -188,7 +217,9 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
                       <span className={styles.secundario}>sympla_event_id {l.id}</span>
                     </td>
                     <td>
-                      <Tag variante={l.situacao === "ativo" ? "aqua" : "neutra"}>{l.situacao === "ativo" ? "Ativo" : "Inativo"}</Tag>
+                      <Tag variante={l.situacao === "ativo" ? "aqua" : "neutra"}>
+                        {l.situacao === "ativo" ? "Ativo" : "Inativo"}
+                      </Tag>
                     </td>
                     <td>{formatarDataCurta(l.inicio)}</td>
                     <td>{rotuloFormato(l.formato)}</td>
@@ -196,7 +227,9 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
                     <td className={styles.numero}>{formatarNumero(l.presentes)}</td>
                     <td className={styles.numero}>{formatarNumero(l.ausentes)}</td>
                     <td className={styles.numero}>{formatarNumero(l.cancelados)}</td>
-                    <td className={styles.numero}>{l.situacao === "ativo" ? "—" : formatarTaxa(l.taxa)}</td>
+                    <td className={styles.numero}>
+                      {l.situacao === "ativo" ? "—" : formatarTaxa(l.taxa)}
+                    </td>
                     <td>
                       <Link href={`/admin/eventos/${l.id}/participantes`} className={styles.link}>
                         Ver participantes

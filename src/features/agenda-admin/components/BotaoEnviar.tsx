@@ -13,7 +13,14 @@ type BotaoEnviarProps = {
 };
 
 /** Botão de envio de formulário com estado de carregamento (ações do console). */
-export function BotaoEnviar({ children, enviando, tipo, formAction, disabled, className }: BotaoEnviarProps) {
+export function BotaoEnviar({
+  children,
+  enviando,
+  tipo,
+  formAction,
+  disabled,
+  className,
+}: BotaoEnviarProps) {
   const { pending } = useFormStatus();
   return (
     <Button

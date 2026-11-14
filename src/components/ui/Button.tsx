@@ -18,5 +18,7 @@ export function classesBotao({ tipo = "primaria", larguraTotal, className }: Opc
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & Opcoes;
 
 export function Button({ tipo, larguraTotal, className, type = "button", ...props }: ButtonProps) {
-  return <button type={type} className={classesBotao({ tipo, larguraTotal, className })} {...props} />;
+  return (
+    <button type={type} className={classesBotao({ tipo, larguraTotal, className })} {...props} />
+  );
 }

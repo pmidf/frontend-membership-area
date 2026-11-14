@@ -2,12 +2,19 @@
 import type { Evento } from "../types";
 
 function dataUtc(iso: string) {
-  return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return new Date(iso)
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 }
 
 /** Escapa texto conforme RFC 5545 (seção 3.3.11). */
 function escapar(texto: string) {
-  return texto.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  return texto
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r?\n/g, "\\n");
 }
 
 /** Quebra linhas com mais de 75 octetos (RFC 5545, seção 3.1). */

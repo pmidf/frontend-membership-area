@@ -15,7 +15,11 @@ export function SeletorFiltro({ rotulo, valor, aoMudar, children }: SeletorFiltr
   return (
     <label>
       <span className="visually-hidden">{rotulo}</span>
-      <select className={styles.seletor} value={valor ?? ""} onChange={(e) => aoMudar(e.target.value || undefined)}>
+      <select
+        className={styles.seletor}
+        value={valor ?? ""}
+        onChange={(e) => aoMudar(e.target.value || undefined)}
+      >
         <option value="">{rotulo}</option>
         {children}
       </select>

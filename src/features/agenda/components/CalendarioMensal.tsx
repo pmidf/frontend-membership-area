@@ -16,8 +16,18 @@ type CalendarioMensalProps = {
 const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const DIAS_SEMANA_MOBILE = ["D", "S", "T", "Q", "Q", "S", "S"];
 const NOMES_MESES = [
-  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
 ];
 
 type Celula = { chave: string; dia: number; doMes: boolean };
@@ -58,7 +68,9 @@ export function CalendarioMensal({ mes, eventos, agora, hrefMes }: CalendarioMen
   const semanas = montarSemanas(ano, numeroMes);
   const titulo = `${NOMES_MESES[numeroMes - 1]} ${ano}`;
 
-  const doMes = [...eventos].sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
+  const doMes = [...eventos].sort(
+    (a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime(),
+  );
   const eventosPorDia = new Map<string, EventoComParticipacao[]>();
   for (const evento of doMes) {
     const dia = chaveDia(evento.inicio);
@@ -68,13 +80,23 @@ export function CalendarioMensal({ mes, eventos, agora, hrefMes }: CalendarioMen
   return (
     <section className={styles.calendario} aria-labelledby="titulo-mes">
       <div className={styles.navegacao}>
-        <Link href={hrefMes(deslocarMes(ano, numeroMes, -1))} className={styles.botaoMes} scroll={false} aria-label="Mês anterior">
+        <Link
+          href={hrefMes(deslocarMes(ano, numeroMes, -1))}
+          className={styles.botaoMes}
+          scroll={false}
+          aria-label="Mês anterior"
+        >
           ‹
         </Link>
         <h2 id="titulo-mes" className={styles.tituloMes} aria-live="polite">
           {titulo}
         </h2>
-        <Link href={hrefMes(deslocarMes(ano, numeroMes, 1))} className={styles.botaoMes} scroll={false} aria-label="Próximo mês">
+        <Link
+          href={hrefMes(deslocarMes(ano, numeroMes, 1))}
+          className={styles.botaoMes}
+          scroll={false}
+          aria-label="Próximo mês"
+        >
           ›
         </Link>
       </div>
@@ -139,7 +161,9 @@ export function CalendarioMensal({ mes, eventos, agora, hrefMes }: CalendarioMen
           <div key={semana[0].chave} className={styles.linhaMobile}>
             {semana.map((celula) => {
               const doDia = celula.doMes ? (eventosPorDia.get(celula.chave) ?? []) : [];
-              const classes = [styles.celulaMobile, !celula.doMes && styles.foraDoMesMobile].filter(Boolean).join(" ");
+              const classes = [styles.celulaMobile, !celula.doMes && styles.foraDoMesMobile]
+                .filter(Boolean)
+                .join(" ");
               if (doDia.length === 0) {
                 return (
                   <span key={celula.chave} className={classes}>
@@ -153,7 +177,7 @@ export function CalendarioMensal({ mes, eventos, agora, hrefMes }: CalendarioMen
                 <Link
                   key={celula.chave}
                   href={destino}
-                 
+
                   className={`${classes} ${styles.comEventoMobile}`}
                   aria-label={`${celula.dia}: ${doDia.map((e) => e.titulo).join(", ")}`}
                 >
@@ -167,7 +191,9 @@ export function CalendarioMensal({ mes, eventos, agora, hrefMes }: CalendarioMen
       </div>
 
       <div className={styles.listaMobile} id="eventos-do-mes">
-        <h3 className={styles.tituloLista}>Eventos em {NOMES_MESES[numeroMes - 1].toLowerCase()}</h3>
+        <h3 className={styles.tituloLista}>
+          Eventos em {NOMES_MESES[numeroMes - 1].toLowerCase()}
+        </h3>
         {eventos.length > 0 && (
           <ul className={styles.lista}>
             {doMes.map((evento) => (
@@ -177,7 +203,9 @@ export function CalendarioMensal({ mes, eventos, agora, hrefMes }: CalendarioMen
         )}
       </div>
 
-      {eventos.length === 0 && <p className={styles.vazio}>Nenhum evento neste mês com os filtros selecionados.</p>}
+      {eventos.length === 0 && (
+        <p className={styles.vazio}>Nenhum evento neste mês com os filtros selecionados.</p>
+      )}
     </section>
   );
 }

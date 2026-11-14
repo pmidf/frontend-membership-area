@@ -20,7 +20,13 @@ export function SidebarAdmin() {
     <aside className={styles.sidebar}>
       <div className={styles.topo}>
         <Link href="/admin/eventos" className={styles.logo}>
-          <Image src="/brand/logo-pmi-df.png" alt="PMI Distrito Federal" width={160} height={44} priority />
+          <Image
+            src="/brand/logo-pmi-df.png"
+            alt="PMI Distrito Federal"
+            width={160}
+            height={44}
+            priority
+          />
         </Link>
         <p className={styles.rotulo}>CONSOLE ADMINISTRATIVO</p>
         <nav aria-label="Console administrativo">
@@ -37,7 +43,11 @@ export function SidebarAdmin() {
                     <span>{item.rotulo}</span>
                   </Link>
                 ) : (
-                  <span className={`${styles.item} ${styles.desabilitado}`} aria-disabled="true" title="Em breve">
+                  <span
+                    className={`${styles.item} ${styles.desabilitado}`}
+                    aria-disabled="true"
+                    title="Em breve"
+                  >
                     <Image src={`/icons/admin/${item.icone}.svg`} alt="" width={20} height={20} />
                     <span>{item.rotulo}</span>
                   </span>

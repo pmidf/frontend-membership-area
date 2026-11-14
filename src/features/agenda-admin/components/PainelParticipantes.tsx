@@ -22,11 +22,17 @@ type PainelParticipantesProps = {
   encerrado: boolean;
 };
 
-export function PainelParticipantes({ eventoId, linhas, porTipo, encerrado }: PainelParticipantesProps) {
+export function PainelParticipantes({
+  eventoId,
+  linhas,
+  porTipo,
+  encerrado,
+}: PainelParticipantesProps) {
   const [filtros, setFiltros] = useState<FiltrosParticipantes>({});
   const filtradas = useMemo(() => filtrarParticipantes(linhas, filtros), [linhas, filtros]);
   const tipos = useMemo(() => [...new Set(linhas.map((l) => l.tipoIngresso))].sort(), [linhas]);
-  const atualizar = (mudanca: Partial<FiltrosParticipantes>) => setFiltros((atual) => ({ ...atual, ...mudanca }));
+  const atualizar = (mudanca: Partial<FiltrosParticipantes>) =>
+    setFiltros((atual) => ({ ...atual, ...mudanca }));
 
   const hrefExportar = useMemo(() => {
     const query = new URLSearchParams();
@@ -72,19 +78,31 @@ export function PainelParticipantes({ eventoId, linhas, porTipo, encerrado }: Pa
             onChange={(e) => atualizar({ busca: e.target.value || undefined })}
           />
         </label>
-        <SeletorFiltro rotulo="Check-in" valor={filtros.checkIn} aoMudar={(v) => atualizar({ checkIn: v as FiltrosParticipantes["checkIn"] })}>
+        <SeletorFiltro
+          rotulo="Check-in"
+          valor={filtros.checkIn}
+          aoMudar={(v) => atualizar({ checkIn: v as FiltrosParticipantes["checkIn"] })}
+        >
           <option value="confirmado">Confirmado</option>
           <option value="pendente">{encerrado ? "Não compareceu" : "Pendente"}</option>
           <option value="cancelado">Ingresso cancelado</option>
         </SeletorFiltro>
-        <SeletorFiltro rotulo="Tipo de ingresso" valor={filtros.tipo} aoMudar={(v) => atualizar({ tipo: v })}>
+        <SeletorFiltro
+          rotulo="Tipo de ingresso"
+          valor={filtros.tipo}
+          aoMudar={(v) => atualizar({ tipo: v })}
+        >
           {tipos.map((t) => (
             <option key={t} value={t}>
               {t}
             </option>
           ))}
         </SeletorFiltro>
-        <SeletorFiltro rotulo="Vínculo" valor={filtros.vinculo} aoMudar={(v) => atualizar({ vinculo: v as FiltrosParticipantes["vinculo"] })}>
+        <SeletorFiltro
+          rotulo="Vínculo"
+          valor={filtros.vinculo}
+          aoMudar={(v) => atualizar({ vinculo: v as FiltrosParticipantes["vinculo"] })}
+        >
           <option value="vinculado">Vinculado</option>
           <option value="nao-vinculado">Não vinculado</option>
           <option value="nao-membro">Não é membro</option>
@@ -117,9 +135,19 @@ export function PainelParticipantes({ eventoId, linhas, porTipo, encerrado }: Pa
                     <td>{l.nome}</td>
                     <td className={styles.textoNormal}>{l.email}</td>
                     <td>{l.tipoIngresso}</td>
-                    <td className={l.checkIn && !l.cancelado ? undefined : styles.textoNormal}>{rotuloCheckIn(l, encerrado)}</td>
+                    <td className={l.checkIn && !l.cancelado ? undefined : styles.textoNormal}>
+                      {rotuloCheckIn(l, encerrado)}
+                    </td>
                     <td>
-                      <Tag variante={l.vinculo.tipo === "vinculado" ? "aqua" : l.vinculo.tipo === "nao-membro" ? "neutra" : "violeta"}>
+                      <Tag
+                        variante={
+                          l.vinculo.tipo === "vinculado"
+                            ? "aqua"
+                            : l.vinculo.tipo === "nao-membro"
+                              ? "neutra"
+                              : "violeta"
+                        }
+                      >
                         {rotuloVinculo(l.vinculo)}
                       </Tag>
                       {l.vinculo.tipo === "vinculado" && l.vinculo.origem === "manual" && (

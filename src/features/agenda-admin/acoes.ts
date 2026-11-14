@@ -25,7 +25,9 @@ function texto(formData: FormData, campo: string) {
 function inscricao(valor: unknown): api.Inscricao | null {
   if (typeof valor !== "string") return null;
   const [eventoId, participanteId] = valor.split(":");
-  return ID_SYMPLA.test(eventoId ?? "") && ID_SYMPLA.test(participanteId ?? "") ? { eventoId, participanteId } : null;
+  return ID_SYMPLA.test(eventoId ?? "") && ID_SYMPLA.test(participanteId ?? "")
+    ? { eventoId, participanteId }
+    : null;
 }
 
 function inscricaoDoFormulario(formData: FormData) {

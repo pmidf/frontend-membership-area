@@ -42,7 +42,10 @@ export function semParticipacao(eventos: Evento[]): EventoComParticipacao[] {
  * Só a própria participação é consultada (RN-05.02.1); sem cache, pois é dado pessoal.
  * TODO(auth): o backend vai identificar a pessoa pela sessão, sem receber o id no corpo.
  */
-export async function comParticipacao(eventos: Evento[], usuario: Usuario | null): Promise<EventoComParticipacao[]> {
+export async function comParticipacao(
+  eventos: Evento[],
+  usuario: Usuario | null,
+): Promise<EventoComParticipacao[]> {
   if (!usuario || eventos.length === 0) return semParticipacao(eventos);
 
   const ids = [...new Set(eventos.map((e) => e.id))];
@@ -52,13 +55,17 @@ export async function comParticipacao(eventos: Evento[], usuario: Usuario | null
   const situacoes = (
     await Promise.all(
       lotes.map((eventoIds) =>
-        backendJson<{ eventoId: string; status: StatusParticipacao }[]>("/agenda/participacoes/situacao", {
-          method: "POST",
-          corpo: { pessoaId: usuario.id, eventoIds },
-        }),
+        backendJson<{ eventoId: string; status: StatusParticipacao }[]>(
+          "/agenda/participacoes/situacao",
+          {
+            method: "POST",
+            corpo: { pessoaId: usuario.id, eventoIds },
+          },
+        ),
       ),
-    ).catch(() => []) // falha na consulta não derruba a agenda: os eventos só ficam sem o status da pessoa
-  ).flat();
+    ).catch(() => [])
+  ) // falha na consulta não derruba a agenda: os eventos só ficam sem o status da pessoa
+    .flat();
 
   const porEvento = new Map(situacoes.map((s) => [s.eventoId, s.status]));
   return eventos.map((evento) => ({ ...evento, participacao: porEvento.get(evento.id) ?? null }));

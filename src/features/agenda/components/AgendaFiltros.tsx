@@ -67,13 +67,21 @@ export function AgendaFiltros({ visao, categorias }: AgendaFiltrosProps) {
 
       <label className={styles.busca}>
         <span className="visually-hidden">Buscar evento</span>
-        <input type="search" placeholder="Buscar evento" value={busca} onChange={(e) => setBusca(e.target.value)} />
+        <input
+          type="search"
+          placeholder="Buscar evento"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
       </label>
 
       <div className={styles.chips}>
         <label className={styles.seletor}>
           <span className="visually-hidden">Formato</span>
-          <select value={searchParams.get("formato") ?? ""} onChange={(e) => atualizar("formato", e.target.value || null)}>
+          <select
+            value={searchParams.get("formato") ?? ""}
+            onChange={(e) => atualizar("formato", e.target.value || null)}
+          >
             <option value="">Formato</option>
             <option value="online">Online</option>
             <option value="presencial">Presencial</option>
@@ -99,7 +107,10 @@ export function AgendaFiltros({ visao, categorias }: AgendaFiltrosProps) {
         {visao === "lista" && (
           <label className={styles.seletor}>
             <span className="visually-hidden">Período</span>
-            <select value={searchParams.get("periodo") ?? ""} onChange={(e) => atualizar("periodo", e.target.value || null)}>
+            <select
+              value={searchParams.get("periodo") ?? ""}
+              onChange={(e) => atualizar("periodo", e.target.value || null)}
+            >
               <option value="">Período</option>
               <option value="30d">Próximos 30 dias</option>
               <option value="90d">Próximos 90 dias</option>

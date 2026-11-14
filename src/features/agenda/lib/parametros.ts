@@ -41,5 +41,7 @@ export function lerLimite(params: SearchParams) {
 }
 
 export function haFiltrosAtivos(filtros: FiltrosAgenda) {
-  return Boolean(filtros.busca || filtros.categoria || filtros.formato || filtros.periodo !== "proximos");
+  return Boolean(
+    filtros.busca || filtros.categoria || filtros.formato || filtros.periodo !== "proximos",
+  );
 }

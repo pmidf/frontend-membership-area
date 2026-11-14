@@ -13,7 +13,13 @@ export function SeletorAutoEnvio(props: SeletorAutoEnvioProps) {
  * Janela de eventos das telas do console. Aumentar o período aumenta as consultas ao Sympla
  * (participantes de cada evento), por isso o padrão é a janela recente.
  */
-export function SeletorPeriodo({ periodo, className }: { periodo: PeriodoAdmin; className?: string }) {
+export function SeletorPeriodo({
+  periodo,
+  className,
+}: {
+  periodo: PeriodoAdmin;
+  className?: string;
+}) {
   return (
     <label>
       <span className="visually-hidden">Período</span>

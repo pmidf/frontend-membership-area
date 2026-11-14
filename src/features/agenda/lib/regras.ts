@@ -1,5 +1,11 @@
 // Regras de negócio da agenda (ÉP-05, US-05.01).
-import type { Evento, EventoComParticipacao, FiltrosAgenda, FormatoEvento, PeriodoAgenda } from "../types";
+import type {
+  Evento,
+  EventoComParticipacao,
+  FiltrosAgenda,
+  FormatoEvento,
+  PeriodoAgenda,
+} from "../types";
 
 const UM_DIA_MS = 24 * 60 * 60 * 1000;
 
@@ -61,7 +67,11 @@ export function atendeFiltros(evento: Evento, filtros: Omit<FiltrosAgenda, "peri
  * Lista da agenda: próximos em ordem crescente de data;
  * "Eventos passados" em ordem decrescente (US-05.01 c10).
  */
-export function filtrarParaLista<T extends Evento>(eventos: T[], filtros: FiltrosAgenda, agora = new Date()): T[] {
+export function filtrarParaLista<T extends Evento>(
+  eventos: T[],
+  filtros: FiltrosAgenda,
+  agora = new Date(),
+): T[] {
   const resultado = eventos
     .filter((e) => visivelNaAgenda(e, agora))
     .filter((e) => dentroDoPeriodo(e, filtros.periodo, agora))
@@ -71,7 +81,11 @@ export function filtrarParaLista<T extends Evento>(eventos: T[], filtros: Filtro
 }
 
 /** Eventos encerrados mais recentes, para a seção "Eventos que já aconteceram". */
-export function eventosRecentesEncerrados<T extends Evento>(eventos: T[], limite: number, agora = new Date()): T[] {
+export function eventosRecentesEncerrados<T extends Evento>(
+  eventos: T[],
+  limite: number,
+  agora = new Date(),
+): T[] {
   return eventos
     .filter((e) => !e.cancelado && jaAconteceu(e, agora))
     .sort(porInicio)

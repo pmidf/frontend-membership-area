@@ -54,11 +54,15 @@ export function atualizar(autor: string) {
 }
 
 export function eventosComNumeros(periodo: PeriodoAdmin) {
-  return backendJson<{ linhas: LinhaNumeros[]; categorias: string[] }>(`/admin/agenda/eventos?periodo=${periodo}`);
+  return backendJson<{ linhas: LinhaNumeros[]; categorias: string[] }>(
+    `/admin/agenda/eventos?periodo=${periodo}`,
+  );
 }
 
 export function participantesDoEvento(id: string) {
-  return backendJson<ParticipantesDoEvento>(`/admin/agenda/eventos/${encodeURIComponent(id)}/participantes`);
+  return backendJson<ParticipantesDoEvento>(
+    `/admin/agenda/eventos/${encodeURIComponent(id)}/participantes`,
+  );
 }
 
 export function conciliacao(periodo: PeriodoAdmin) {
@@ -74,7 +78,11 @@ export function vincular({ eventoId, participanteId }: Inscricao, pessoaId: stri
 }
 
 export function marcarNaoMembros(inscricoes: Inscricao[], autor: string) {
-  return backendAcao("/admin/agenda/conciliacao/nao-membros", { method: "POST", corpo: { inscricoes }, autor });
+  return backendAcao("/admin/agenda/conciliacao/nao-membros", {
+    method: "POST",
+    corpo: { inscricoes },
+    autor,
+  });
 }
 
 export function desfazer({ eventoId, participanteId }: Inscricao, autor: string) {

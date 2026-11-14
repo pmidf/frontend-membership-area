@@ -13,7 +13,13 @@ export function Sidebar({ statusFiliacao }: SidebarProps) {
     <aside className={styles.sidebar}>
       <div className={styles.topo}>
         <Link href="/" className={styles.logo}>
-          <Image src="/brand/logo-pmi-df.png" alt="PMI Distrito Federal" width={160} height={44} priority />
+          <Image
+            src="/brand/logo-pmi-df.png"
+            alt="PMI Distrito Federal"
+            width={160}
+            height={44}
+            priority
+          />
         </Link>
         <nav aria-label="Navegação principal">
           {/* O item ativo depende da rota; em rotas dinâmicas ele só é conhecido na requisição. */}
@@ -26,7 +32,9 @@ export function Sidebar({ statusFiliacao }: SidebarProps) {
       {statusFiliacao && (
         <div className={styles.status}>
           <p className={styles.statusTitulo}>{statusFiliacao.titulo}</p>
-          {statusFiliacao.descricao && <p className={styles.statusDescricao}>{statusFiliacao.descricao}</p>}
+          {statusFiliacao.descricao && (
+            <p className={styles.statusDescricao}>{statusFiliacao.descricao}</p>
+          )}
         </div>
       )}
     </aside>

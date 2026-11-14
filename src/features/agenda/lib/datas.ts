@@ -3,7 +3,20 @@
 
 export const FUSO_AGENDA = "America/Sao_Paulo";
 
-const MESES_CURTOS = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
+const MESES_CURTOS = [
+  "JAN",
+  "FEV",
+  "MAR",
+  "ABR",
+  "MAI",
+  "JUN",
+  "JUL",
+  "AGO",
+  "SET",
+  "OUT",
+  "NOV",
+  "DEZ",
+];
 
 function partes(iso: string) {
   const formatador = new Intl.DateTimeFormat("pt-BR", {
@@ -16,7 +29,9 @@ function partes(iso: string) {
     weekday: "long",
     hourCycle: "h23",
   });
-  const mapa = Object.fromEntries(formatador.formatToParts(new Date(iso)).map((p) => [p.type, p.value]));
+  const mapa = Object.fromEntries(
+    formatador.formatToParts(new Date(iso)).map((p) => [p.type, p.value]),
+  );
   return {
     ano: Number(mapa.year),
     mes: Number(mapa.month),
@@ -44,19 +59,25 @@ export function formatarFaixaHorario(inicio: string, fim: string) {
 
 /** "29 de novembro de 2026" */
 export function formatarDataLonga(iso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO_AGENDA, dateStyle: "long" }).format(new Date(iso));
+  return new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO_AGENDA, dateStyle: "long" }).format(
+    new Date(iso),
+  );
 }
 
 /** "Domingo, 29 de novembro de 2026" */
 export function formatarDataCompleta(iso: string) {
   return capitalizar(
-    new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO_AGENDA, dateStyle: "full" }).format(new Date(iso)),
+    new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO_AGENDA, dateStyle: "full" }).format(
+      new Date(iso),
+    ),
   );
 }
 
 /** "29/11/2026" */
 export function formatarDataCurta(iso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO_AGENDA, dateStyle: "short" }).format(new Date(iso));
+  return new Intl.DateTimeFormat("pt-BR", { timeZone: FUSO_AGENDA, dateStyle: "short" }).format(
+    new Date(iso),
+  );
 }
 
 /** "Quinta" */

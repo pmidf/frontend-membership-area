@@ -31,7 +31,11 @@ export function ListaNavegacao({ pathname }: { pathname: string | null }) {
         if (!item.href) {
           return (
             <li key={item.rotulo}>
-              <span className={`${styles.item} ${styles.desabilitado}`} aria-disabled="true" title="Em breve">
+              <span
+                className={`${styles.item} ${styles.desabilitado}`}
+                aria-disabled="true"
+                title="Em breve"
+              >
                 <Image src={item.icone} alt="" width={20} height={20} />
                 <span>{item.rotulo}</span>
               </span>
@@ -76,8 +80,16 @@ export function ListaNavegacaoInferior({ pathname }: { pathname: string | null }
         if (!item.href) {
           return (
             <li key={item.rotulo}>
-              <span className={`${inferior.item} ${inferior.desabilitado}`} aria-disabled="true" title="Em breve">
-                <span className={inferior.icone} style={{ maskImage: `url(${item.icone})` }} aria-hidden />
+              <span
+                className={`${inferior.item} ${inferior.desabilitado}`}
+                aria-disabled="true"
+                title="Em breve"
+              >
+                <span
+                  className={inferior.icone}
+                  style={{ maskImage: `url(${item.icone})` }}
+                  aria-hidden
+                />
                 <span>{item.rotulo}</span>
               </span>
             </li>
@@ -92,7 +104,11 @@ export function ListaNavegacaoInferior({ pathname }: { pathname: string | null }
               aria-current={ativo ? "page" : undefined}
             >
               {/* O ícone é aplicado como máscara para herdar a cor do texto (ativo/inativo). */}
-              <span className={inferior.icone} style={{ maskImage: `url(${item.icone})` }} aria-hidden />
+              <span
+                className={inferior.icone}
+                style={{ maskImage: `url(${item.icone})` }}
+                aria-hidden
+              />
               <span>{item.rotulo}</span>
             </Link>
           </li>

@@ -17,13 +17,22 @@ type BotaoInscricaoSymplaProps = {
  * Autenticado: antes de sair, avisa com quais e-mails a inscrição precisa ser feita
  * para que a participação seja reconhecida (vínculo por e-mail — RN-05.01.2).
  */
-export function BotaoInscricaoSympla({ urlSympla, emails, larguraTotal }: BotaoInscricaoSymplaProps) {
+export function BotaoInscricaoSympla({
+  urlSympla,
+  emails,
+  larguraTotal,
+}: BotaoInscricaoSymplaProps) {
   const dialogo = useRef<HTMLDialogElement>(null);
   const idTitulo = useId();
 
   if (!emails) {
     return (
-      <a href={urlSympla} target="_blank" rel="noopener noreferrer" className={classesBotao({ larguraTotal })}>
+      <a
+        href={urlSympla}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={classesBotao({ larguraTotal })}
+      >
         Inscrever-se no Sympla
       </a>
     );
@@ -31,7 +40,11 @@ export function BotaoInscricaoSympla({ urlSympla, emails, larguraTotal }: BotaoI
 
   return (
     <>
-      <Button larguraTotal={larguraTotal} onClick={() => dialogo.current?.showModal()} aria-haspopup="dialog">
+      <Button
+        larguraTotal={larguraTotal}
+        onClick={() => dialogo.current?.showModal()}
+        aria-haspopup="dialog"
+      >
         Inscrever-se no Sympla
       </Button>
 
@@ -43,12 +56,15 @@ export function BotaoInscricaoSympla({ urlSympla, emails, larguraTotal }: BotaoI
           {emails.map((email) => (
             <li key={email.endereco} className={styles.email}>
               <span className={styles.endereco}>{email.endereco}</span>
-              <span className={styles.tipo}>{email.tipo === "principal" ? "Principal" : "Alternativo"} · verificado</span>
+              <span className={styles.tipo}>
+                {email.tipo === "principal" ? "Principal" : "Alternativo"} · verificado
+              </span>
             </li>
           ))}
         </ul>
         <p className={styles.ajuda}>
-          Vai usar outro e-mail no Sympla? Cadastre e verifique esse endereço no seu perfil para que a presença conte.
+          Vai usar outro e-mail no Sympla? Cadastre e verifique esse endereço no seu perfil para que
+          a presença conte.
         </p>
         <div className={styles.acoes}>
           <Button tipo="secundaria" onClick={() => dialogo.current?.close()}>
