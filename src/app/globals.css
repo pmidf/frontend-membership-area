@@ -61,6 +61,26 @@
   --text-botao--font-weight: 500;
   --text-legenda: 0.75rem;
   --text-legenda--line-height: 1.125rem;
+
+  --animate-rolar-dado: rolar-dado 0.7s ease-in-out infinite;
+
+  @keyframes rolar-dado {
+    0% {
+      transform: rotate(9deg) translateY(0);
+    }
+    25% {
+      transform: rotate(-80deg) translateY(-18px);
+    }
+    50% {
+      transform: rotate(-190deg) translateY(-26px);
+    }
+    75% {
+      transform: rotate(-290deg) translateY(-12px);
+    }
+    100% {
+      transform: rotate(-351deg) translateY(0);
+    }
+  }
 }
 
 @layer base {

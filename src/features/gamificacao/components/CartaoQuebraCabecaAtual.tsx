@@ -1,8 +1,13 @@
+"use client";
+
+import { useState } from "react";
+
 import { Cartao } from "@/shared/ui";
 
 import { TOTAL_PECAS, type QuebraCabecaEmAndamento } from "../tipos/gamificacao";
+import { AreaSorteioQuebraCabeca } from "./AreaSorteioQuebraCabeca";
+import { ModalNovoQuebraCabeca } from "./ModalNovoQuebraCabeca";
 import { TabuleiroQuebraCabeca } from "./TabuleiroQuebraCabeca";
-import { TabuleiroVazio } from "./TabuleiroVazio";
 
 type PropsCartaoQuebraCabecaAtual = {
   emAndamento: QuebraCabecaEmAndamento | null;
@@ -23,6 +28,8 @@ function BarraProgresso({ coletadas }: { coletadas: number }) {
 }
 
 export function CartaoQuebraCabecaAtual({ emAndamento }: PropsCartaoQuebraCabecaAtual) {
+  const [parabens, setParabens] = useState(false);
+
   return (
     <section aria-labelledby="titulo-quebra-cabeca-atual" className="flex flex-col gap-7">
       <header className="sr-only flex-col gap-1 md:not-sr-only md:flex">
@@ -44,12 +51,10 @@ export function CartaoQuebraCabecaAtual({ emAndamento }: PropsCartaoQuebraCabeca
             <BarraProgresso coletadas={emAndamento.pecas_obtidas} />
           </>
         ) : (
-          <>
-            <TabuleiroVazio className="max-w-108" />
-            <p className="text-corpo font-bold md:text-h3">Nenhum quebra-cabeça em andamento</p>
-          </>
+          <AreaSorteioQuebraCabeca aoSortear={() => setParabens(true)} />
         )}
       </Cartao>
+      <ModalNovoQuebraCabeca aberto={parabens} aoFechar={() => setParabens(false)} />
     </section>
   );
 }

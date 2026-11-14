@@ -22,6 +22,12 @@ export type PainelGamificacao = {
   concluidos: QuebraCabecaConcluido[];
 };
 
+export type QuebraCabecaSorteado = {
+  pecas_obtidas: number;
+  total_pecas: number;
+  creditos: number;
+};
+
 export type DetalheConcluido = {
   nome: string;
   legenda: string;

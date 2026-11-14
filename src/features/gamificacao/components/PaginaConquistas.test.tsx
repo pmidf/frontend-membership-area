@@ -135,13 +135,13 @@ describe("Painel de quebra-cabeças", () => {
     ).toBeInTheDocument();
   });
 
-  it("mostra '—' e o tabuleiro vazio quando não há quebra-cabeça em andamento", async () => {
+  it("mostra '—' e o dado no lugar do cartão atual quando não há quebra-cabeça em andamento", async () => {
     abrir(painelSemAndamento);
 
     const indicadores = within(await resumo());
     expect(indicadores.getByText("—")).toBeInTheDocument();
-    expect(screen.getByText("Nenhum quebra-cabeça em andamento")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "0 de 8 peças coletadas" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Sortear um novo quebra-cabeça" })).toBeEnabled();
+    expect(screen.queryByRole("img", { name: /peças coletadas/ })).not.toBeInTheDocument();
     expect(screen.queryByText("Em andamento")).not.toBeInTheDocument();
   });
 });

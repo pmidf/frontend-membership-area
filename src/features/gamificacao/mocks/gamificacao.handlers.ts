@@ -53,9 +53,20 @@ export const detalheTeste: DetalheConcluido = {
   concluido_em: "2025-11-20T15:00:00.000Z",
 };
 
-export function handlersGamificacao(painel: PainelGamificacao = painelTeste) {
+export function handlersGamificacao(painelInicial: PainelGamificacao = painelTeste) {
+  const painel = structuredClone(painelInicial);
   return [
     http.get("*/api/gamificacao", () => HttpResponse.json(painel)),
+    http.post("*/api/gamificacao/sortear-quebra-cabeca", () => {
+      if (painel.em_andamento) {
+        return HttpResponse.json({ codigo: "QUEBRA_CABECA_EM_ANDAMENTO" }, { status: 409 });
+      }
+      painel.em_andamento = { pecas_obtidas: 0, total_pecas: 8, pecas: [] };
+      return HttpResponse.json(
+        { pecas_obtidas: 0, total_pecas: 8, creditos: painel.creditos },
+        { status: 201 },
+      );
+    }),
     http.get("*/api/gamificacao/concluidos/:id", ({ params }) =>
       painel.concluidos.some((item) => item.progresso_id === params.id)
         ? HttpResponse.json(detalheTeste)
