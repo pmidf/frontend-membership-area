@@ -4,13 +4,18 @@ import { useState } from "react";
 
 import { Cartao } from "@/shared/ui";
 
-import { TOTAL_PECAS, type QuebraCabecaEmAndamento } from "../tipos/gamificacao";
+import { useAplicarPecaSorteada } from "../api/gamificacao.queries";
+import { TOTAL_PECAS, type PecaSorteada, type QuebraCabecaEmAndamento } from "../tipos/gamificacao";
+import { AreaSorteioPeca } from "./AreaSorteioPeca";
 import { AreaSorteioQuebraCabeca } from "./AreaSorteioQuebraCabeca";
 import { ModalNovoQuebraCabeca } from "./ModalNovoQuebraCabeca";
+import { ModalPecaRevelada } from "./ModalPecaRevelada";
+import { ModalQuebraCabecaConcluido } from "./ModalQuebraCabecaConcluido";
 import { TabuleiroQuebraCabeca } from "./TabuleiroQuebraCabeca";
 
 type PropsCartaoQuebraCabecaAtual = {
   emAndamento: QuebraCabecaEmAndamento | null;
+  creditos: number;
 };
 
 function BarraProgresso({ coletadas }: { coletadas: number }) {
@@ -27,8 +32,18 @@ function BarraProgresso({ coletadas }: { coletadas: number }) {
   );
 }
 
-export function CartaoQuebraCabecaAtual({ emAndamento }: PropsCartaoQuebraCabecaAtual) {
+export function CartaoQuebraCabecaAtual({ emAndamento, creditos }: PropsCartaoQuebraCabecaAtual) {
   const [parabens, setParabens] = useState(false);
+  const [revelada, setRevelada] = useState<PecaSorteada | null>(null);
+  const [pecaNova, setPecaNova] = useState<number | null>(null);
+  const aplicarPeca = useAplicarPecaSorteada();
+
+  function fecharRevelacao() {
+    if (!revelada) return;
+    aplicarPeca(revelada);
+    setPecaNova(revelada.concluido ? null : revelada.indice);
+    setRevelada(null);
+  }
 
   return (
     <section aria-labelledby="titulo-quebra-cabeca-atual" className="flex flex-col gap-7">
@@ -43,18 +58,35 @@ export function CartaoQuebraCabecaAtual({ emAndamento }: PropsCartaoQuebraCabeca
       <Cartao className="flex flex-col items-center gap-3 p-5 text-center md:gap-5 md:px-6 md:py-10">
         {emAndamento ? (
           <>
-            <TabuleiroQuebraCabeca pecas={emAndamento.pecas} className="max-w-108" />
+            <TabuleiroQuebraCabeca
+              pecas={emAndamento.pecas}
+              pecaNova={pecaNova}
+              className="max-w-108"
+            />
             <p className="text-corpo font-bold md:text-h3">Quebra-cabeça em andamento</p>
             <p className="text-corpo-pequeno font-medium text-texto-marca md:text-corpo">
               {emAndamento.pecas_obtidas} de {TOTAL_PECAS} peças coletadas
             </p>
             <BarraProgresso coletadas={emAndamento.pecas_obtidas} />
+            <AreaSorteioPeca
+              pecasObtidas={emAndamento.pecas_obtidas}
+              creditos={creditos}
+              aoRevelar={setRevelada}
+            />
           </>
         ) : (
           <AreaSorteioQuebraCabeca aoSortear={() => setParabens(true)} />
         )}
       </Cartao>
       <ModalNovoQuebraCabeca aberto={parabens} aoFechar={() => setParabens(false)} />
+      <ModalPecaRevelada
+        pecasObtidas={revelada && !revelada.concluido ? revelada.pecas_obtidas : null}
+        aoFechar={fecharRevelacao}
+      />
+      <ModalQuebraCabecaConcluido
+        conclusao={revelada?.concluido ? revelada : null}
+        aoFechar={fecharRevelacao}
+      />
     </section>
   );
 }

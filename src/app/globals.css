@@ -14,6 +14,7 @@
   --color-neutro-200: #e6e8eb;
   --color-peca-vazia: #d9dadd;
   --color-peca-contorno: #c9c9ce;
+  --color-laranja-400: #e0743f;
   --color-branco: #ffffff;
 
   --color-acao-primaria: #4f17a8;
@@ -63,6 +64,18 @@
   --text-legenda--line-height: 1.125rem;
 
   --animate-rolar-dado: rolar-dado 0.7s ease-in-out infinite;
+  --animate-encaixar-peca: encaixar-peca 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+  @keyframes encaixar-peca {
+    0% {
+      opacity: 0;
+      transform: scale(0.4) rotate(-12deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0);
+    }
+  }
 
   @keyframes rolar-dado {
     0% {

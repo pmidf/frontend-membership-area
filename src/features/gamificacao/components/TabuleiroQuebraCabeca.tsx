@@ -14,6 +14,7 @@ import { TOTAL_PECAS, type PecaObtida } from "../tipos/gamificacao";
 
 type PropsTabuleiroQuebraCabeca = {
   pecas: PecaObtida[];
+  pecaNova?: number | null;
   className?: string;
 };
 
@@ -23,17 +24,26 @@ function PecaRevelada({
   indice,
   recorte,
   idBase,
+  nova,
 }: {
   indice: number;
   recorte: string;
   idBase: string;
+  nova: boolean;
 }) {
   const posicao = posicaoDoIndice(indice);
   if (!posicao) return null;
   const idRecorte = `${idBase}-peca-${indice}`;
 
   return (
-    <g data-peca={indice} data-revelada="true">
+    <g
+      data-peca={indice}
+      data-revelada="true"
+      data-nova={nova || undefined}
+      className={cn(
+        nova && "origin-center [transform-box:fill-box] motion-safe:animate-encaixar-peca",
+      )}
+    >
       <clipPath id={idRecorte}>
         <path d={FORMAS_PECAS[indice]} />
       </clipPath>
@@ -64,7 +74,11 @@ function PecaOculta({ indice }: { indice: number }) {
   );
 }
 
-export function TabuleiroQuebraCabeca({ pecas, className }: PropsTabuleiroQuebraCabeca) {
+export function TabuleiroQuebraCabeca({
+  pecas,
+  pecaNova = null,
+  className,
+}: PropsTabuleiroQuebraCabeca) {
   const idBase = useId().replace(/:/g, "");
   const recortes = recortesPorIndice(pecas);
   const coletadas = recortes.filter(Boolean).length;
@@ -81,7 +95,13 @@ export function TabuleiroQuebraCabeca({ pecas, className }: PropsTabuleiroQuebra
     >
       {ordem.map(({ recorte, indice }) =>
         recorte ? (
-          <PecaRevelada key={indice} indice={indice} recorte={recorte} idBase={idBase} />
+          <PecaRevelada
+            key={indice}
+            indice={indice}
+            recorte={recorte}
+            idBase={idBase}
+            nova={indice === pecaNova}
+          />
         ) : (
           <PecaOculta key={indice} indice={indice} />
         ),

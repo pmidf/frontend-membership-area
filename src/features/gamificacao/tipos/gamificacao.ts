@@ -28,6 +28,25 @@ export type QuebraCabecaSorteado = {
   creditos: number;
 };
 
+export type PecaSorteadaBase = {
+  indice: number;
+  recorte: string;
+  pecas_obtidas: number;
+  creditos: number;
+};
+
+export type PecaSorteada =
+  | (PecaSorteadaBase & { concluido: false })
+  | (PecaSorteadaBase & {
+      concluido: true;
+      nome: string;
+      legenda: string;
+      historia: string;
+      imagem_original: string;
+    });
+
+export type Creditos = { saldo: number };
+
 export type DetalheConcluido = {
   nome: string;
   legenda: string;

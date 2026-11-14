@@ -1,13 +1,18 @@
+"use client";
+
+import { useSincronizarCreditos } from "../api/gamificacao.queries";
 import { TOTAL_PECAS, type PainelGamificacao } from "../tipos/gamificacao";
 import { CartaoQuebraCabecaAtual } from "./CartaoQuebraCabecaAtual";
 import { CatalogoQuebraCabecas } from "./CatalogoQuebraCabecas";
 import { IndicadoresGamificacao } from "./IndicadoresGamificacao";
 
 export function PainelQuebraCabecas({ painel }: { painel: PainelGamificacao }) {
+  useSincronizarCreditos();
+
   return (
     <>
       <IndicadoresGamificacao painel={painel} />
-      <CartaoQuebraCabecaAtual emAndamento={painel.em_andamento} />
+      <CartaoQuebraCabecaAtual emAndamento={painel.em_andamento} creditos={painel.creditos} />
       <CatalogoQuebraCabecas painel={painel} />
       <p className="rounded-md bg-violeta-50 px-5 py-4 text-corpo-pequeno text-texto-secundario">
         Cada quebra-cabeça tem sempre {TOTAL_PECAS} peças. Ao completar o atual, use o dado para

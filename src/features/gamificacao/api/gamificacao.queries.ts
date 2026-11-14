@@ -1,13 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import { ehErroApi } from "@/shared/api/erro-api";
 import { useSessao } from "@/shared/sessao/useSessao";
 
-import type { PainelGamificacao } from "../tipos/gamificacao";
-import { detalharConcluido, obterPainel, sortearQuebraCabeca } from "./gamificacao.api";
+import { aplicarPeca } from "../lib/aplicar-peca";
+import type { PainelGamificacao, PecaSorteada } from "../tipos/gamificacao";
+import {
+  detalharConcluido,
+  obterPainel,
+  sincronizarCreditos,
+  sortearPeca,
+  sortearQuebraCabeca,
+} from "./gamificacao.api";
 
 export const chavesGamificacao = {
   painel: ["gamificacao", "painel"] as const,
+  creditos: ["gamificacao", "creditos"] as const,
   concluido: (progressoId: string) => ["gamificacao", "concluido", progressoId] as const,
 };
 
@@ -82,4 +91,56 @@ export function useSortearQuebraCabeca() {
       if (erroQueMudaOPainel(erro)) void recarregarPainel();
     },
   });
+}
+
+export function semCreditos(erro: unknown): boolean {
+  return ehErroApi(erro) && erro.status === 409 && erro.codigo === "SEM_CREDITOS";
+}
+
+export function useSortearPeca() {
+  const clienteConsultas = useQueryClient();
+  return useMutation({
+    mutationFn: sortearPeca,
+    onSuccess: ({ creditos }) => {
+      clienteConsultas.setQueryData(chavesGamificacao.creditos, { saldo: creditos });
+    },
+    onError: (erro) => {
+      if (erroQueMudaOPainel(erro)) {
+        void clienteConsultas.invalidateQueries({ queryKey: chavesGamificacao.painel });
+      }
+    },
+  });
+}
+
+export function useAplicarPecaSorteada() {
+  const clienteConsultas = useQueryClient();
+  return (peca: PecaSorteada) => {
+    if (peca.concluido) {
+      void clienteConsultas.invalidateQueries({ queryKey: chavesGamificacao.painel });
+      return;
+    }
+    clienteConsultas.setQueryData<PainelGamificacao>(chavesGamificacao.painel, (painel) =>
+      painel ? aplicarPeca(painel, peca) : painel,
+    );
+  };
+}
+
+export function useSincronizarCreditos() {
+  const clienteConsultas = useQueryClient();
+  const { estado, ehFiliado } = useSessao();
+  const { data } = useQuery({
+    queryKey: chavesGamificacao.creditos,
+    queryFn: sincronizarCreditos,
+    enabled: estado === "autenticado" && ehFiliado,
+    staleTime: 0,
+    refetchOnWindowFocus: "always",
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (!data) return;
+    clienteConsultas.setQueryData<PainelGamificacao>(chavesGamificacao.painel, (painel) =>
+      painel && painel.creditos !== data.saldo ? { ...painel, creditos: data.saldo } : painel,
+    );
+  }, [data, clienteConsultas]);
 }
