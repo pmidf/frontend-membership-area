@@ -32,3 +32,12 @@ export function editarQuebraCabeca(
 ): Promise<QuebraCabecaCriado> {
   return api.atualizar<QuebraCabecaCriado>(`${BASE}/${encodeURIComponent(id)}`, dados);
 }
+
+export type AcaoDeSituacao = "tirar-do-ar" | "subir-novamente";
+
+export function mudarSituacaoQuebraCabeca(
+  id: string,
+  acao: AcaoDeSituacao,
+): Promise<QuebraCabecaCriado> {
+  return api.enviar<QuebraCabecaCriado>(`${BASE}/${encodeURIComponent(id)}/${acao}`);
+}

@@ -8,7 +8,9 @@ import {
   detalharQuebraCabeca,
   editarQuebraCabeca,
   listarQuebraCabecas,
+  mudarSituacaoQuebraCabeca,
   publicarQuebraCabeca,
+  type AcaoDeSituacao,
 } from "./quebra-cabecas.api";
 
 export const chavesGamificacaoAdmin = {
@@ -19,6 +21,10 @@ export const chavesGamificacaoAdmin = {
 
 export function transicaoInvalida(erro: unknown): boolean {
   return ehErroApi(erro) && erro.status === 409 && erro.codigo === "TRANSICAO_INVALIDA";
+}
+
+export function situacaoDesatualizada(erro: unknown): boolean {
+  return transicaoInvalida(erro) || quebraCabecaNaoEncontrado(erro);
 }
 
 export function quebraCabecaNaoEncontrado(erro: unknown): boolean {
@@ -74,6 +80,15 @@ export function useEditarQuebraCabeca(id: string) {
   const recarregar = useRecarregarLista();
   return useMutation({
     mutationFn: (dados: EditarQuebraCabeca) => editarQuebraCabeca(id, dados),
+    onSettled: () => void recarregar(),
+  });
+}
+
+export function useMudarSituacaoQuebraCabeca() {
+  const recarregar = useRecarregarLista();
+  return useMutation({
+    mutationFn: ({ id, acao }: { id: string; acao: AcaoDeSituacao }) =>
+      mudarSituacaoQuebraCabeca(id, acao),
     onSettled: () => void recarregar(),
   });
 }

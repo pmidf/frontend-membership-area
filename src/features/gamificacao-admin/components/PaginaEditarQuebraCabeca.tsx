@@ -33,6 +33,7 @@ import {
 } from "../api/quebra-cabecas.queries";
 import { rotulosSituacaoQuebraCabeca } from "../lib/acoes-por-situacao";
 import { alteracoesDoQuebraCabeca, valoresDoQuebraCabeca } from "../lib/edicao-quebra-cabeca";
+import { AcoesSituacaoQuebraCabeca } from "./AcoesSituacaoQuebraCabeca";
 import {
   esquemaQuebraCabeca,
   type DadosQuebraCabeca,
@@ -193,6 +194,13 @@ function EdicaoQuebraCabeca({ quebraCabeca }: { quebraCabeca: QuebraCabecaAdmin 
                 )}
               </div>
             )}
+            <AcoesSituacaoQuebraCabeca
+              id={id}
+              nome={quebraCabeca.nome}
+              situacao={situacao}
+              tamanho="md"
+              larguraTotal
+            />
             <p className="text-legenda text-texto-secundario">
               {situacao === "RASCUNHO"
                 ? "Ao publicar, o quebra-cabeça entra no sorteio para o próximo filiado que completar o atual."

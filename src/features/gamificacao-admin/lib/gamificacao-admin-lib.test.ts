@@ -55,9 +55,9 @@ describe("esquemaQuebraCabeca", () => {
 });
 
 describe("acoesPorSituacao", () => {
-  it("só oferece publicar ao rascunho", () => {
+  it("segue as transições válidas: rascunho publica, publicado sai do ar e fora do ar volta", () => {
     expect(acoesPorSituacao("RASCUNHO")).toEqual(["editar", "publicar"]);
-    expect(acoesPorSituacao("PUBLICADO")).toEqual(["editar"]);
-    expect(acoesPorSituacao("FORA_DO_AR")).toEqual(["editar"]);
+    expect(acoesPorSituacao("PUBLICADO")).toEqual(["editar", "tirar-do-ar"]);
+    expect(acoesPorSituacao("FORA_DO_AR")).toEqual(["editar", "subir-novamente"]);
   });
 });

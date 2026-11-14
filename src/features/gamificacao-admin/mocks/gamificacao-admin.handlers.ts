@@ -112,6 +112,23 @@ export function handlersGamificacaoAdmin(listaInicial: ItemQuebraCabecaAdmin[] =
       if (dados.nome) item.nome = dados.nome;
       return HttpResponse.json({ ...detalheTeste(item), ...dados });
     }),
+    http.post("*/api/admin/quebra-cabecas/:id/:acao", ({ params }) => {
+      if (params.acao === "publicar") return undefined;
+      const item = lista.find((atual) => atual.id_quebra_cabeca === params.id);
+      if (!item) {
+        return HttpResponse.json({ codigo: "QUEBRA_CABECA_NAO_ENCONTRADO" }, { status: 404 });
+      }
+      const transicoes: Record<string, [string, "PUBLICADO" | "FORA_DO_AR"]> = {
+        "tirar-do-ar": ["PUBLICADO", "FORA_DO_AR"],
+        "subir-novamente": ["FORA_DO_AR", "PUBLICADO"],
+      };
+      const [de, para] = transicoes[String(params.acao)] ?? [];
+      if (!para || item.situacao !== de) {
+        return HttpResponse.json({ codigo: "TRANSICAO_INVALIDA" }, { status: 409 });
+      }
+      item.situacao = para;
+      return HttpResponse.json(detalheTeste(item));
+    }),
     http.post("*/api/admin/quebra-cabecas/:id/publicar", ({ params }) => {
       const item = lista.find((atual) => atual.id_quebra_cabeca === params.id);
       if (!item) {

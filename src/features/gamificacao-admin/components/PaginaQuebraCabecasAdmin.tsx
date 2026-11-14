@@ -12,9 +12,8 @@ import {
   useQuebraCabecasAdmin,
 } from "../api/quebra-cabecas.queries";
 import type { ItemQuebraCabecaAdmin } from "../tipos/quebra-cabeca-admin";
+import { MENSAGEM_SITUACAO_MUDOU } from "./AcoesSituacaoQuebraCabeca";
 import { TabelaQuebraCabecas } from "./TabelaQuebraCabecas";
-
-export const MENSAGEM_SITUACAO_MUDOU = "A situação mudou. Atualizamos a lista.";
 
 export function PaginaQuebraCabecasAdmin() {
   const lista = useQuebraCabecasAdmin();

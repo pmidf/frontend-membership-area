@@ -8,7 +8,8 @@ import { renderizar } from "@/test/renderizar";
 import { servidor } from "@/test/servidor";
 
 import { handlersGamificacaoAdmin, listaTeste } from "../mocks/gamificacao-admin.handlers";
-import { MENSAGEM_SITUACAO_MUDOU, PaginaQuebraCabecasAdmin } from "./PaginaQuebraCabecasAdmin";
+import { MENSAGEM_SITUACAO_MUDOU } from "./AcoesSituacaoQuebraCabeca";
+import { PaginaQuebraCabecasAdmin } from "./PaginaQuebraCabecasAdmin";
 
 function abrir(lista = listaTeste) {
   renderizar(<PaginaQuebraCabecasAdmin />, { sessao: perfilAdmin });
@@ -40,7 +41,9 @@ describe("Catálogo de quebra-cabeças do Admin", () => {
   it("oferece publicar só ao rascunho e o publica", async () => {
     abrir();
 
-    expect(within(await linha("Diretoria 2023–2024")).queryByRole("button")).toBeNull();
+    expect(
+      within(await linha("Diretoria 2023–2024")).queryByRole("button", { name: /Publicar/ }),
+    ).toBeNull();
     expect(
       within(await linha("Diretoria 2023–2024")).getByRole("link", {
         name: "Editar Diretoria 2023–2024",
@@ -52,7 +55,7 @@ describe("Catálogo de quebra-cabeças do Admin", () => {
     expect(
       await within(await linha("Meetup de Ágeis")).findByText("Publicado"),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Publicar/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Publicar/ })).not.toBeInTheDocument();
   });
 
   it("avisa e recarrega quando a situação mudou antes de publicar", async () => {

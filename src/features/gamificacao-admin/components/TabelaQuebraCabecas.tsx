@@ -8,6 +8,7 @@ import { classesBotao } from "@/shared/ui/botao/Botao";
 
 import { acoesPorSituacao, rotulosSituacaoQuebraCabeca } from "../lib/acoes-por-situacao";
 import type { ItemQuebraCabecaAdmin } from "../tipos/quebra-cabeca-admin";
+import { AcoesSituacaoQuebraCabeca } from "./AcoesSituacaoQuebraCabeca";
 
 type PropsTabelaQuebraCabecas = {
   quebraCabecas: ItemQuebraCabecaAdmin[];
@@ -47,30 +48,30 @@ function colunas({
       cabecalho: "Ações",
       celula: (item) => (
         <span className="flex flex-wrap gap-2">
-          {acoesPorSituacao(item.situacao).map((acao) =>
-            acao === "editar" ? (
-              <Link
-                key={acao}
-                href={`/admin/quebra-cabecas/${item.id_quebra_cabeca}`}
-                aria-label={`Editar ${item.nome}`}
-                className={classesBotao({ variante: "secundario", tamanho: "sm" })}
-              >
-                ✎ Editar
-              </Link>
-            ) : (
-              <button
-                key={acao}
-                type="button"
-                aria-label={`Publicar ${item.nome}`}
-                aria-busy={publicando === item.id_quebra_cabeca || undefined}
-                disabled={publicando !== null}
-                onClick={() => aoPublicar(item)}
-                className={classesBotao({ tamanho: "sm" })}
-              >
-                Publicar
-              </button>
-            ),
+          <Link
+            href={`/admin/quebra-cabecas/${item.id_quebra_cabeca}`}
+            aria-label={`Editar ${item.nome}`}
+            className={classesBotao({ variante: "secundario", tamanho: "sm" })}
+          >
+            ✎ Editar
+          </Link>
+          {acoesPorSituacao(item.situacao).includes("publicar") && (
+            <button
+              type="button"
+              aria-label={`Publicar ${item.nome}`}
+              aria-busy={publicando === item.id_quebra_cabeca || undefined}
+              disabled={publicando !== null}
+              onClick={() => aoPublicar(item)}
+              className={classesBotao({ tamanho: "sm" })}
+            >
+              Publicar
+            </button>
           )}
+          <AcoesSituacaoQuebraCabeca
+            id={item.id_quebra_cabeca}
+            nome={item.nome}
+            situacao={item.situacao}
+          />
         </span>
       ),
     },
