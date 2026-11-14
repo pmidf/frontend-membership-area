@@ -1,0 +1,20 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="50" height="47.6271" viewBox="0 0 50 47.6271" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="Frame 3">
+<g id="Ellipse 1">
+<use xlink:href="#stroke0_0_85" fill="white"/>
+<mask id="stroke1_0_85" fill="white">
+<use xlink:href="#stroke0_0_85"/>
+</mask>
+<path d="M50 23.8135C50 36.9654 38.8071 47.6271 25 47.6271C11.1929 47.6271 0 36.9654 0 23.8135C0 10.6617 11.1929 0 25 0C38.8071 0 50 10.6617 50 23.8135Z" stroke-width="2" stroke="#D4D4D4" mask="url(#stroke1_0_85)"/>
+</g>
+<path id="Vector" d="M14 13H34.339V19.5085C36.361 19.5085 38 21.1475 38 23.1695C38 25.1915 36.361 26.8305 34.339 26.8305V33.339H27.8305C27.8305 35.361 26.1915 37 24.1695 37C22.1475 37 20.5085 35.361 20.5085 33.339H14V13Z" fill="url(#paint0_linear_0_85)" stroke-width="0.564972" stroke="white"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_85" x1="14" y1="13" x2="95.3559" y2="53.678" gradientUnits="userSpaceOnUse">
+<stop stop-color="#4F1AA8"/>
+<stop offset="0.5" stop-color="#8B2E8F"/>
+<stop offset="1" stop-color="#E0743F"/>
+</linearGradient>
+<path id="stroke0_0_85" d="M50 23.8135C50 36.9654 38.8071 47.6271 25 47.6271C11.1929 47.6271 0 36.9654 0 23.8135C0 10.6617 11.1929 0 25 0C38.8071 0 50 10.6617 50 23.8135Z"/>
+</defs>
+</svg>
