@@ -3,13 +3,9 @@
 import { useCallback, useState } from "react";
 
 import type { PainelGamificacao } from "../tipos/gamificacao";
-import {
-  SeloPecas,
-  TextoCatalogo,
-  classesCartaoCatalogo,
-  classesMidiaCatalogo,
-} from "./CartaoCatalogo";
+import { TextoCatalogo, classesCartaoCatalogo, classesMidiaCatalogo } from "./CartaoCatalogo";
 import { CartaoConcluido } from "./CartaoConcluido";
+import { CartaoSurpresa } from "./CartaoSurpresa";
 import { ModalConcluido } from "./ModalConcluido";
 import { TabuleiroQuebraCabeca } from "./TabuleiroQuebraCabeca";
 
@@ -29,24 +25,6 @@ function CartaoEmAndamento({
         titulo="Quebra-cabeça atual"
         detalhe="Em andamento"
         classeDetalhe="text-alerta-700"
-      />
-    </div>
-  );
-}
-
-function CartaoSurpresa() {
-  return (
-    <div className={classesCartaoCatalogo}>
-      <span
-        className={`${classesMidiaCatalogo} flex items-center justify-center bg-neutro-200 text-h3 text-texto-secundario md:text-display`}
-      >
-        <span aria-hidden="true">?</span>
-        <SeloPecas />
-      </span>
-      <TextoCatalogo
-        titulo="Mais quebra-cabeças para descobrir"
-        detalhe="Continue colecionando peças"
-        classeDetalhe="text-texto-secundario"
       />
     </div>
   );
@@ -79,7 +57,10 @@ export function CatalogoQuebraCabecas({ painel }: { painel: PainelGamificacao })
           </li>
         ))}
         <li>
-          <CartaoSurpresa />
+          <CartaoSurpresa
+            titulo="Mais quebra-cabeças para descobrir"
+            detalhe="Continue colecionando peças"
+          />
         </li>
       </ul>
       <ModalConcluido concluido={concluidoAberto} aoFechar={fechar} />

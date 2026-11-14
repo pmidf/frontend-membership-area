@@ -147,12 +147,45 @@ describe("Painel de quebra-cabeças", () => {
 });
 
 describe("Acesso ao painel", () => {
-  it("mostra a visão bloqueada ao Não-Filiado sem consultar a API", async () => {
+  it("mostra ao Não-Filiado o painel, os indicadores bloqueados, o tabuleiro sob o cadeado e os cartões surpresa", async () => {
     abrir(painelTeste, perfilNaoFiliado);
 
-    expect(await screen.findByText("Você ainda não tem nenhuma peça")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Quero me filiar/ })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("region", { name: "Você ainda não tem nenhuma peça" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/^Filie-se ao PMI-DF para começar a ganhar créditos/)).toBeVisible();
+
+    const indicadores = within(screen.getByRole("region", { name: "Resumo da coleção" }));
+    expect(indicadores.getByText("Quebra-cabeças completos")).toBeInTheDocument();
+    expect(indicadores.getByText("Peças coletadas no atual")).toBeInTheDocument();
+    expect(indicadores.getAllByText("Disponível para filiados")).toHaveLength(2);
+
+    const bloqueio = screen.getByRole("region", { name: "Conteúdo bloqueado" });
+    expect(
+      within(bloqueio).getByRole("heading", { name: "Filie-se para começar a colecionar peças" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: /peças coletadas/ })).not.toBeInTheDocument();
+
+    const catalogo = screen.getByRole("region", { name: "Catálogo de quebra-cabeças" });
+    expect(within(catalogo).getAllByText("Quebra-cabeça surpresa")).toHaveLength(6);
+    expect(within(catalogo).queryByRole("button")).not.toBeInTheDocument();
     expect(consultasPainel).toBe(0);
+  });
+
+  it("abre a filiação sem registrar conversão", async () => {
+    abrir(painelTeste, perfilNaoFiliado);
+    const cliques: unknown[] = [];
+    servidor.events.on("request:start", ({ request }) => {
+      if (new URL(request.url).pathname === "/api/conversao/cta") cliques.push(request.url);
+    });
+
+    const links = await screen.findAllByRole("link", { name: /Quero (me filiar|ser filiado)/ });
+    expect(links).toHaveLength(3);
+    for (const link of links) {
+      link.addEventListener("click", (evento) => evento.preventDefault());
+      await userEvent.click(link);
+    }
+    expect(cliques).toEqual([]);
   });
 
   it("mostra a visão bloqueada quando a API responde que a filiação é necessária", async () => {
@@ -163,7 +196,11 @@ describe("Acesso ao painel", () => {
       ),
     );
 
-    expect(await screen.findByText("Você ainda não tem nenhuma peça")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("region", { name: "Você ainda não tem nenhuma peça" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Disponível para filiados")).toHaveLength(2);
+    expect(screen.queryByText(/peças coletadas no atual/)).not.toBeInTheDocument();
     expect(consultasPainel).toBe(1);
   });
 

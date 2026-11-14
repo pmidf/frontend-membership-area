@@ -1,10 +1,10 @@
 "use client";
 
-import { PainelExclusivoFiliados } from "@/features/conversao/components/PainelExclusivoFiliados";
 import { useSessao } from "@/shared/sessao/useSessao";
 import { CabecalhoPagina, EstadoErro, Esqueleto } from "@/shared/ui";
 
 import { filiacaoNecessaria, usePainelGamificacao } from "../api/gamificacao.queries";
+import { ConquistasBloqueadas } from "./ConquistasBloqueadas";
 import { PainelQuebraCabecas } from "./PainelQuebraCabecas";
 
 function Carregando() {
@@ -21,16 +21,10 @@ function Carregando() {
   );
 }
 
-function Bloqueado() {
-  return (
-    <PainelExclusivoFiliados
-      titulo="Você ainda não tem nenhuma peça"
-      descricao="Filiados ganham 1 crédito a cada presença confirmada em um evento do capítulo — e trocam por peças no dado."
-      rotuloCta="Quero me filiar"
-      mostrarJaSouFiliado={false}
-    />
-  );
-}
+const SUBTITULO_FILIADO =
+  "Cada presença confirmada em evento vira 1 crédito. Use o dado para trocar um crédito por uma peça — e sorteie um novo quebra-cabeça assim que completar o atual.";
+const SUBTITULO_BLOQUEADO =
+  "Filie-se ao PMI-DF para começar a ganhar créditos e colecionar peças a cada presença confirmada em evento.";
 
 export function PaginaConquistas() {
   const { estado, ehFiliado } = useSessao();
@@ -43,13 +37,12 @@ export function PaginaConquistas() {
         titulo="Seus quebra-cabeças"
         subtitulo={
           <span className="hidden md:inline">
-            Cada presença confirmada em evento vira 1 crédito. Use o dado para trocar um crédito por
-            uma peça — e sorteie um novo quebra-cabeça assim que completar o atual.
+            {bloqueado ? SUBTITULO_BLOQUEADO : SUBTITULO_FILIADO}
           </span>
         }
       />
       {bloqueado ? (
-        <Bloqueado />
+        <ConquistasBloqueadas />
       ) : painel.data ? (
         <PainelQuebraCabecas painel={painel.data} />
       ) : painel.isError ? (
