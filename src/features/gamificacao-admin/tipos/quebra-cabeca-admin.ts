@@ -39,3 +39,10 @@ export type QuebraCabecaAdmin = {
   pecas: { id_peca: string; indice: number; recorte: string }[];
   pode_trocar_imagem: boolean;
 };
+
+export type LinhaRanking = {
+  pessoa_id: string;
+  concluidos: number;
+  total_publicados: number;
+  pecas_atual: number;
+};

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { PaginaRankingGamificacao } from "@/features/gamificacao-admin/components/PaginaRankingGamificacao";
 
 export const metadata: Metadata = { title: "Estatísticas de gamificação" };
 
 export default function Pagina() {
-  return <EmConstrucao titulo="Estatísticas de gamificação" />;
+  return <PaginaRankingGamificacao />;
 }
