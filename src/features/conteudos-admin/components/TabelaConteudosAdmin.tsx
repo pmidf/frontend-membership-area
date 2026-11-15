@@ -50,7 +50,7 @@ const colunas = (sufixo: string): ColunaTabela<ConteudoAdmin>[] => [
   {
     id: "acoes",
     cabecalho: <span className="sr-only">Ações</span>,
-    celula: ({ id_conteudo, titulo, situacao }) => {
+    celula: ({ id_conteudo, titulo, situacao, data_publicacao }) => {
       const rotulo = situacao === "ARQUIVADO" ? "Ver" : "Editar";
       return (
         <span className="flex flex-wrap gap-x-4 gap-y-1">
@@ -61,7 +61,7 @@ const colunas = (sufixo: string): ColunaTabela<ConteudoAdmin>[] => [
           >
             {rotulo}
           </Link>
-          {situacao !== "RASCUNHO" && (
+          {data_publicacao !== null && (
             <Link
               href={`/admin/conteudos/${id_conteudo}/estatisticas`}
               aria-label={`Ver estatísticas de ${titulo}`}

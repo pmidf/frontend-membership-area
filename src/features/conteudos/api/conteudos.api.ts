@@ -9,6 +9,7 @@ import type {
   ItemCatalogo,
   PlayerConteudo,
 } from "../tipos/conteudo";
+import type { DetalheTrilha, ResumoTrilha, TrilhaDoConteudo } from "../tipos/trilha";
 
 export function listarCatalogo(filtros: FiltrosConteudos = {}): Promise<Catalogo> {
   return api.obter<Catalogo>("/conteudos", { consulta: filtros });
@@ -53,4 +54,16 @@ export function desmarcarVisto(id: string): Promise<void> {
 
 export function abrirMaterial(id: string): Promise<AcessoMaterial> {
   return api.enviar<AcessoMaterial>(`${rotaConteudo(id)}/acessos`);
+}
+
+export function listarTrilhasDoConteudo(id: string): Promise<TrilhaDoConteudo[]> {
+  return api.obter<TrilhaDoConteudo[]>(`${rotaConteudo(id)}/trilhas`);
+}
+
+export function listarTrilhas(): Promise<ResumoTrilha[]> {
+  return api.obter<ResumoTrilha[]>("/trilhas");
+}
+
+export function detalharTrilha(id: string): Promise<DetalheTrilha> {
+  return api.obter<DetalheTrilha>(`/trilhas/${encodeURIComponent(id)}`);
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { useCategoriasConteudo } from "@/features/conteudos/api/conteudos.queries";
@@ -15,6 +14,7 @@ import {
   useReordenarCategorias,
 } from "../api/categorias-admin.queries";
 import { moverCategoria } from "../lib/ordem-categorias";
+import { BotaoOrdem } from "./BotaoOrdem";
 
 const TAMANHO_MAXIMO_NOME = 60;
 
@@ -25,28 +25,6 @@ function erroDoNome(erro: unknown): string {
 
 function validarNome(nome: string): string | undefined {
   return nome.trim() === "" ? "Informe o nome da categoria" : undefined;
-}
-
-type PropsBotaoOrdem = {
-  direcao: "subir" | "descer";
-  nome: string;
-  desabilitado: boolean;
-  aoClicar: () => void;
-};
-
-function BotaoOrdem({ direcao, nome, desabilitado, aoClicar }: PropsBotaoOrdem) {
-  const Icone = direcao === "subir" ? ChevronUp : ChevronDown;
-  return (
-    <button
-      type="button"
-      aria-label={`${direcao === "subir" ? "Subir" : "Descer"} ${nome}`}
-      disabled={desabilitado}
-      onClick={aoClicar}
-      className="inline-flex size-9 shrink-0 items-center justify-center rounded-pill border border-acao-primaria text-texto-marca hover:bg-violeta-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acao-destaque disabled:cursor-not-allowed disabled:opacity-35"
-    >
-      <Icone aria-hidden="true" className="size-4" />
-    </button>
-  );
 }
 
 type PropsEdicao = {

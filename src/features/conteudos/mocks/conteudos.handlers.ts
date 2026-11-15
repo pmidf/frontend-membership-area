@@ -11,6 +11,7 @@ import type {
   ItemCatalogoPrevia,
   PlayerConteudo,
 } from "../tipos/conteudo";
+import type { DetalheTrilha, ResumoTrilha, TrilhaDoConteudo } from "../tipos/trilha";
 
 const DIA_EM_MS = 86_400_000;
 const id = (numero: number) => `40000000-0000-4000-8000-${String(numero).padStart(12, "0")}`;
@@ -97,6 +98,7 @@ export const catalogoPrevia = montarCatalogo([
 
 export function handlersConteudos(catalogo: Catalogo = catalogoFiliado) {
   return [
+    http.get("*/api/trilhas", () => HttpResponse.json([])),
     http.get("*/api/conteudos", () => HttpResponse.json(catalogo)),
     http.get("*/api/conteudo-categorias", () => HttpResponse.json(categoriasTeste)),
   ];
@@ -130,7 +132,42 @@ export const playerTeste: PlayerConteudo = {
 
 export const acessoMaterialTeste: AcessoMaterial = { url: "https://exemplo.test/material.pdf" };
 
-export function handlersDetalhe(detalhe: DetalheConteudo = detalheVideo) {
+const trilhaBase: TrilhaDoConteudo = {
+  id_trilha: "80000000-0000-4000-8000-000000000001",
+  titulo: "IA e dados em projetos",
+  descricao: "Da mesa redonda ao plano de PDUs.",
+  data_publicacao: "2026-10-01T15:00:00.000Z",
+  total_itens: 3,
+  itens_vistos: 1,
+  posicao: 1,
+  proximo: videoPublico,
+};
+
+export const trilhaComProximo: TrilhaDoConteudo = trilhaBase;
+
+export const trilhaComProximoBloqueado: TrilhaDoConteudo = {
+  ...trilhaBase,
+  id_trilha: "80000000-0000-4000-8000-000000000002",
+  titulo: "Riscos no setor público",
+  total_itens: 2,
+  itens_vistos: 0,
+  proximo: itemBloqueado,
+};
+
+export const trilhaNoFim: TrilhaDoConteudo = {
+  ...trilhaBase,
+  id_trilha: "80000000-0000-4000-8000-000000000003",
+  titulo: "Carreira em projetos",
+  total_itens: 2,
+  itens_vistos: 2,
+  posicao: 2,
+  proximo: null,
+};
+
+export function handlersDetalhe(
+  detalhe: DetalheConteudo = detalheVideo,
+  trilhas: TrilhaDoConteudo[] = [],
+) {
   let consumido = !detalhe.bloqueado && detalhe.consumido;
   const marcar = (valor: boolean) => {
     consumido = valor;
@@ -146,6 +183,62 @@ export function handlersDetalhe(detalhe: DetalheConteudo = detalheVideo) {
     http.delete("*/api/conteudos/:id/consumido", () => marcar(false)),
     http.post("*/api/conteudos/:id/acessos", () =>
       HttpResponse.json(acessoMaterialTeste, { status: 201 }),
+    ),
+    http.get("*/api/conteudos/:id/trilhas", () => HttpResponse.json(trilhas)),
+  ];
+}
+
+const idTrilha = (numero: number) => `80000000-0000-4000-8000-${String(numero).padStart(12, "0")}`;
+
+const resumoBase: ResumoTrilha = {
+  id_trilha: "",
+  titulo: "",
+  descricao: "Sequência de estudo.",
+  data_publicacao: "2026-10-01T15:00:00.000Z",
+  total_itens: 3,
+  itens_vistos: 0,
+};
+
+export const trilhaEmAndamento: DetalheTrilha = {
+  ...resumoBase,
+  id_trilha: idTrilha(11),
+  titulo: "Projetos no setor público",
+  descricao: "Do PMBOK 7 ao canvas de projeto do PMI-DF.",
+  itens_vistos: 1,
+  itens: [videoVisto, { ...videoPublico, consumido: false }, materialNovo],
+};
+
+export const trilhaPrevia: DetalheTrilha = {
+  ...trilhaEmAndamento,
+  itens_vistos: 0,
+  itens: [{ ...videoPublico, consumido: false }, itemBloqueado],
+  total_itens: 2,
+};
+
+export const trilhaConcluida: DetalheTrilha = {
+  ...trilhaEmAndamento,
+  itens_vistos: 1,
+  total_itens: 1,
+  itens: [videoVisto],
+};
+
+export const resumosTrilhas: ResumoTrilha[] = [
+  { ...resumoBase, id_trilha: idTrilha(11), titulo: "Projetos no setor público", itens_vistos: 1 },
+  { ...resumoBase, id_trilha: idTrilha(12), titulo: "Agilidade na prática", total_itens: 5 },
+  { ...resumoBase, id_trilha: idTrilha(13), titulo: "Carreira em projetos", itens_vistos: 3 },
+  { ...resumoBase, id_trilha: idTrilha(14), titulo: "Riscos no setor público", total_itens: 1 },
+];
+
+export function handlersTrilhas(
+  trilhas: ResumoTrilha[] = resumosTrilhas,
+  detalhe: DetalheTrilha = trilhaEmAndamento,
+) {
+  return [
+    http.get("*/api/trilhas", () => HttpResponse.json(trilhas)),
+    http.get("*/api/trilhas/:id", ({ params }) =>
+      params.id === detalhe.id_trilha
+        ? HttpResponse.json(detalhe)
+        : HttpResponse.json({ statusCode: 404, message: "Trilha não encontrada" }, { status: 404 }),
     ),
   ];
 }

@@ -4,19 +4,32 @@ import { useRouter } from "next/navigation";
 
 import { CabecalhoPagina, EstadoVazio } from "@/shared/ui";
 
-import { useCatalogoCompleto, useEhPrevia } from "../api/conteudos.queries";
+import { useCatalogoCompleto, useEhPrevia, useTrilhas } from "../api/conteudos.queries";
 import type { FiltrosCatalogo } from "../lib/filtros-url";
 import { conteudosAssistidos, ITENS_POR_SECAO, maisRecentes } from "../lib/resumo-catalogo";
 import type { ItemCatalogo } from "../tipos/conteudo";
 import { EstadosCatalogo } from "./EstadosCatalogo";
+import { GradeTrilhas } from "./CartaoTrilha";
 import { FiltrosConteudos } from "./FiltrosConteudos";
+import { GradeConteudos } from "./GradeConteudos";
 import { PainelPreviaConteudos } from "./PainelPreviaConteudos";
 import { SecaoResumo } from "./SecaoResumo";
 
 const INICIO_SUBTITULO =
   "Gravações do capítulo, materiais de apoio e a central de conhecimento do PMI Global";
 const ATRASO_BUSCA_RESUMO = 700;
+const CAMINHO_TRILHAS = "/conteudos/trilhas";
 const SEM_FILTROS: FiltrosCatalogo = { q: "", tipo: "", categoria: "", pagina: 1 };
+
+function SecaoTrilhas() {
+  const { data: trilhas } = useTrilhas();
+  if (!trilhas || trilhas.length === 0) return null;
+  return (
+    <SecaoResumo titulo="Trilhas" rotuloLink="Ver todas as trilhas" href={CAMINHO_TRILHAS}>
+      <GradeTrilhas trilhas={trilhas.slice(0, ITENS_POR_SECAO)} />
+    </SecaoResumo>
+  );
+}
 
 function ResumoCatalogo({ itens }: { itens: ItemCatalogo[] }) {
   if (itens.length === 0) return <EstadoVazio titulo="Nenhum conteúdo encontrado" />;
@@ -25,19 +38,18 @@ function ResumoCatalogo({ itens }: { itens: ItemCatalogo[] }) {
   return (
     <>
       {assistidos.length > 0 && (
-        <SecaoResumo
-          titulo="Assistidos"
-          rotuloLink="Ver histórico"
-          href="/conteudos/historico"
-          itens={assistidos.slice(0, ITENS_POR_SECAO)}
-        />
+        <SecaoResumo titulo="Assistidos" rotuloLink="Ver histórico" href="/conteudos/historico">
+          <GradeConteudos itens={assistidos.slice(0, ITENS_POR_SECAO)} />
+        </SecaoResumo>
       )}
       <SecaoResumo
         titulo="Adicionados recentemente"
         rotuloLink="Ver biblioteca completa"
         href="/conteudos/biblioteca"
-        itens={maisRecentes(itens).slice(0, ITENS_POR_SECAO)}
-      />
+      >
+        <GradeConteudos itens={maisRecentes(itens).slice(0, ITENS_POR_SECAO)} />
+      </SecaoResumo>
+      <SecaoTrilhas />
     </>
   );
 }

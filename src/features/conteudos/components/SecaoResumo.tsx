@@ -1,18 +1,16 @@
 import Link from "next/link";
-
-import type { ItemCatalogo } from "../tipos/conteudo";
-import { GradeConteudos } from "./GradeConteudos";
+import type { ReactNode } from "react";
 
 type PropsSecaoResumo = {
   titulo: string;
   rotuloLink: string;
   href: string;
-  itens: ItemCatalogo[];
+  children: ReactNode;
 };
 
-export function SecaoResumo({ titulo, rotuloLink, href, itens }: PropsSecaoResumo) {
+export function SecaoResumo({ titulo, rotuloLink, href, children }: PropsSecaoResumo) {
   return (
-    <section className="flex flex-col gap-5">
+    <section aria-label={titulo} className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-h3">{titulo}</h2>
         <Link
@@ -22,7 +20,7 @@ export function SecaoResumo({ titulo, rotuloLink, href, itens }: PropsSecaoResum
           {rotuloLink}
         </Link>
       </div>
-      <GradeConteudos itens={itens} />
+      {children}
     </section>
   );
 }

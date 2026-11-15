@@ -15,9 +15,15 @@ import {
   detalheMaterial,
   detalheVideo,
   handlersDetalhe,
+  itemBloqueado,
   playerTeste,
+  trilhaComProximo,
+  trilhaComProximoBloqueado,
+  trilhaNoFim,
+  videoPublico,
 } from "../mocks/conteudos.handlers";
 import type { DetalheConteudo } from "../tipos/conteudo";
+import type { TrilhaDoConteudo } from "../tipos/trilha";
 import { PaginaDetalheConteudo } from "./PaginaDetalheConteudo";
 
 let chamadas: string[];
@@ -244,5 +250,74 @@ describe("Material", () => {
 
     expect(await screen.findByText(mensagem)).toBeInTheDocument();
     expect(aba.close).toHaveBeenCalled();
+  });
+});
+
+describe("Continue na trilha", () => {
+  function abrirComTrilhas(trilhas: TrilhaDoConteudo[], sessao: Perfil = perfilFiliado, de = "") {
+    abrir(detalheVideo, sessao, de);
+    servidor.use(...handlersDetalhe(detalheVideo, trilhas));
+  }
+
+  const cartaoTrilha = (nome: string) =>
+    within(screen.getByRole("region", { name: `Trilha ${nome}` }));
+
+  it("mostra a trilha, o progresso e o próximo item com link", async () => {
+    abrirComTrilhas([trilhaComProximo], perfilFiliado, "de=%2Fconteudos%2Fhistorico");
+
+    expect(await screen.findByRole("heading", { name: "Continue na trilha" })).toBeInTheDocument();
+    const trilha = cartaoTrilha(trilhaComProximo.titulo);
+    expect(trilha.getByText("Item 1 de 3 · 1 de 3 concluídos")).toBeInTheDocument();
+    expect(trilha.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1");
+    expect(trilha.getByRole("link", { name: /Como montar seu plano de PDUs/ })).toHaveAttribute(
+      "href",
+      `/conteudos/${videoPublico.id_conteudo}?de=%2Fconteudos%2Fhistorico`,
+    );
+    expect(trilha.getByText("Vídeo · 19 min")).toBeInTheDocument();
+    expect(
+      trilha.getByRole("link", { name: `Ver trilha completa: ${trilhaComProximo.titulo}` }),
+    ).toHaveAttribute("href", `/conteudos/trilhas/${trilhaComProximo.id_trilha}`);
+  });
+
+  it("mostra o próximo exclusivo sem link para quem não é filiado", async () => {
+    abrirComTrilhas([trilhaComProximoBloqueado], perfilNaoFiliado);
+
+    await screen.findByRole("heading", { name: "Continue na trilha" });
+    const trilha = cartaoTrilha(trilhaComProximoBloqueado.titulo);
+    expect(trilha.getByText(itemBloqueado.titulo)).toBeInTheDocument();
+    expect(trilha.getByText("Exclusivo para filiados")).toBeInTheDocument();
+    expect(trilha.getAllByRole("link")).toHaveLength(1);
+    expect(trilha.getByRole("link")).toHaveTextContent(/^Ver trilha completa/);
+  });
+
+  it("avisa quando o conteúdo é o último da trilha e lista várias trilhas", async () => {
+    abrirComTrilhas([trilhaComProximo, trilhaNoFim]);
+
+    await screen.findByRole("heading", { name: "Continue na trilha" });
+    expect(screen.getAllByRole("region", { name: /^Trilha / })).toHaveLength(2);
+    expect(
+      cartaoTrilha(trilhaNoFim.titulo).getByText("Este é o último item da trilha."),
+    ).toBeInTheDocument();
+  });
+
+  it("não mostra o cartão quando o conteúdo não está em trilha", async () => {
+    abrirComTrilhas([]);
+
+    await titulo(detalheVideo.titulo);
+    await waitFor(() =>
+      expect(chamadas).toContain(`GET /api/conteudos/${detalheVideo.id_conteudo}/trilhas`),
+    );
+    expect(screen.queryByRole("heading", { name: "Continue na trilha" })).toBeNull();
+  });
+
+  it("atualiza o progresso depois de marcar como assistido", async () => {
+    abrirComTrilhas([trilhaComProximo]);
+    await screen.findByRole("heading", { name: "Continue na trilha" });
+    const pedidos = () => chamadas.filter((chamada) => chamada.endsWith("/trilhas")).length;
+    const antes = pedidos();
+
+    await userEvent.click(screen.getByRole("button", { name: "Marcar como assistido" }));
+
+    await waitFor(() => expect(pedidos()).toBeGreaterThan(antes));
   });
 });
