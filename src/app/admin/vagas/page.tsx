@@ -1,23 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 
-import { CabecalhoPagina } from "@/shared/ui";
-import { classesBotao } from "@/shared/ui/botao/Botao";
+import { PaginaVagasAdmin } from "@/features/oportunidades-admin/components/PaginaVagasAdmin";
+import { Esqueleto } from "@/shared/ui";
 
 export const metadata: Metadata = { title: "Vagas" };
 
-export default function PaginaAdminVagas() {
+export default function Pagina() {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <CabecalhoPagina
-        titulo="Vagas"
-        subtitulo="Oportunidades de trabalho divulgadas aos filiados."
-        acoes={
-          <Link href="/admin/vagas/nova" className={classesBotao()}>
-            Cadastrar oportunidade
-          </Link>
-        }
-      />
-    </div>
+    <Suspense
+      fallback={<Esqueleto variante="tabela" quantidade={5} rotulo="Carregando as vagas…" />}
+    >
+      <PaginaVagasAdmin />
+    </Suspense>
   );
 }

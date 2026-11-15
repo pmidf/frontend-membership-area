@@ -9,7 +9,7 @@ import { renderizar } from "@/test/renderizar";
 import { servidor } from "@/test/servidor";
 
 import {
-  handlersOportunidadeAdmin,
+  handlersOportunidadesAdmin,
   oportunidadePublicada,
   oportunidadeRascunho,
 } from "../mocks/oportunidades-admin.handlers";
@@ -42,7 +42,7 @@ async function abrir(oportunidade: OportunidadeAdmin = oportunidadeRascunho, con
   const id = oportunidade.id_oportunidade;
   definirNavegacao(`/admin/vagas/${id}`, consulta, { id });
   renderizar(<PaginaEditarOportunidade />, { sessao: perfilAdmin });
-  servidor.use(...handlersOportunidadeAdmin(oportunidade));
+  servidor.use(...handlersOportunidadesAdmin([oportunidade]));
   await screen.findByRole("heading", { level: 1, name: "Edição de vaga" }, { timeout: ESPERA });
 }
 
@@ -232,7 +232,7 @@ describe("Edição de vaga", { timeout: 15_000 }, () => {
   it("mostra estado de vaga não encontrada", async () => {
     definirNavegacao("/admin/vagas/x", "", { id: "x" });
     renderizar(<PaginaEditarOportunidade />, { sessao: perfilAdmin });
-    servidor.use(...handlersOportunidadeAdmin());
+    servidor.use(...handlersOportunidadesAdmin());
 
     expect(await screen.findByText("Vaga não encontrada", {}, { timeout: ESPERA })).toBeVisible();
     expect(screen.getByRole("link", { name: "Voltar para vagas" })).toHaveAttribute(

@@ -1,18 +1,27 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ehErroApi } from "@/shared/api/erro-api";
 
-import type { AtualizarOportunidade, OportunidadeAdmin } from "../tipos/oportunidade-admin";
+import type {
+  AtualizarOportunidade,
+  ConsultaOportunidadesAdmin,
+  OportunidadeAdmin,
+} from "../tipos/oportunidade-admin";
 import {
   atualizarOportunidade,
   criarOportunidade,
   detalharOportunidadeAdmin,
+  duplicarOportunidade,
+  encerrarOportunidade,
+  listarOportunidadesAdmin,
   previewOportunidade,
   publicarOportunidade,
 } from "./oportunidades-admin.api";
 
 export const chavesOportunidadesAdmin = {
   todas: ["oportunidades-admin"] as const,
+  lista: (consulta: ConsultaOportunidadesAdmin) =>
+    ["oportunidades-admin", "lista", consulta] as const,
   detalhe: (id: string) => ["oportunidades-admin", "detalhe", id] as const,
   preview: (id: string) => ["oportunidades-admin", "preview", id] as const,
 };
@@ -25,6 +34,14 @@ export function oportunidadeAdminNaoEncontrada(erro: unknown): boolean {
 
 export function conflitoDeSituacao(erro: unknown): boolean {
   return ehErroApi(erro) && erro.status === 409;
+}
+
+export function useOportunidadesAdmin(consulta: ConsultaOportunidadesAdmin) {
+  return useQuery({
+    queryKey: chavesOportunidadesAdmin.lista(consulta),
+    queryFn: () => listarOportunidadesAdmin(consulta),
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useOportunidadeAdmin(id: string) {
@@ -42,18 +59,36 @@ export function usePreviewOportunidade(id: string) {
   });
 }
 
-function useAplicarResposta() {
+function useInvalidarListas() {
   const clienteConsultas = useQueryClient();
-  return (oportunidade: OportunidadeAdmin) => {
-    clienteConsultas.setQueryData(
-      chavesOportunidadesAdmin.detalhe(oportunidade.id_oportunidade),
-      oportunidade,
-    );
+  return () => {
     void clienteConsultas.invalidateQueries({
       queryKey: chavesOportunidadesAdmin.todas,
       predicate: ({ queryKey }) => queryKey[1] !== "detalhe",
     });
     void clienteConsultas.invalidateQueries({ queryKey: CHAVE_OPORTUNIDADES_FILIADO });
+  };
+}
+
+function useAplicarResposta() {
+  const clienteConsultas = useQueryClient();
+  const invalidarListas = useInvalidarListas();
+  return (oportunidade: OportunidadeAdmin) => {
+    clienteConsultas.setQueryData(
+      chavesOportunidadesAdmin.detalhe(oportunidade.id_oportunidade),
+      oportunidade,
+    );
+    invalidarListas();
+  };
+}
+
+function useRecarregarSeConflito() {
+  const clienteConsultas = useQueryClient();
+  const invalidarListas = useInvalidarListas();
+  return (erro: unknown, id: string) => {
+    if (!conflitoDeSituacao(erro)) return;
+    void clienteConsultas.invalidateQueries({ queryKey: chavesOportunidadesAdmin.detalhe(id) });
+    invalidarListas();
   };
 }
 
@@ -64,21 +99,36 @@ export function useCriarOportunidade() {
 
 export function useAtualizarOportunidade(id: string) {
   const aplicarResposta = useAplicarResposta();
+  const recarregarSeConflito = useRecarregarSeConflito();
   return useMutation({
     mutationFn: (dados: AtualizarOportunidade) => atualizarOportunidade(id, dados),
     onSuccess: aplicarResposta,
+    onError: (erro) => recarregarSeConflito(erro, id),
   });
 }
 
 export function usePublicarOportunidade() {
-  const clienteConsultas = useQueryClient();
   const aplicarResposta = useAplicarResposta();
+  const recarregarSeConflito = useRecarregarSeConflito();
   return useMutation({
     mutationFn: publicarOportunidade,
     onSuccess: aplicarResposta,
-    onError: (erro, id) => {
-      if (!conflitoDeSituacao(erro)) return;
-      void clienteConsultas.invalidateQueries({ queryKey: chavesOportunidadesAdmin.detalhe(id) });
-    },
+    onError: recarregarSeConflito,
   });
+}
+
+export function useEncerrarOportunidade() {
+  const aplicarResposta = useAplicarResposta();
+  const recarregarSeConflito = useRecarregarSeConflito();
+  return useMutation({
+    mutationFn: ({ id, motivo }: { id: string; motivo?: string }) =>
+      encerrarOportunidade(id, motivo),
+    onSuccess: aplicarResposta,
+    onError: (erro, { id }) => recarregarSeConflito(erro, id),
+  });
+}
+
+export function useDuplicarOportunidade() {
+  const aplicarResposta = useAplicarResposta();
+  return useMutation({ mutationFn: duplicarOportunidade, onSuccess: aplicarResposta });
 }

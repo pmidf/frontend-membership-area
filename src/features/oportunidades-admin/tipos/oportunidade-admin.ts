@@ -39,3 +39,20 @@ export type CriarOportunidade = {
 };
 
 export type AtualizarOportunidade = Partial<CriarOportunidade>;
+
+export type ItemOportunidadeAdmin = Pick<
+  OportunidadeAdmin,
+  | "id_oportunidade"
+  | "titulo"
+  | "empresa"
+  | "modalidade"
+  | "data_publicacao"
+  | "data_encerramento"
+  | "situacao"
+>;
+
+export type ConsultaOportunidadesAdmin = {
+  situacao?: SituacaoOportunidade;
+  q?: string;
+  page?: number;
+};

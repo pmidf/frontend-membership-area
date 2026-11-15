@@ -8,7 +8,7 @@ import { definirNavegacao, roteadorFalso } from "@/test/navegacao-falsa";
 import { renderizar } from "@/test/renderizar";
 import { servidor } from "@/test/servidor";
 
-import { handlersOportunidadeAdmin, ID_CRIADA } from "../mocks/oportunidades-admin.handlers";
+import { handlersOportunidadesAdmin, ID_CRIADA } from "../mocks/oportunidades-admin.handlers";
 import { PaginaNovaOportunidade } from "./PaginaNovaOportunidade";
 
 let usuario: ReturnType<typeof userEvent.setup>;
@@ -30,7 +30,7 @@ afterEach(() => servidor.events.removeAllListeners());
 async function abrir() {
   definirNavegacao("/admin/vagas/nova");
   renderizar(<PaginaNovaOportunidade />, { sessao: perfilAdmin });
-  servidor.use(...handlersOportunidadeAdmin());
+  servidor.use(...handlersOportunidadesAdmin());
   await screen.findByRole("heading", { level: 1, name: "Nova vaga" });
 }
 
