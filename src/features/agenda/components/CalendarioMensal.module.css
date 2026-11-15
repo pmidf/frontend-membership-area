@@ -1,0 +1,220 @@
+.calendario {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.navegacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.botaoMes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--fundo-superficie);
+  border: 1px solid var(--borda-padrao);
+  border-radius: var(--raio-pill);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.botaoMes:hover {
+  background: var(--fundo-sutil);
+}
+
+.tituloMes {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.rolagem {
+  overflow-x: auto;
+  background: var(--fundo-superficie);
+  border: 1px solid var(--borda-padrao);
+  border-radius: var(--raio-lg);
+}
+
+.grade {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.grade th {
+  height: 44px;
+  background: var(--fundo-sutil);
+  border-bottom: 1px solid var(--borda-padrao);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--texto-secundario);
+}
+
+.grade td {
+  height: 116px;
+  padding: 10px 8px 8px 10px;
+  vertical-align: top;
+  border-right: 1px solid var(--borda-padrao);
+  border-bottom: 1px solid var(--borda-padrao);
+}
+
+.grade td:last-child {
+  border-right: none;
+}
+
+.grade tr:last-child td {
+  border-bottom: none;
+}
+
+.numeroDia {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--texto-primario);
+}
+
+.numeroDia.foraDoMes {
+  color: var(--borda-padrao);
+}
+
+.numeroDia.comEvento {
+  font-weight: 700;
+  color: var(--texto-marca);
+}
+
+.pilula {
+  display: block;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: var(--fundo-sutil);
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--texto-marca);
+}
+
+.tituloPilula {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pilula:hover {
+  background: #e2dcef;
+}
+
+.pilula.cancelado {
+  background: var(--fundo-erro);
+  color: var(--texto-erro);
+  text-decoration: line-through;
+}
+
+.vazio {
+  font-size: 14px;
+  color: var(--texto-secundario);
+}
+
+.gradeMobile,
+.listaMobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .botaoMes {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .tituloMes {
+    font-size: 16px;
+  }
+
+  .rolagem {
+    display: none;
+  }
+
+  .gradeMobile {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--fundo-superficie);
+    border: 1px solid var(--borda-padrao);
+    border-radius: 16px;
+  }
+
+  .linhaMobile {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+
+  .diaSemanaMobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    background: var(--fundo-sutil);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--texto-secundario);
+  }
+
+  .celulaMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    height: 52px;
+    padding-top: 8px;
+    font-size: 13px;
+    color: var(--texto-primario);
+  }
+
+  .foraDoMesMobile {
+    color: var(--texto-secundario);
+  }
+
+  .comEventoMobile {
+    font-weight: 700;
+    color: var(--texto-marca);
+  }
+
+  .ponto {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--texto-marca);
+  }
+
+  .listaMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-margin-top: 16px;
+  }
+
+  .tituloLista {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+  }
+
+  .vazio {
+    font-size: 12px;
+  }
+}

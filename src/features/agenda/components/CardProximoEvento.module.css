@@ -1,0 +1,102 @@
+.card {
+  flex-direction: row;
+  gap: 22px;
+  align-items: center;
+}
+
+.imagem {
+  flex-shrink: 0;
+  width: 260px;
+  height: 170px;
+}
+
+.texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.selos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.titulo {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 36px;
+}
+
+.titulo a:hover {
+  text-decoration: underline;
+}
+
+.info {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--texto-secundario);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .imagem {
+    width: 100%;
+    height: 140px;
+  }
+
+  .texto {
+    gap: 12px;
+  }
+
+  .selos {
+    gap: 6px;
+  }
+
+  .titulo {
+    font-size: 19px;
+    line-height: normal;
+  }
+
+  .info {
+    font-size: 13px;
+    line-height: normal;
+  }
+
+  /* O protótipo mobile mostra só data e local; a descrição fica no detalhe. */
+  .descricao {
+    display: none;
+  }
+
+  .acoes {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .acoes > * {
+    width: 100%;
+  }
+
+  .acoes > a:last-child {
+    height: 52px;
+    justify-content: center;
+    font-size: 16px;
+  }
+}

@@ -1,0 +1,56 @@
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--raio-pill);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.primaria {
+  background: var(--acao-primaria);
+  color: var(--texto-inverso);
+}
+
+.primaria:hover {
+  background: var(--acao-primaria-hover);
+}
+
+.secundaria {
+  background: var(--fundo-superficie);
+  color: var(--texto-marca);
+  border: 1px solid var(--borda-padrao);
+}
+
+.secundaria:hover {
+  background: var(--fundo-sutil);
+}
+
+.link {
+  height: auto;
+  padding: 0;
+  background: none;
+  color: var(--texto-marca);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.larguraTotal {
+  width: 100%;
+}
+
+.botao:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

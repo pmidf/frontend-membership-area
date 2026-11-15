@@ -65,3 +65,43 @@
     @apply bg-fundo-pagina font-sans text-corpo text-texto-primario antialiased;
   }
 }
+
+/* Compatibilidade: tokens antigos usados pelos CSS modules da agenda (ÉP-05). Remover ao migrar para Tailwind. */
+:root {
+  --pmi-violet-50: var(--color-violeta-50);
+  --pmi-violet-500: var(--color-violeta-500);
+  --pmi-violet-800: var(--color-violeta-800);
+  --pmi-violet-950: var(--color-violeta-950);
+  --pmi-aqua-50: var(--color-aqua-50);
+  --pmi-aqua-300: #05bfe0;
+  --pmi-aqua-500: #00799e;
+  --pmi-aqua-600: var(--color-aqua-600);
+  --apoio-branco: var(--color-branco);
+  --apoio-neutro-100: var(--color-neutro-100);
+  --texto-primario: var(--color-texto-primario);
+  --texto-secundario: var(--color-texto-secundario);
+  --texto-placeholder: var(--color-texto-placeholder);
+  --texto-inverso: var(--color-texto-inverso);
+  --texto-marca: var(--color-texto-marca);
+  --texto-erro: var(--color-texto-erro);
+  --fundo-superficie: var(--color-fundo-superficie);
+  --fundo-campo: var(--color-fundo-campo);
+  --fundo-sutil: var(--color-violeta-50);
+  --fundo-erro: #fdeeee;
+  --borda-padrao: var(--color-borda-padrao);
+  --borda-foco: var(--color-violeta-500);
+  --acao-primaria: var(--color-acao-primaria);
+  --acao-primaria-hover: #3f128a;
+  --raio-md: var(--radius-md);
+  --raio-lg: var(--radius-lg);
+  --raio-pill: var(--radius-pill);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

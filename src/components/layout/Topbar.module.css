@@ -1,0 +1,80 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 80px;
+  padding: 16px 32px;
+  background: var(--fundo-superficie);
+  border-bottom: 1px solid var(--borda-padrao);
+}
+
+.titulo {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+  white-space: nowrap;
+}
+
+.usuario {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--raio-pill);
+  background: var(--pmi-violet-500);
+  color: var(--texto-inverso);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.identificacao {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.nome {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.somenteMobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    height: 64px;
+    padding: 0 16px;
+  }
+
+  .titulo {
+    font-size: 17px;
+    line-height: normal;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .identificacao,
+  .somenteDesktop {
+    display: none;
+  }
+
+  .somenteMobile {
+    display: inline;
+  }
+}
