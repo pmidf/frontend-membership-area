@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { Topbar } from "@/components/layout/Topbar";
 import { Alert } from "@/components/ui/Alert";
 import { classesBotao } from "@/components/ui/Button";
 import { Card, CardTitulo } from "@/components/ui/Card";
@@ -44,8 +43,6 @@ export default async function EventoPage({ params }: PageProps<"/agenda/[id]">) 
 
   return (
     <>
-      <Topbar titulo="Agenda de eventos" tituloMobile="Evento" usuario={usuario} />
-
       <div className={styles.conteudo}>
         <Link href="/agenda" className={styles.voltar}>
           ‹ Voltar para a agenda

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { Topbar } from "@/components/layout/Topbar";
 import { Card, CardTitulo } from "@/components/ui/Card";
 import { emailsVerificados, obterUsuarioAtual, type Usuario } from "@/lib/sessao";
 import { AgendaFiltros } from "@/features/agenda/components/AgendaFiltros";
@@ -40,8 +39,6 @@ export default async function AgendaPage({ searchParams }: PageProps<"/agenda">)
 
   return (
     <>
-      <Topbar titulo="Agenda de eventos" usuario={usuario} />
-
       <div className={styles.conteudo}>
         <header className={styles.cabecalho}>
           <h1 className={styles.titulo}>Agenda de eventos</h1>
