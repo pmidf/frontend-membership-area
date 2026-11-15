@@ -17,6 +17,7 @@ import {
   Alerta,
   Botao,
   CabecalhoPagina,
+  CampoTexto,
   DialogoConfirmacao,
   Esqueleto,
   EstadoErro,
@@ -164,7 +165,10 @@ function EdicaoBeneficio({ beneficio }: { beneficio: BeneficioAdmin }) {
         <form id={ID_FORMULARIO} noValidate onSubmit={salvar} className="min-w-0">
           <fieldset disabled={arquivado} className="flex min-w-0 flex-col gap-6">
             <legend className="sr-only">Dados do benefício</legend>
-            <FormularioBeneficio parceiro={beneficio.parceiro} formaResgateTravada={resgates > 0} />
+            <FormularioBeneficio
+              campoParceiro={<CampoTexto rotulo="Parceiro" value={beneficio.parceiro} readOnly />}
+              formaResgateTravada={resgates > 0}
+            />
           </fieldset>
         </form>
         <div className="flex flex-col gap-6">

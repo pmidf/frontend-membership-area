@@ -26,6 +26,7 @@ import {
 } from "../lib/filtros-url";
 import { FiltrosBeneficiosAdmin } from "./FiltrosBeneficiosAdmin";
 import { IndicadoresBeneficios } from "./IndicadoresBeneficios";
+import { RelatorioResgates } from "./RelatorioResgates";
 import { TabelaBeneficiosAdmin } from "./TabelaBeneficiosAdmin";
 
 const CAMPOS_DE_FILTRO = {
@@ -134,6 +135,7 @@ export function PaginaBeneficiosAdmin() {
           aoMudar={(destino) => atualizar({ pagina: destino > 1 ? destino : null })}
         />
       </Cartao>
+      <RelatorioResgates />
     </div>
   );
 }

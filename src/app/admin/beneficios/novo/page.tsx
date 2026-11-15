@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { PaginaNovoBeneficio } from "@/features/beneficios-admin/components/PaginaNovoBeneficio";
 
 export const metadata: Metadata = { title: "Novo benefício" };
 
 export default function Pagina() {
-  return <EmConstrucao titulo="Novo benefício" />;
+  return <PaginaNovoBeneficio />;
 }

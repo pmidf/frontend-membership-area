@@ -16,21 +16,33 @@ const opcoesCategoria = CATEGORIAS_BENEFICIO.map((valor) => ({
   rotulo: rotulosCategoria[valor].rotulo,
 }));
 
-function Bloco({ titulo, children }: { titulo: string; children: ReactNode }) {
+type PropsBloco = {
+  titulo: string;
+  descricao?: string;
+  children: ReactNode;
+};
+
+function Bloco({ titulo, descricao, children }: PropsBloco) {
   return (
     <Cartao className="flex flex-col gap-5 p-6">
-      <h2 className="text-h3">{titulo}</h2>
+      <div className="flex flex-col gap-1">
+        <h2 className="text-h3">{titulo}</h2>
+        {descricao && <p className="text-corpo-pequeno text-texto-secundario">{descricao}</p>}
+      </div>
       {children}
     </Cartao>
   );
 }
 
 type PropsFormularioBeneficio = {
-  parceiro: string;
+  campoParceiro: ReactNode;
   formaResgateTravada: boolean;
 };
 
-export function FormularioBeneficio({ parceiro, formaResgateTravada }: PropsFormularioBeneficio) {
+export function FormularioBeneficio({
+  campoParceiro,
+  formaResgateTravada,
+}: PropsFormularioBeneficio) {
   const {
     register,
     control,
@@ -65,11 +77,14 @@ export function FormularioBeneficio({ parceiro, formaResgateTravada }: PropsForm
             erro={errors.categoria?.message}
             {...register("categoria")}
           />
-          <CampoTexto rotulo="Parceiro" value={parceiro} readOnly />
+          {campoParceiro}
         </div>
         <CampoImagemUrl />
       </Bloco>
-      <Bloco titulo="Forma de resgate">
+      <Bloco
+        titulo="Forma de resgate"
+        descricao="A escolha aqui muda os campos obrigatórios abaixo."
+      >
         <SecaoFormaResgate travada={formaResgateTravada} />
       </Bloco>
       <Bloco titulo="Vigência">
