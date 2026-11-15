@@ -10,6 +10,8 @@ import { servidor } from "@/test/servidor";
 
 import {
   handlersOportunidadesAdmin,
+  ID_DUPLICADA,
+  oportunidadeEncerrada,
   oportunidadePublicada,
   oportunidadeRascunho,
 } from "../mocks/oportunidades-admin.handlers";
@@ -183,7 +185,7 @@ describe("Edição de vaga", { timeout: 15_000 }, () => {
     ).toBeInTheDocument();
   });
 
-  it("publica, avisa e passa a mostrar a vaga como somente leitura", async () => {
+  it("publica, avisa e passa a mostrar as ações de vaga publicada", async () => {
     await abrir();
 
     await usuario.click(botao("Publicar vaga"));
@@ -195,8 +197,8 @@ describe("Edição de vaga", { timeout: 15_000 }, () => {
         caminho: `/api/admin/oportunidades/${oportunidadeRascunho.id_oportunidade}/publicar`,
       }),
     ]);
-    expect(await screen.findByText(/Publicada em 15\/11\/2026/)).toBeInTheDocument();
-    expect(screen.getByLabelText("Título da vaga")).toBeDisabled();
+    expect(await screen.findByRole("button", { name: "Encerrar vaga" })).toBeInTheDocument();
+    expect(screen.getByText("15/11/2026")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Publicar vaga" })).toBeNull();
   });
 
@@ -213,20 +215,108 @@ describe("Edição de vaga", { timeout: 15_000 }, () => {
     expect(await avisos().findByText("Só rascunhos podem ser publicados.")).toBeInTheDocument();
   });
 
-  it("mostra vaga publicada como somente leitura", async () => {
+  it("edita vaga publicada enviando só o campo alterado", async () => {
     await abrir(oportunidadePublicada);
+    expect(screen.queryByRole("button", { name: "Publicar vaga" })).toBeNull();
+    expect(botao("Pré-visualizar")).toBeInTheDocument();
+    expect(botao("Duplicar")).toBeInTheDocument();
 
-    expect(screen.getByText("Vaga publicada")).toBeInTheDocument();
-    expect(screen.getByLabelText("Título da vaga")).toBeDisabled();
-    expect(screen.getByLabelText("URL de candidatura")).toBeDisabled();
-    expect(screen.queryByRole("button", { name: "Salvar como rascunho" })).toBeNull();
+    await substituir("Empresa", "Instituto de Gestão");
+    await usuario.click(botao("Salvar alterações"));
+
+    expect(await avisos().findByText("Vaga atualizada")).toBeInTheDocument();
+    expect(escritas()).toEqual([
+      expect.objectContaining({ metodo: "PATCH", corpo: { empresa: "Instituto de Gestão" } }),
+    ]);
   });
 
-  it("mostra vaga encerrada como somente leitura", async () => {
-    await abrir({ ...oportunidadePublicada, situacao: "ENCERRADA" });
+  it("encerra com motivo e passa a mostrar a vaga somente leitura", async () => {
+    await abrir(oportunidadePublicada);
 
-    expect(screen.getByText("Vaga encerrada")).toBeInTheDocument();
+    await usuario.click(botao("Encerrar vaga"));
+    const dialogo = screen.getByRole("dialog", { name: "Encerrar vaga?" });
+    await usuario.type(
+      within(dialogo).getByLabelText("Motivo do encerramento (opcional)"),
+      "Vaga preenchida",
+    );
+    await usuario.click(within(dialogo).getByRole("button", { name: "Encerrar vaga" }));
+
+    expect(await avisos().findByText("Vaga encerrada")).toBeInTheDocument();
+    expect(escritas()).toEqual([
+      {
+        metodo: "POST",
+        caminho: `/api/admin/oportunidades/${oportunidadePublicada.id_oportunidade}/encerrar`,
+        corpo: { motivo_encerramento: "Vaga preenchida" },
+      },
+    ]);
+    expect(await screen.findByText("Vaga preenchida")).toBeInTheDocument();
     expect(screen.getByLabelText("Título da vaga")).toBeDisabled();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("encerra sem motivo mandando o corpo vazio", async () => {
+    await abrir(oportunidadePublicada);
+
+    await usuario.click(botao("Encerrar vaga"));
+    const dialogo = screen.getByRole("dialog", { name: "Encerrar vaga?" });
+    await usuario.click(within(dialogo).getByRole("button", { name: "Encerrar vaga" }));
+
+    await waitFor(() => expect(escritas()).toHaveLength(1));
+    expect(escritas()[0].corpo).toEqual({});
+  });
+
+  it("duplica e leva para o novo rascunho", async () => {
+    await abrir(oportunidadePublicada);
+
+    await usuario.click(botao("Duplicar"));
+
+    await waitFor(() =>
+      expect(roteadorFalso.push).toHaveBeenCalledWith(`/admin/vagas/${ID_DUPLICADA}`),
+    );
+    expect(avisos().getByText("Rascunho criado")).toBeInTheDocument();
+  });
+
+  it("mostra vaga encerrada somente leitura, com data e motivo", async () => {
+    await abrir(oportunidadeEncerrada);
+
+    expect(screen.getByText("Encerrada", { selector: "header *" })).toBeInTheDocument();
+    expect(screen.getByText("20/10/2026")).toBeInTheDocument();
+    expect(screen.getByText("Vaga preenchida")).toBeInTheDocument();
+    expect(screen.getByLabelText("Título da vaga")).toBeDisabled();
+    expect(screen.getByLabelText("URL de candidatura")).toBeDisabled();
+    expect(screen.queryByText("Cadastro mínimo")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Salvar alterações" })).toBeNull();
+    expect(botao("Duplicar como rascunho")).toBeInTheDocument();
+  });
+
+  it("recarrega como encerrada quando o backend recusa a edição", async () => {
+    await abrir(oportunidadePublicada);
+    servidor.use(
+      http.patch("*/api/admin/oportunidades/:id", () =>
+        HttpResponse.json({ codigo: "OPORTUNIDADE_ENCERRADA" }, { status: 409 }),
+      ),
+      http.get("*/api/admin/oportunidades/:id", () =>
+        HttpResponse.json({ ...oportunidadePublicada, situacao: "ENCERRADA" }),
+      ),
+    );
+    await substituir("Empresa", "Outra");
+
+    await usuario.click(botao("Salvar alterações"));
+
+    expect(await avisos().findByText("Esta vaga foi encerrada.")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Duplicar como rascunho" })).toBeVisible();
+  });
+
+  it("volta para a lista preservando os filtros", async () => {
+    await abrir(oportunidadePublicada, "situacao=PUBLICADA&previa=1");
+
+    expect(screen.getByRole("link", { name: "Voltar para vagas" })).toHaveAttribute(
+      "href",
+      "/admin/vagas?situacao=PUBLICADA",
+    );
+    expect(roteadorFalso.replace).toHaveBeenCalledWith(
+      `/admin/vagas/${oportunidadePublicada.id_oportunidade}?situacao=PUBLICADA`,
+    );
   });
 
   it("mostra estado de vaga não encontrada", async () => {

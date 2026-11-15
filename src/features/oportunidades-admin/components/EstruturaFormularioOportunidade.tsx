@@ -2,15 +2,15 @@ import type { FormEventHandler, ReactNode } from "react";
 
 import { Alerta, CabecalhoPagina, LinkVoltar } from "@/shared/ui";
 
+import { CAMINHO_VAGAS_ADMIN } from "../lib/caminhos";
 import { FormularioOportunidade } from "./FormularioOportunidade";
 import { SecaoMeioCandidatura } from "./SecaoMeioCandidatura";
 
 export const ID_FORMULARIO_OPORTUNIDADE = "formulario-oportunidade";
-export const CAMINHO_VAGAS_ADMIN = "/admin/vagas";
-export const PARAMETRO_PREVIA = "previa";
 
 type PropsEstrutura = {
   titulo: string;
+  destinoVolta?: string;
   acoesCabecalho?: ReactNode;
   aoEnviar: FormEventHandler<HTMLFormElement>;
   bloqueado?: boolean;
@@ -19,6 +19,7 @@ type PropsEstrutura = {
 
 export function EstruturaFormularioOportunidade({
   titulo,
+  destinoVolta = CAMINHO_VAGAS_ADMIN,
   acoesCabecalho,
   aoEnviar,
   bloqueado = false,
@@ -26,7 +27,7 @@ export function EstruturaFormularioOportunidade({
 }: PropsEstrutura) {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <LinkVoltar href={CAMINHO_VAGAS_ADMIN}>Voltar para vagas</LinkVoltar>
+      <LinkVoltar href={destinoVolta}>Voltar para vagas</LinkVoltar>
       <CabecalhoPagina titulo={titulo} acoes={acoesCabecalho} />
       <form
         id={ID_FORMULARIO_OPORTUNIDADE}
@@ -40,9 +41,11 @@ export function EstruturaFormularioOportunidade({
         </fieldset>
         <div className="flex flex-col gap-6">
           <SecaoMeioCandidatura bloqueado={bloqueado} />
-          <Alerta tom="informacao" titulo="Cadastro mínimo">
-            Título, empresa, descrição e um meio de candidatura. Tudo o mais é opcional.
-          </Alerta>
+          {!bloqueado && (
+            <Alerta tom="informacao" titulo="Cadastro mínimo">
+              Título, empresa, descrição e um meio de candidatura. Tudo o mais é opcional.
+            </Alerta>
+          )}
           {lateral}
         </div>
       </form>

@@ -8,26 +8,24 @@ import { FormProvider, useForm } from "react-hook-form";
 import { aplicarErrosDeCampo } from "@/shared/api/aplicar-erros-de-campo";
 import { mensagemDeErro } from "@/shared/api/mensagens-erro";
 import { useAvisoAoSair } from "@/shared/hooks/useAvisoAoSair";
-import { CartaoPublicacao } from "@/shared/publicacao/CartaoPublicacao";
 import { useAvisos } from "@/shared/ui";
 
 import { useCriarOportunidade, usePublicarOportunidade } from "../api/oportunidades-admin.queries";
+import { ACOES_NOVA_VAGA, type AcaoEdicao } from "../lib/acoes-por-situacao";
+import { CAMINHO_VAGAS_ADMIN, caminhoDaVaga, PARAMETRO_PREVIA } from "../lib/caminhos";
 import { dadosParaEnviar, VALORES_NOVA_OPORTUNIDADE } from "../lib/valores-oportunidade";
 import { esquemaOportunidade, type DadosOportunidade } from "../schemas/oportunidade.schema";
 import type { OportunidadeAdmin } from "../tipos/oportunidade-admin";
-import { AcoesRascunho, type AcaoRascunho } from "./AcoesRascunho";
-import {
-  CAMINHO_VAGAS_ADMIN,
-  EstruturaFormularioOportunidade,
-  PARAMETRO_PREVIA,
-} from "./EstruturaFormularioOportunidade";
+import { AcoesVaga } from "./AcoesVaga";
+import { CartaoPublicacaoVaga } from "./CartaoPublicacaoVaga";
+import { EstruturaFormularioOportunidade } from "./EstruturaFormularioOportunidade";
 
 export function PaginaNovaOportunidade() {
   const roteador = useRouter();
   const avisos = useAvisos();
   const criacao = useCriarOportunidade();
   const publicacao = usePublicarOportunidade();
-  const [acao, setAcao] = useState<AcaoRascunho | null>(null);
+  const [acao, setAcao] = useState<AcaoEdicao | null>(null);
   const formulario = useForm<DadosOportunidade>({
     resolver: zodResolver(esquemaOportunidade),
     defaultValues: VALORES_NOVA_OPORTUNIDADE,
@@ -56,10 +54,8 @@ export function PaginaNovaOportunidade() {
       const criada = await criar(dados);
       if (!criada) return setAcao(null);
       avisos.sucesso("Rascunho salvo");
-      const destino = `${CAMINHO_VAGAS_ADMIN}/${criada.id_oportunidade}`;
-      roteador.push(
-        acaoEscolhida === "previsualizar" ? `${destino}?${PARAMETRO_PREVIA}=1` : destino,
-      );
+      const consulta = acaoEscolhida === "previsualizar" ? `${PARAMETRO_PREVIA}=1` : "";
+      roteador.push(caminhoDaVaga(criada.id_oportunidade, consulta));
     });
   }
 
@@ -74,7 +70,7 @@ export function PaginaNovaOportunidade() {
       roteador.push(CAMINHO_VAGAS_ADMIN);
     } catch (erro) {
       avisos.erro(`O rascunho foi salvo, mas a vaga não foi publicada. ${mensagemDeErro(erro)}`);
-      roteador.push(`${CAMINHO_VAGAS_ADMIN}/${criada.id_oportunidade}`);
+      roteador.push(caminhoDaVaga(criada.id_oportunidade));
     }
   });
 
@@ -84,16 +80,17 @@ export function PaginaNovaOportunidade() {
         titulo="Nova vaga"
         aoEnviar={criarEIr("salvar")}
         lateral={
-          <CartaoPublicacao
+          <CartaoPublicacaoVaga
             situacao="RASCUNHO"
             nota="Publicar coloca a vaga na vitrine na hora. Pré-visualizar salva antes o rascunho."
           >
-            <AcoesRascunho
+            <AcoesVaga
+              acoes={ACOES_NOVA_VAGA}
               emAndamento={acao}
               aoPrevisualizar={() => void criarEIr("previsualizar")()}
               aoPublicar={() => void publicar()}
             />
-          </CartaoPublicacao>
+          </CartaoPublicacaoVaga>
         }
       />
     </FormProvider>

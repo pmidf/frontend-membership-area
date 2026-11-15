@@ -9,65 +9,63 @@ import { rotulosSituacaoOportunidade } from "@/features/oportunidades/lib/rotulo
 import { aplicarErrosDeCampo } from "@/shared/api/aplicar-erros-de-campo";
 import { mensagemDeErro } from "@/shared/api/mensagens-erro";
 import { useAvisoAoSair } from "@/shared/hooks/useAvisoAoSair";
-import { formatarData, formatarDataHora } from "@/shared/lib/datas";
-import { CartaoPublicacao } from "@/shared/publicacao/CartaoPublicacao";
-import {
-  Alerta,
-  EstadoErro,
-  EstadoVazio,
-  Esqueleto,
-  LinkVoltar,
-  SeloStatus,
-  useAvisos,
-} from "@/shared/ui";
+import { formatarData, formatarDataCivil, formatarDataHora } from "@/shared/lib/datas";
+import { EstadoErro, EstadoVazio, Esqueleto, LinkVoltar, SeloStatus, useAvisos } from "@/shared/ui";
 
 import {
+  conflitoDeSituacao,
   oportunidadeAdminNaoEncontrada,
   useAtualizarOportunidade,
   useOportunidadeAdmin,
-  usePublicarOportunidade,
 } from "../api/oportunidades-admin.queries";
+import { acoesDaEdicao, type AcaoEdicao } from "../lib/acoes-por-situacao";
+import { CAMINHO_VAGAS_ADMIN, caminhoDaVaga, PARAMETRO_PREVIA } from "../lib/caminhos";
+import { useAcoesVaga } from "../lib/useAcoesVaga";
 import { camposAlteradosDaOportunidade, valoresDaOportunidade } from "../lib/valores-oportunidade";
 import { esquemaOportunidade, type DadosOportunidade } from "../schemas/oportunidade.schema";
 import type { OportunidadeAdmin } from "../tipos/oportunidade-admin";
-import { AcoesRascunho, type AcaoRascunho } from "./AcoesRascunho";
-import {
-  CAMINHO_VAGAS_ADMIN,
-  EstruturaFormularioOportunidade,
-  PARAMETRO_PREVIA,
-} from "./EstruturaFormularioOportunidade";
+import { AcoesVaga } from "./AcoesVaga";
+import { CartaoPublicacaoVaga, type DetalhePublicacao } from "./CartaoPublicacaoVaga";
+import { DialogoEncerrarVaga } from "./DialogoEncerrarVaga";
+import { EstruturaFormularioOportunidade } from "./EstruturaFormularioOportunidade";
 import { ModalPreviaOportunidade } from "./ModalPreviaOportunidade";
 
-function AvisoSomenteLeitura({ oportunidade }: { oportunidade: OportunidadeAdmin }) {
-  if (oportunidade.situacao === "ENCERRADA") {
-    return (
-      <Alerta tom="alerta" titulo="Vaga encerrada">
-        Ela saiu da vitrine e não pode mais ser editada.
-      </Alerta>
-    );
-  }
-  return (
-    <Alerta tom="marca" titulo="Vaga publicada">
-      {oportunidade.data_publicacao
-        ? `Publicada em ${formatarData(oportunidade.data_publicacao)}. Ela já aparece para os filiados.`
-        : "Ela já aparece para os filiados."}
-    </Alerta>
-  );
+const NOTAS: Record<OportunidadeAdmin["situacao"], string> = {
+  RASCUNHO:
+    "Publicar coloca a vaga na vitrine na hora. Pré-visualizar e publicar salvam antes as alterações.",
+  PUBLICADA: "Alterações salvas aparecem na hora para os filiados. Encerrar tira a vaga do mural.",
+  ENCERRADA: "Vaga encerrada não pode mais ser editada. Duplique para divulgar de novo.",
+};
+
+function detalhesDaVaga(oportunidade: OportunidadeAdmin): DetalhePublicacao[] {
+  const { data_publicacao, data_encerramento, data_encerrada, motivo_encerramento } = oportunidade;
+  return [
+    { termo: "Criada em", valor: formatarDataHora(oportunidade.data_criacao) },
+    { termo: "Última edição", valor: formatarDataHora(oportunidade.data_atualizacao) },
+    ...(data_publicacao ? [{ termo: "Publicada em", valor: formatarData(data_publicacao) }] : []),
+    ...(data_encerramento && !data_encerrada
+      ? [{ termo: "Encerra em", valor: formatarDataCivil(data_encerramento) }]
+      : []),
+    ...(data_encerrada ? [{ termo: "Encerrada em", valor: formatarData(data_encerrada) }] : []),
+    ...(motivo_encerramento ? [{ termo: "Motivo", valor: motivo_encerramento }] : []),
+  ];
 }
 
 type PropsEdicaoOportunidade = {
   oportunidade: OportunidadeAdmin;
   abrirPrevia: boolean;
+  consulta: string;
 };
 
-function EdicaoOportunidade({ oportunidade, abrirPrevia }: PropsEdicaoOportunidade) {
+function EdicaoOportunidade({ oportunidade, abrirPrevia, consulta }: PropsEdicaoOportunidade) {
   const { id_oportunidade: id, situacao } = oportunidade;
   const roteador = useRouter();
   const avisos = useAvisos();
   const atualizacao = useAtualizarOportunidade(id);
-  const publicacao = usePublicarOportunidade();
-  const [acao, setAcao] = useState<AcaoRascunho | null>(null);
+  const acoesVaga = useAcoesVaga();
+  const [acao, setAcao] = useState<AcaoEdicao | null>(null);
   const [previsualizando, setPrevisualizando] = useState(abrirPrevia);
+  const [confirmandoEncerramento, setConfirmandoEncerramento] = useState(false);
   const formulario = useForm<DadosOportunidade>({
     resolver: zodResolver(esquemaOportunidade),
     defaultValues: valoresDaOportunidade(oportunidade),
@@ -78,13 +76,14 @@ function EdicaoOportunidade({ oportunidade, abrirPrevia }: PropsEdicaoOportunida
     reset,
     formState: { isDirty },
   } = formulario;
-  const rascunho = situacao === "RASCUNHO";
+  const encerrada = situacao === "ENCERRADA";
+  const { rotulo, tom } = rotulosSituacaoOportunidade[situacao];
 
-  useAvisoAoSair(isDirty && rascunho);
+  useAvisoAoSair(isDirty && !encerrada);
 
   useEffect(() => {
-    if (abrirPrevia) roteador.replace(`${CAMINHO_VAGAS_ADMIN}/${id}`);
-  }, [abrirPrevia, roteador, id]);
+    if (abrirPrevia) roteador.replace(caminhoDaVaga(id, consulta));
+  }, [abrirPrevia, roteador, id, consulta]);
 
   async function salvarAlteracoes(dados: DadosOportunidade): Promise<boolean> {
     const alterados = camposAlteradosDaOportunidade(valoresDaOportunidade(oportunidade), dados);
@@ -93,62 +92,66 @@ function EdicaoOportunidade({ oportunidade, abrirPrevia }: PropsEdicaoOportunida
       reset(valoresDaOportunidade(await atualizacao.mutateAsync(alterados)));
       return true;
     } catch (erro) {
-      if (aplicarErrosDeCampo(erro, setError).length === 0) avisos.erro(mensagemDeErro(erro));
+      if (aplicarErrosDeCampo(erro, setError).length > 0) return false;
+      if (conflitoDeSituacao(erro)) avisos.informacao(mensagemDeErro(erro));
+      else avisos.erro(mensagemDeErro(erro));
       return false;
     }
   }
 
-  function executar(acaoEscolhida: AcaoRascunho, depoisDeSalvar: () => Promise<void> | void) {
+  function depoisDeSalvar(acaoEscolhida: AcaoEdicao, continuar: () => Promise<unknown> | void) {
     return handleSubmit(async (dados) => {
       if (acao) return;
       setAcao(acaoEscolhida);
-      if (await salvarAlteracoes(dados)) await depoisDeSalvar();
+      if (await salvarAlteracoes(dados)) await continuar();
       setAcao(null);
     });
   }
 
-  const salvar = executar("salvar", () => avisos.sucesso("Rascunho salvo"));
+  async function executarSemSalvar(acaoEscolhida: AcaoEdicao, executar: () => Promise<unknown>) {
+    if (acao) return;
+    setAcao(acaoEscolhida);
+    await executar();
+    setAcao(null);
+  }
 
-  const previsualizar = executar("previsualizar", () => setPrevisualizando(true));
+  const salvar = depoisDeSalvar("salvar", () =>
+    avisos.sucesso(situacao === "RASCUNHO" ? "Rascunho salvo" : "Vaga atualizada"),
+  );
+  const previsualizar = depoisDeSalvar("previsualizar", () => setPrevisualizando(true));
+  const publicar = depoisDeSalvar("publicar", () => acoesVaga.publicar(id));
 
-  const publicar = executar("publicar", async () => {
-    try {
-      await publicacao.mutateAsync(id);
-      avisos.sucesso("Vaga publicada");
-    } catch (erro) {
-      avisos.erro(mensagemDeErro(erro));
-    }
-  });
-
-  const { rotulo, tom } = rotulosSituacaoOportunidade[situacao];
+  function encerrar(motivo: string | undefined) {
+    void executarSemSalvar("encerrar", async () => {
+      await acoesVaga.encerrar(id, motivo);
+      setConfirmandoEncerramento(false);
+    });
+  }
 
   return (
     <FormProvider {...formulario}>
       <EstruturaFormularioOportunidade
         titulo="Edição de vaga"
+        destinoVolta={consulta ? `${CAMINHO_VAGAS_ADMIN}?${consulta}` : CAMINHO_VAGAS_ADMIN}
         acoesCabecalho={<SeloStatus tom={tom}>{rotulo}</SeloStatus>}
         aoEnviar={salvar}
-        bloqueado={!rascunho}
+        bloqueado={encerrada}
         lateral={
-          rascunho ? (
-            <CartaoPublicacao
-              situacao="RASCUNHO"
-              detalhes={[
-                { termo: "Criada em", valor: formatarDataHora(oportunidade.data_criacao) },
-                { termo: "Última edição", valor: formatarDataHora(oportunidade.data_atualizacao) },
-              ]}
-              nota="Publicar coloca a vaga na vitrine na hora. Pré-visualizar e publicar salvam antes as alterações."
-            >
-              <AcoesRascunho
-                emAndamento={acao}
-                semAlteracoes={!isDirty}
-                aoPrevisualizar={() => void previsualizar()}
-                aoPublicar={() => void publicar()}
-              />
-            </CartaoPublicacao>
-          ) : (
-            <AvisoSomenteLeitura oportunidade={oportunidade} />
-          )
+          <CartaoPublicacaoVaga
+            situacao={situacao}
+            detalhes={detalhesDaVaga(oportunidade)}
+            nota={NOTAS[situacao]}
+          >
+            <AcoesVaga
+              acoes={acoesDaEdicao(situacao)}
+              emAndamento={acao}
+              semAlteracoes={!isDirty}
+              aoPrevisualizar={() => void previsualizar()}
+              aoPublicar={() => void publicar()}
+              aoEncerrar={() => setConfirmandoEncerramento(true)}
+              aoDuplicar={() => void executarSemSalvar("duplicar", () => acoesVaga.duplicar(id))}
+            />
+          </CartaoPublicacaoVaga>
         }
       />
       <ModalPreviaOportunidade
@@ -156,13 +159,22 @@ function EdicaoOportunidade({ oportunidade, abrirPrevia }: PropsEdicaoOportunida
         aberto={previsualizando}
         aoFechar={() => setPrevisualizando(false)}
       />
+      <DialogoEncerrarVaga
+        titulo={confirmandoEncerramento ? oportunidade.titulo : null}
+        carregando={acoesVaga.encerrando}
+        aoFechar={() => setConfirmandoEncerramento(false)}
+        aoConfirmar={encerrar}
+      />
     </FormProvider>
   );
 }
 
 export function PaginaEditarOportunidade() {
   const { id } = useParams<{ id: string }>();
-  const abrirPrevia = useSearchParams().get(PARAMETRO_PREVIA) === "1";
+  const parametros = new URLSearchParams(useSearchParams().toString());
+  const abrirPrevia = parametros.get(PARAMETRO_PREVIA) === "1";
+  parametros.delete(PARAMETRO_PREVIA);
+  const consulta = parametros.toString();
   const oportunidade = useOportunidadeAdmin(id);
 
   if (oportunidade.isPending) {
@@ -188,6 +200,7 @@ export function PaginaEditarOportunidade() {
       key={`${oportunidade.data.id_oportunidade}-${oportunidade.data.situacao}`}
       oportunidade={oportunidade.data}
       abrirPrevia={abrirPrevia}
+      consulta={consulta}
     />
   );
 }
