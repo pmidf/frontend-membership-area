@@ -8,6 +8,7 @@ import {
   arquivarTrilha,
   atualizarTrilha,
   criarTrilha,
+  despublicarTrilha,
   detalharTrilhaAdmin,
   listarTrilhasAdmin,
   publicarTrilha,
@@ -91,6 +92,11 @@ export function useAtualizarTrilha(id: string) {
 export function usePublicarTrilha() {
   const aplicarResposta = useAplicarResposta();
   return useMutation({ mutationFn: publicarTrilha, onSuccess: aplicarResposta });
+}
+
+export function useDespublicarTrilha() {
+  const aplicarResposta = useAplicarResposta();
+  return useMutation({ mutationFn: despublicarTrilha, onSuccess: aplicarResposta });
 }
 
 export function useArquivarTrilha(id: string) {

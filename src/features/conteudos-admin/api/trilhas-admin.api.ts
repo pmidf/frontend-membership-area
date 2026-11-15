@@ -34,6 +34,10 @@ export function publicarTrilha(id: string): Promise<TrilhaAdmin> {
   return api.enviar<TrilhaAdmin>(`${caminhoTrilha(id)}/publicar`);
 }
 
+export function despublicarTrilha(id: string): Promise<TrilhaAdmin> {
+  return api.enviar<TrilhaAdmin>(`${caminhoTrilha(id)}/despublicar`);
+}
+
 export function arquivarTrilha(id: string): Promise<void> {
   return api.remover<void>(caminhoTrilha(id));
 }

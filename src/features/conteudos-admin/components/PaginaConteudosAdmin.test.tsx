@@ -206,3 +206,22 @@ describe("Biblioteca de conteúdos do Admin", { timeout: 15_000 }, () => {
     expect(await linhas()).toHaveLength(20);
   });
 });
+
+describe("Conteúdo despublicado na biblioteca", () => {
+  it("continua com o link de estatísticas", async () => {
+    abrir();
+    servidor.use(
+      ...handlersConteudosAdmin([
+        { ...conteudoRascunho, data_publicacao: "2026-08-22T15:00:00.000Z" },
+      ]),
+    );
+
+    expect(
+      await screen.findByRole(
+        "link",
+        { name: `Ver estatísticas de ${conteudoRascunho.titulo}` },
+        { timeout: ESPERA_DA_TABELA },
+      ),
+    ).toBeInTheDocument();
+  });
+});

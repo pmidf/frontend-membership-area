@@ -31,6 +31,7 @@ import {
   useArquivarConteudo,
   useAtualizarConteudo,
   useConteudoAdmin,
+  useDespublicarConteudo,
   usePublicarConteudo,
   useRecarregarConteudo,
 } from "../api/conteudos-admin.queries";
@@ -41,6 +42,13 @@ import type { ConteudoAdmin } from "../tipos/conteudo-admin";
 import { EstruturaFormularioConteudo, ID_FORMULARIO_CONTEUDO } from "./EstruturaFormularioConteudo";
 
 const CAMINHO_BIBLIOTECA = "/admin/conteudos";
+
+const notaPublicacao: Record<ConteudoAdmin["situacao"], string | null> = {
+  RASCUNHO: "Arquivar tira o conteúdo da biblioteca. As estatísticas de acesso são mantidas.",
+  PUBLICADO:
+    "Despublicar volta o conteúdo para rascunho e o tira do catálogo e das trilhas. Arquivar o tira de vez; as estatísticas são mantidas.",
+  ARQUIVADO: null,
+};
 
 function EdicaoConteudo({
   conteudo,
@@ -53,9 +61,10 @@ function EdicaoConteudo({
   const avisos = useAvisos();
   const atualizacao = useAtualizarConteudo(id);
   const publicacao = usePublicarConteudo();
+  const despublicacao = useDespublicarConteudo();
   const arquivamento = useArquivarConteudo(id);
   const recarregar = useRecarregarConteudo(id);
-  const [confirmandoArquivo, setConfirmandoArquivo] = useState(false);
+  const [confirmando, setConfirmando] = useState<"despublicar" | "arquivar" | null>(null);
   const formulario = useForm<DadosConteudo>({
     resolver: zodResolver(esquemaConteudo),
     defaultValues: valoresDoConteudo(conteudo),
@@ -108,11 +117,27 @@ function EdicaoConteudo({
     }
   });
 
+  const despublicar = handleSubmit(
+    async (dados) => {
+      if (despublicacao.isPending) return;
+      if (!(await salvarAlteracoes(dados))) return setConfirmando(null);
+      try {
+        await despublicacao.mutateAsync(id);
+        avisos.sucesso("Conteúdo despublicado");
+      } catch (erro) {
+        tratarErroDaAcao(erro, "Este conteúdo já não está publicado.");
+      } finally {
+        setConfirmando(null);
+      }
+    },
+    () => setConfirmando(null),
+  );
+
   function arquivar() {
     arquivamento.mutate(undefined, {
       onSuccess: () => avisos.sucesso("Conteúdo arquivado"),
       onError: (erro) => avisos.erro(mensagemDeErro(erro)),
-      onSettled: () => setConfirmandoArquivo(false),
+      onSettled: () => setConfirmando(null),
     });
   }
 
@@ -137,10 +162,7 @@ function EdicaoConteudo({
                 { termo: "Criado em", valor: formatarDataHora(conteudo.data_criacao) },
                 { termo: "Última edição", valor: formatarDataHora(conteudo.data_atualizacao) },
               ]}
-              nota={
-                !arquivado &&
-                "Arquivar tira o conteúdo do catálogo. As estatísticas de acesso são mantidas."
-              }
+              nota={notaPublicacao[situacao]}
             >
               <AcoesPublicacao
                 idFormulario={ID_FORMULARIO_CONTEUDO}
@@ -150,7 +172,8 @@ function EdicaoConteudo({
                 salvando={atualizacao.isPending}
                 publicando={publicacao.isPending}
                 aoPublicar={() => void publicar()}
-                aoArquivar={() => setConfirmandoArquivo(true)}
+                aoDespublicar={() => setConfirmando("despublicar")}
+                aoArquivar={() => setConfirmando("arquivar")}
                 somenteLeitura={
                   <Alerta tom="alerta" titulo="Conteúdo arquivado">
                     Ele saiu do catálogo e não pode mais ser editado.
@@ -158,7 +181,7 @@ function EdicaoConteudo({
                 }
               />
             </CartaoPublicacao>
-            {situacao !== "RASCUNHO" && (
+            {conteudo.data_publicacao !== null && (
               <Link
                 href={`${CAMINHO_BIBLIOTECA}/${id}/estatisticas`}
                 className={classesBotao({ variante: "secundario" })}
@@ -170,8 +193,17 @@ function EdicaoConteudo({
         }
       />
       <DialogoConfirmacao
-        aberto={confirmandoArquivo}
-        aoFechar={() => setConfirmandoArquivo(false)}
+        aberto={confirmando === "despublicar"}
+        aoFechar={() => setConfirmando(null)}
+        aoConfirmar={() => void despublicar()}
+        titulo="Despublicar conteúdo?"
+        descricao={`O conteúdo volta para rascunho e sai do catálogo e das trilhas até ser publicado de novo. Acessos e estatísticas são mantidos.${isDirty ? " As alterações feitas no formulário serão salvas antes." : ""}`}
+        rotuloConfirmar="Despublicar"
+        carregando={atualizacao.isPending || despublicacao.isPending}
+      />
+      <DialogoConfirmacao
+        aberto={confirmando === "arquivar"}
+        aoFechar={() => setConfirmando(null)}
         aoConfirmar={arquivar}
         titulo="Arquivar conteúdo?"
         descricao="O conteúdo sai do catálogo. As estatísticas de acesso são mantidas."

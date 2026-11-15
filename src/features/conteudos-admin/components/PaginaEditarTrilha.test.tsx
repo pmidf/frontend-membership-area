@@ -216,3 +216,56 @@ describe("Edição de trilha", { timeout: 15_000 }, () => {
     await screen.findByRole("heading", { level: 1, name: "Edição de trilha" });
   });
 });
+
+describe("Despublicar trilha", { timeout: 15_000 }, () => {
+  it("confirma e volta a trilha para rascunho", async () => {
+    await abrir(trilhaPublicada);
+
+    await usuario.click(botao("Despublicar"));
+    const dialogo = within(await screen.findByRole("dialog", { name: "Despublicar trilha?" }));
+    await usuario.click(dialogo.getByRole("button", { name: "Despublicar" }));
+
+    expect(await avisos().findByText("Trilha despublicada")).toBeInTheDocument();
+    expect(chamadas).toEqual([
+      { metodo: "POST", caminho: `${caminho(trilhaPublicada)}/despublicar`, corpo: "" },
+    ]);
+    expect(await screen.findByRole("button", { name: "Publicar trilha" })).toBeInTheDocument();
+  });
+
+  it("salva a nova ordem antes de despublicar", async () => {
+    await abrir(trilhaPublicada);
+    await usuario.click(botao(`Descer ${conteudoVideo.titulo}`));
+
+    await usuario.click(botao("Despublicar"));
+    const dialogo = within(await screen.findByRole("dialog", { name: "Despublicar trilha?" }));
+    expect(dialogo.getByText(/serão salvas antes/)).toBeInTheDocument();
+    await usuario.click(dialogo.getByRole("button", { name: "Despublicar" }));
+
+    await avisos().findByText("Trilha despublicada");
+    expect(chamadas.map(({ metodo, caminho: rota }) => `${metodo} ${rota}`)).toEqual([
+      `PATCH ${caminho(trilhaPublicada)}`,
+      `POST ${caminho(trilhaPublicada)}/despublicar`,
+    ]);
+  });
+
+  it("avisa quando a trilha já não está publicada", async () => {
+    await abrir(trilhaPublicada);
+    servidor.use(
+      http.post("*/api/admin/trilhas/:id/despublicar", () =>
+        HttpResponse.json({ statusCode: 409 }, { status: 409 }),
+      ),
+    );
+
+    await usuario.click(botao("Despublicar"));
+    const dialogo = within(await screen.findByRole("dialog", { name: "Despublicar trilha?" }));
+    await usuario.click(dialogo.getByRole("button", { name: "Despublicar" }));
+
+    expect(await avisos().findByText("Esta trilha já não está publicada.")).toBeInTheDocument();
+  });
+
+  it("não oferece despublicar para rascunho", async () => {
+    await abrir(trilhaRascunho);
+
+    expect(screen.queryByRole("button", { name: "Despublicar" })).toBeNull();
+  });
+});

@@ -251,3 +251,67 @@ describe("Edição de conteúdo", { timeout: 15_000 }, () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("Despublicar conteúdo", { timeout: 15_000 }, () => {
+  it("confirma, volta para rascunho e mantém as estatísticas", async () => {
+    await abrir(conteudoVideo);
+
+    await usuario.click(botao("Despublicar"));
+    const dialogo = within(await screen.findByRole("dialog", { name: "Despublicar conteúdo?" }));
+    expect(dialogo.getByText(/sai do catálogo e das trilhas/)).toBeInTheDocument();
+    await usuario.click(dialogo.getByRole("button", { name: "Despublicar" }));
+
+    expect(await avisos().findByText("Conteúdo despublicado")).toBeInTheDocument();
+    expect(chamadas).toEqual([
+      {
+        metodo: "POST",
+        caminho: `/api/admin/conteudos/${conteudoVideo.id_conteudo}/despublicar`,
+        corpo: "",
+      },
+    ]);
+    expect(await screen.findByRole("button", { name: "Publicar conteúdo" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Despublicar" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Ver estatísticas" })).toBeInTheDocument();
+  });
+
+  it("salva as alterações antes de despublicar", async () => {
+    await abrir(conteudoVideo);
+    await substituir("Título", "Mesa redonda revisada");
+
+    await usuario.click(botao("Despublicar"));
+    const dialogo = within(await screen.findByRole("dialog", { name: "Despublicar conteúdo?" }));
+    expect(dialogo.getByText(/serão salvas antes/)).toBeInTheDocument();
+    await usuario.click(dialogo.getByRole("button", { name: "Despublicar" }));
+
+    await avisos().findByText("Conteúdo despublicado");
+    expect(chamadas.map(({ metodo, caminho }) => `${metodo} ${caminho}`)).toEqual([
+      `PATCH /api/admin/conteudos/${conteudoVideo.id_conteudo}`,
+      `POST /api/admin/conteudos/${conteudoVideo.id_conteudo}/despublicar`,
+    ]);
+    expect(screen.getByLabelText("Título")).toHaveValue("Mesa redonda revisada");
+  });
+
+  it("avisa e recarrega quando o conteúdo já não está publicado", async () => {
+    await abrir(conteudoVideo);
+    servidor.use(
+      http.post("*/api/admin/conteudos/:id/despublicar", () =>
+        HttpResponse.json({ statusCode: 409 }, { status: 409 }),
+      ),
+    );
+
+    await usuario.click(botao("Despublicar"));
+    const dialogo = within(await screen.findByRole("dialog", { name: "Despublicar conteúdo?" }));
+    await usuario.click(dialogo.getByRole("button", { name: "Despublicar" }));
+
+    expect(await avisos().findByText("Este conteúdo já não está publicado.")).toBeInTheDocument();
+  });
+
+  it("republica mantendo a data original", async () => {
+    await abrir({ ...conteudoRascunho, data_publicacao: "2026-08-22T15:00:00.000Z" });
+
+    expect(screen.getByRole("link", { name: "Ver estatísticas" })).toBeInTheDocument();
+    await usuario.click(botao("Publicar conteúdo"));
+
+    expect(await avisos().findByText("Conteúdo publicado")).toBeInTheDocument();
+  });
+});

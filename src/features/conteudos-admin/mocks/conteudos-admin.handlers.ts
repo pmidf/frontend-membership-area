@@ -164,8 +164,18 @@ export function handlersConteudoAdmin(inicial: ConteudoAdmin = conteudoRascunho)
       conteudo = {
         ...conteudo,
         situacao: "PUBLICADO",
-        data_publicacao: "2026-11-12T12:00:00.000Z",
+        data_publicacao: conteudo.data_publicacao ?? "2026-11-12T12:00:00.000Z",
       };
+      return HttpResponse.json(conteudo);
+    }),
+    http.post("*/api/admin/conteudos/:id/despublicar", () => {
+      if (conteudo.situacao !== "PUBLICADO") {
+        return HttpResponse.json(
+          { statusCode: 409, message: "Só conteúdos publicados podem ser despublicados" },
+          { status: 409 },
+        );
+      }
+      conteudo = { ...conteudo, situacao: "RASCUNHO" };
       return HttpResponse.json(conteudo);
     }),
     http.delete("*/api/admin/conteudos/:id", () => {
@@ -380,8 +390,18 @@ export function handlersTrilhaAdmin(
       trilha = {
         ...trilha,
         situacao: "PUBLICADO",
-        data_publicacao: "2026-11-12T12:00:00.000Z",
+        data_publicacao: trilha.data_publicacao ?? "2026-11-12T12:00:00.000Z",
       };
+      return HttpResponse.json(trilha);
+    }),
+    http.post("*/api/admin/trilhas/:id/despublicar", () => {
+      if (trilha.situacao !== "PUBLICADO") {
+        return HttpResponse.json(
+          { statusCode: 409, message: "Só trilhas publicadas podem ser despublicadas" },
+          { status: 409 },
+        );
+      }
+      trilha = { ...trilha, situacao: "RASCUNHO" };
       return HttpResponse.json(trilha);
     }),
     http.delete("*/api/admin/trilhas/:id", () => {

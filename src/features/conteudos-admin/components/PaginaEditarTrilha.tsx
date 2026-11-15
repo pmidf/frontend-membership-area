@@ -27,6 +27,7 @@ import {
   trilhaNaoEncontrada,
   useArquivarTrilha,
   useAtualizarTrilha,
+  useDespublicarTrilha,
   usePublicarTrilha,
   useRecarregarTrilha,
   useTrilhaAdmin,
@@ -44,14 +45,22 @@ import { esquemaTrilha, type DadosTrilha } from "../schemas/trilha.schema";
 import type { TrilhaAdmin } from "../tipos/trilha-admin";
 import { EstruturaFormularioTrilha, ID_FORMULARIO_TRILHA } from "./EstruturaFormularioTrilha";
 
+const notaPublicacao: Record<TrilhaAdmin["situacao"], string | null> = {
+  RASCUNHO: "Arquivar tira a trilha do console. Os conteúdos continuam na biblioteca.",
+  PUBLICADO:
+    "Despublicar volta a trilha para rascunho e a tira do catálogo. Arquivar a tira de vez; os conteúdos continuam na biblioteca.",
+  ARQUIVADO: null,
+};
+
 function EdicaoTrilha({ trilha, destinoVolta }: { trilha: TrilhaAdmin; destinoVolta: string }) {
   const { id_trilha: id, situacao } = trilha;
   const avisos = useAvisos();
   const atualizacao = useAtualizarTrilha(id);
   const publicacao = usePublicarTrilha();
+  const despublicacao = useDespublicarTrilha();
   const arquivamento = useArquivarTrilha(id);
   const recarregar = useRecarregarTrilha(id);
-  const [confirmandoArquivo, setConfirmandoArquivo] = useState(false);
+  const [confirmando, setConfirmando] = useState<"despublicar" | "arquivar" | null>(null);
   const formulario = useForm<DadosTrilha>({
     resolver: zodResolver(esquemaTrilha),
     defaultValues: valoresDaTrilha(trilha),
@@ -107,11 +116,27 @@ function EdicaoTrilha({ trilha, destinoVolta }: { trilha: TrilhaAdmin; destinoVo
     }
   });
 
+  const despublicar = handleSubmit(
+    async (dados) => {
+      if (despublicacao.isPending) return;
+      if (!(await salvarAlteracoes(dados))) return setConfirmando(null);
+      try {
+        await despublicacao.mutateAsync(id);
+        avisos.sucesso("Trilha despublicada");
+      } catch (erro) {
+        tratarErroDaAcao(erro, "Esta trilha já não está publicada.");
+      } finally {
+        setConfirmando(null);
+      }
+    },
+    () => setConfirmando(null),
+  );
+
   function arquivar() {
     arquivamento.mutate(undefined, {
       onSuccess: () => avisos.sucesso("Trilha arquivada"),
       onError: (erro) => avisos.erro(mensagemDeErro(erro)),
-      onSettled: () => setConfirmandoArquivo(false),
+      onSettled: () => setConfirmando(null),
     });
   }
 
@@ -135,10 +160,7 @@ function EdicaoTrilha({ trilha, destinoVolta }: { trilha: TrilhaAdmin; destinoVo
               { termo: "Última edição", valor: formatarDataHora(trilha.data_atualizacao) },
               { termo: "Itens na trilha", valor: trilha.itens.length },
             ]}
-            nota={
-              !arquivada &&
-              "Arquivar tira a trilha do catálogo. Os conteúdos continuam na biblioteca."
-            }
+            nota={notaPublicacao[situacao]}
           >
             <AcoesPublicacao
               idFormulario={ID_FORMULARIO_TRILHA}
@@ -148,7 +170,8 @@ function EdicaoTrilha({ trilha, destinoVolta }: { trilha: TrilhaAdmin; destinoVo
               salvando={atualizacao.isPending}
               publicando={publicacao.isPending}
               aoPublicar={() => void publicar()}
-              aoArquivar={() => setConfirmandoArquivo(true)}
+              aoDespublicar={() => setConfirmando("despublicar")}
+              aoArquivar={() => setConfirmando("arquivar")}
               somenteLeitura={
                 <Alerta tom="alerta" titulo="Trilha arquivada">
                   Ela saiu do catálogo e não pode mais ser editada.
@@ -159,8 +182,17 @@ function EdicaoTrilha({ trilha, destinoVolta }: { trilha: TrilhaAdmin; destinoVo
         }
       />
       <DialogoConfirmacao
-        aberto={confirmandoArquivo}
-        aoFechar={() => setConfirmandoArquivo(false)}
+        aberto={confirmando === "despublicar"}
+        aoFechar={() => setConfirmando(null)}
+        aoConfirmar={() => void despublicar()}
+        titulo="Despublicar trilha?"
+        descricao={`A trilha volta para rascunho e sai do catálogo até ser publicada de novo. O progresso dos membros é mantido.${isDirty ? " As alterações feitas no formulário serão salvas antes." : ""}`}
+        rotuloConfirmar="Despublicar"
+        carregando={atualizacao.isPending || despublicacao.isPending}
+      />
+      <DialogoConfirmacao
+        aberto={confirmando === "arquivar"}
+        aoFechar={() => setConfirmando(null)}
         aoConfirmar={arquivar}
         titulo="Arquivar trilha?"
         descricao="A trilha sai do catálogo. Os conteúdos dela continuam na biblioteca."
