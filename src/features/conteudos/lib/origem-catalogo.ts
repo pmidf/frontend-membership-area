@@ -19,3 +19,8 @@ export function destinoDeVolta(origem: string | null): string {
 export function caminhoDoConteudo(idConteudo: string, origem: string): string {
   return `${CAMINHO_CATALOGO}/${encodeURIComponent(idConteudo)}?${new URLSearchParams({ de: origem })}`;
 }
+
+export function caminhoDaTrilha(idTrilha: string, origem?: string): string {
+  const caminho = `${CAMINHO_CATALOGO}/trilhas/${encodeURIComponent(idTrilha)}`;
+  return origem ? `${caminho}?${new URLSearchParams({ de: origem })}` : caminho;
+}

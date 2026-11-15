@@ -10,6 +10,13 @@ import type { Pagina } from "@/shared/api/tipos";
 import { somarDias } from "@/shared/lib/datas";
 
 import type { AcessoConteudo, ConteudoAdmin } from "../tipos/conteudo-admin";
+import type {
+  AtualizarTrilha,
+  CriarTrilha,
+  ItemTrilhaAdmin,
+  ResumoTrilhaAdmin,
+  TrilhaAdmin,
+} from "../tipos/trilha-admin";
 
 const id = (numero: number) => `60000000-0000-4000-8000-${String(numero).padStart(12, "0")}`;
 
@@ -267,6 +274,165 @@ export function handlersEstatisticas({
           "Content-Disposition": `attachment; filename="acessos-${conteudo.id_conteudo}.csv"`,
         },
       }),
+    ),
+  ];
+}
+
+const idTrilha = (numero: number) => `81000000-0000-4000-8000-${String(numero).padStart(12, "0")}`;
+
+export const itemTrilhaDe = ({
+  id_conteudo,
+  titulo,
+  tipo,
+  situacao,
+  bol_exclusivo,
+}: ConteudoAdmin): ItemTrilhaAdmin => ({ id_conteudo, titulo, tipo, situacao, bol_exclusivo });
+
+export const trilhaRascunho: TrilhaAdmin = {
+  id_trilha: idTrilha(1),
+  id_pessoa_criou: "70000000-0000-4000-8000-000000000001",
+  titulo: "Projetos no setor público",
+  descricao: "Do PMBOK 7 ao canvas de projeto do PMI-DF.",
+  situacao: "RASCUNHO",
+  data_publicacao: null,
+  data_criacao: "2026-11-10T13:00:00.000Z",
+  data_atualizacao: "2026-11-11T14:30:00.000Z",
+  itens: [itemTrilhaDe(conteudoVideo), itemTrilhaDe(conteudoRascunho)],
+};
+
+export const trilhaPublicada: TrilhaAdmin = {
+  ...trilhaRascunho,
+  id_trilha: idTrilha(2),
+  titulo: "Fundamentos de Gestão de Riscos",
+  situacao: "PUBLICADO",
+  data_publicacao: "2026-11-11T15:00:00.000Z",
+};
+
+export const trilhaArquivada: TrilhaAdmin = {
+  ...trilhaPublicada,
+  id_trilha: idTrilha(3),
+  titulo: "Carreira em projetos",
+  situacao: "ARQUIVADO",
+};
+
+export const trilhaSemPublicado: TrilhaAdmin = {
+  ...trilhaRascunho,
+  id_trilha: idTrilha(4),
+  itens: [itemTrilhaDe(conteudoRascunho)],
+};
+
+export const ID_TRILHA_CRIADA = idTrilha(90);
+
+export const ERRO_TRILHA_SEM_PUBLICADO = {
+  statusCode: 422,
+  codigo: "DADOS_INVALIDOS",
+  campos: { ids_conteudos: ["A trilha precisa de ao menos um conteúdo publicado"] },
+};
+
+export function handlersTrilhaAdmin(
+  inicial: TrilhaAdmin = trilhaRascunho,
+  biblioteca: ConteudoAdmin[] = conteudosAdminTeste,
+) {
+  let trilha = inicial;
+  const itensDe = (ids: string[] = []) =>
+    biblioteca
+      .filter(({ id_conteudo }) => ids.includes(id_conteudo))
+      .sort((a, b) => ids.indexOf(a.id_conteudo) - ids.indexOf(b.id_conteudo))
+      .map(itemTrilhaDe);
+  const naoEncontrada = () =>
+    HttpResponse.json({ statusCode: 404, message: "Trilha não encontrada" }, { status: 404 });
+  return [
+    ...handlersConteudosAdmin(biblioteca),
+    http.post("*/api/admin/trilhas", async ({ request }) => {
+      const corpo = (await request.json()) as CriarTrilha;
+      trilha = {
+        ...trilhaRascunho,
+        id_trilha: ID_TRILHA_CRIADA,
+        titulo: corpo.titulo,
+        descricao: corpo.descricao,
+        itens: itensDe(corpo.ids_conteudos),
+      };
+      return HttpResponse.json(trilha, { status: 201 });
+    }),
+    http.get("*/api/admin/trilhas/:id", ({ params }) =>
+      params.id === trilha.id_trilha ? HttpResponse.json(trilha) : naoEncontrada(),
+    ),
+    http.patch("*/api/admin/trilhas/:id", async ({ request }) => {
+      if (trilha.situacao === "ARQUIVADO") {
+        return HttpResponse.json(
+          { statusCode: 409, message: "Trilha arquivada não pode ser editada" },
+          { status: 409 },
+        );
+      }
+      const { ids_conteudos, ...campos } = (await request.json()) as AtualizarTrilha;
+      trilha = {
+        ...trilha,
+        ...campos,
+        ...(ids_conteudos && { itens: itensDe(ids_conteudos) }),
+        data_atualizacao: "2026-11-12T12:00:00.000Z",
+      };
+      return HttpResponse.json(trilha);
+    }),
+    http.post("*/api/admin/trilhas/:id/publicar", () => {
+      if (!trilha.itens.some(({ situacao }) => situacao === "PUBLICADO")) {
+        return HttpResponse.json(ERRO_TRILHA_SEM_PUBLICADO, { status: 422 });
+      }
+      trilha = {
+        ...trilha,
+        situacao: "PUBLICADO",
+        data_publicacao: "2026-11-12T12:00:00.000Z",
+      };
+      return HttpResponse.json(trilha);
+    }),
+    http.delete("*/api/admin/trilhas/:id", () => {
+      trilha = { ...trilha, situacao: "ARQUIVADO" };
+      return new HttpResponse(null, { status: 204 });
+    }),
+  ];
+}
+
+export const resumosTrilhasAdmin: ResumoTrilhaAdmin[] = [
+  trilhaPublicada,
+  trilhaRascunho,
+  trilhaArquivada,
+  ...Array.from({ length: 20 }, (_, indice) => ({
+    ...trilhaPublicada,
+    id_trilha: idTrilha(indice + 20),
+    titulo: `Trilha ${String(indice + 1).padStart(2, "0")}`,
+  })),
+].map(({ id_trilha, titulo, situacao, data_publicacao, data_atualizacao, itens }) => ({
+  id_trilha,
+  titulo,
+  situacao,
+  data_publicacao,
+  data_atualizacao,
+  quantidade_itens: itens.length,
+}));
+
+export function filtrarTrilhasAdmin(
+  trilhas: ResumoTrilhaAdmin[],
+  url: URL,
+): Pagina<ResumoTrilhaAdmin> {
+  const parametros = url.searchParams;
+  const termo = (parametros.get("q") ?? "").toLowerCase();
+  const situacao = parametros.get("situacao");
+  const pagina = Number(parametros.get("page") ?? 1);
+  const encontradas = trilhas.filter(
+    (trilha) =>
+      trilha.titulo.toLowerCase().includes(termo) && (!situacao || trilha.situacao === situacao),
+  );
+  return {
+    total: encontradas.length,
+    pagina,
+    total_paginas: Math.ceil(encontradas.length / 20),
+    itens: encontradas.slice((pagina - 1) * 20, pagina * 20),
+  };
+}
+
+export function handlersTrilhasAdmin(trilhas: ResumoTrilhaAdmin[] = resumosTrilhasAdmin) {
+  return [
+    http.get("*/api/admin/trilhas", ({ request }) =>
+      HttpResponse.json(filtrarTrilhasAdmin(trilhas, new URL(request.url))),
     ),
   ];
 }

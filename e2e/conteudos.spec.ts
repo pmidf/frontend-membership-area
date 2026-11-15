@@ -8,6 +8,10 @@ import {
   detalheMaterial,
   detalheVideo,
   playerTeste,
+  resumosTrilhas,
+  trilhaComProximo,
+  trilhaEmAndamento,
+  trilhaPrevia,
 } from "../src/features/conteudos/mocks/conteudos.handlers";
 import type { Catalogo } from "../src/features/conteudos/tipos/conteudo";
 import type { Perfil } from "../src/shared/sessao/tipos";
@@ -20,6 +24,10 @@ async function abrir(page: Page, perfil: Perfil, catalogo: Catalogo, rota: strin
   await page.route("**/api/conteudo-categorias", (r) => r.fulfill({ json: categoriasTeste }));
   await page.route("**/api/conteudos?*", (r) => r.fulfill({ json: catalogo }));
   await page.route("**/api/conteudos", (r) => r.fulfill({ json: catalogo }));
+  await page.route("**/api/trilhas", (r) => r.fulfill({ json: resumosTrilhas }));
+  await page.route(`**/api/trilhas/${trilhaEmAndamento.id_trilha}`, (r) =>
+    r.fulfill({ json: perfil === perfilFiliado ? trilhaEmAndamento : trilhaPrevia }),
+  );
   await page.goto(rota);
 }
 
@@ -47,6 +55,41 @@ test("o Filiado vê o resumo e chega à biblioteca filtrada", async ({ page }, i
   await page.getByRole("button", { name: "Vídeos" }).click();
   await expect(page).toHaveURL(/\/conteudos\/biblioteca\?tipo=VIDEO/);
   await expect(page.getByRole("heading", { level: 1, name: "Biblioteca completa" })).toBeVisible();
+});
+
+test("o Filiado segue das trilhas do resumo até a página da trilha", async ({ page }, info) => {
+  await abrir(page, perfilFiliado, catalogoFiliado, "/conteudos");
+  await expect(page.getByRole("heading", { level: 2, name: "Trilhas" })).toBeVisible();
+
+  await page.getByRole("link", { name: "Ver todas as trilhas" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Trilhas" })).toBeVisible();
+  await capturar(page, "trilhas", info.project.name);
+  await conferirAcessibilidade(page);
+
+  await page.getByRole("link", { name: trilhaEmAndamento.titulo }).click();
+  await expect(
+    page.getByRole("heading", { level: 1, name: trilhaEmAndamento.titulo }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Continuar trilha" })).toBeVisible();
+  await capturar(page, "trilha-filiado", info.project.name);
+  await conferirAcessibilidade(page);
+  await expect(page.getByRole("link", { name: /Voltar para o catálogo/ })).toHaveAttribute(
+    "href",
+    "/conteudos/trilhas",
+  );
+});
+
+test("o Não-Filiado vê a trilha com os exclusivos bloqueados", async ({ page }, info) => {
+  await abrir(
+    page,
+    perfilNaoFiliado,
+    catalogoPrevia,
+    `/conteudos/trilhas/${trilhaEmAndamento.id_trilha}`,
+  );
+  await expect(page.getByRole("heading", { level: 1, name: trilhaPrevia.titulo })).toBeVisible();
+  await expect(page.getByText("Exclusivo para filiados").first()).toBeVisible();
+  await capturar(page, "trilha-nao-filiado", info.project.name);
+  await conferirAcessibilidade(page);
 });
 
 test("o Filiado abre o histórico pelo link", async ({ page }, info) => {
@@ -110,6 +153,9 @@ test("o Filiado abre um vídeo, assiste e marca como assistido", async ({ page }
     consumido = r.request().method() === "PUT";
     return r.fulfill({ status: 204 });
   });
+  await page.route(`**/api/conteudos/${detalheVideo.id_conteudo}/trilhas`, (r) =>
+    r.fulfill({ json: [trilhaComProximo] }),
+  );
 
   await page.goto(`/conteudos/${detalheVideo.id_conteudo}?de=%2Fconteudos%2Fhistorico`);
   await expect(page.getByTitle(detalheVideo.titulo)).toBeVisible();
@@ -119,6 +165,9 @@ test("o Filiado abre um vídeo, assiste e marca como assistido", async ({ page }
     "href",
     "/conteudos/historico",
   );
+
+  await expect(page.getByRole("heading", { name: "Continue na trilha" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Como montar seu plano de PDUs/ })).toBeVisible();
 
   await page.getByRole("button", { name: "Marcar como assistido" }).click();
   await expect(page.getByRole("button", { name: "Assistido — desmarcar" })).toBeVisible();
@@ -134,6 +183,9 @@ test("o material abre em nova aba", async ({ page, context }, info) => {
   );
   await page.route(`**/api/conteudos/${detalheMaterial.id_conteudo}/acessos`, (r) =>
     r.fulfill({ status: 201, json: { url: "https://exemplo.test/material.pdf" } }),
+  );
+  await page.route(`**/api/conteudos/${detalheMaterial.id_conteudo}/trilhas`, (r) =>
+    r.fulfill({ json: [] }),
   );
 
   await page.goto(`/conteudos/${detalheMaterial.id_conteudo}`);
