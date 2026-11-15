@@ -16,3 +16,7 @@ export const rotulosSituacaoOportunidade: Record<
   PUBLICADA: { rotulo: "Publicada", tom: "aqua" },
   ENCERRADA: { rotulo: "Encerrada", tom: "alerta" },
 };
+
+export function textoVagasAbertas(total: number): string {
+  return total === 1 ? "1 vaga aberta" : `${total} vagas abertas`;
+}

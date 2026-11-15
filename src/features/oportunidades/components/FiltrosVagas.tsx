@@ -20,6 +20,7 @@ type PropsFiltrosVagas = {
   valorInicialBusca: string;
   aoBuscar: (termo: string) => void;
   aoFiltrarModalidade: (modalidade: string) => void;
+  desabilitado?: boolean;
 };
 
 export function FiltrosVagas({
@@ -27,6 +28,7 @@ export function FiltrosVagas({
   valorInicialBusca,
   aoBuscar,
   aoFiltrarModalidade,
+  desabilitado = false,
 }: PropsFiltrosVagas) {
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -36,12 +38,14 @@ export function FiltrosVagas({
         valorInicial={valorInicialBusca}
         maxLength={TAMANHO_MAXIMO_BUSCA}
         aoBuscar={aoBuscar}
+        desabilitado={desabilitado}
         className="lg:flex-1"
       />
       <FiltrosChip
         rotulo="Filtrar por modalidade"
         opcoes={opcoesModalidade}
         selecionados={[modalidade || TODAS]}
+        desabilitado={desabilitado}
         aoMudar={([valor]) =>
           aoFiltrarModalidade(MODALIDADES.find((opcao) => opcao === valor) ?? "")
         }

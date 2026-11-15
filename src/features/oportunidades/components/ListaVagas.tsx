@@ -6,6 +6,7 @@ import { useCorrigirPaginaInexistente } from "@/shared/hooks/useCorrigirPaginaIn
 import { Alerta, Botao, Cartao, cn, EstadoVazio, Paginacao } from "@/shared/ui";
 
 import type { FiltrosVagas as Filtros } from "../lib/filtros-url";
+import { textoVagasAbertas } from "../lib/rotulos";
 import type { ListaOportunidades } from "../tipos/oportunidade";
 import { FiltrosVagas } from "./FiltrosVagas";
 import { LinhaVaga } from "./LinhaVaga";
@@ -17,10 +18,6 @@ type PropsListaVagas = {
   atualizando: boolean;
   aoMudar: (novos: Record<string, string | number | null>) => void;
 };
-
-function tituloLista(total: number): string {
-  return total === 1 ? "1 vaga aberta" : `${total} vagas abertas`;
-}
 
 export function ListaVagas({
   lista,
@@ -65,7 +62,7 @@ export function ListaVagas({
         )}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-h3">{tituloLista(lista.total)}</h2>
+          <h2 className="text-h3">{textoVagasAbertas(lista.total)}</h2>
           {lista.total > 1 && (
             <Botao
               variante="link"

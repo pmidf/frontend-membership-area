@@ -1,6 +1,5 @@
 "use client";
 
-import { PainelExclusivoFiliados } from "@/features/conversao/components/PainelExclusivoFiliados";
 import { useParametrosUrl } from "@/shared/hooks/useParametrosUrl";
 import { CabecalhoPagina, EstadoErro, Esqueleto } from "@/shared/ui";
 
@@ -8,6 +7,7 @@ import { useOportunidades } from "../api/oportunidades.queries";
 import { ehPrevia } from "../lib/eh-previa";
 import { filtrosDaUrl, filtrosParaApi } from "../lib/filtros-url";
 import { ListaVagas } from "./ListaVagas";
+import { PreviaVagas } from "./PreviaVagas";
 
 export function PaginaVagas() {
   const { parametros, atualizar } = useParametrosUrl();
@@ -23,10 +23,7 @@ export function PaginaVagas() {
       />
       {data &&
         (ehPrevia(data) ? (
-          <PainelExclusivoFiliados
-            origem="VITRINE"
-            descricao="As vagas divulgadas pelo capítulo e o contato para candidatura são exclusivos para filiados."
-          />
+          <PreviaVagas previa={data} />
         ) : (
           <ListaVagas
             lista={data}

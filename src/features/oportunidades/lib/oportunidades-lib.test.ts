@@ -4,7 +4,7 @@ import { ehPrevia } from "./eh-previa";
 import { filtrosDaUrl, filtrosParaApi } from "./filtros-url";
 import { montarMailto } from "./mailto";
 import { encerraEmBreve, textoExpiracao, textoPublicacao } from "./prazo";
-import { rotulosModalidade } from "./rotulos";
+import { rotulosModalidade, textoVagasAbertas } from "./rotulos";
 
 const AGORA = new Date("2026-11-15T15:00:00.000Z");
 
@@ -79,5 +79,7 @@ describe("prévia e rótulos", () => {
     expect(rotulosModalidade.HIBRIDO.rotulo).toBe("Híbrido");
     expect(rotulosModalidade.REMOTO.rotulo).toBe("Remoto");
     expect(rotulosModalidade.PRESENCIAL.rotulo).toBe("Presencial");
+    expect(textoVagasAbertas(1)).toBe("1 vaga aberta");
+    expect(textoVagasAbertas(5)).toBe("5 vagas abertas");
   });
 });

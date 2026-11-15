@@ -178,17 +178,87 @@ describe("Vagas do filiado", { timeout: 15_000 }, () => {
       await screen.findByText("Não foi possível carregar as vagas.", {}, { timeout: ESPERA }),
     ).toBeVisible();
   });
+});
 
-  it("para quem não é filiado, mostra o painel exclusivo sem dados das vagas", async () => {
-    abrir("", {
-      sessao: perfilNaoFiliado,
-      resposta: { total: 5, itens: [{ logo_empresa: null, bloqueado: true }] },
-    });
+const LOGO = "https://cdn.exemplo.com/logo-nexa.png";
+const previa: RespostaOportunidades = {
+  total: 5,
+  itens: [
+    { logo_empresa: LOGO, bloqueado: true },
+    { logo_empresa: null, bloqueado: true },
+  ],
+};
+
+const linhasBloqueadas = () => Array.from(document.querySelectorAll("[data-bloqueado='true']"));
+const painel = () =>
+  screen.findByRole("region", { name: "Exclusivo para filiados" }, { timeout: ESPERA });
+
+function abrirPrevia(resposta: RespostaOportunidades = previa) {
+  abrir("", { sessao: perfilNaoFiliado, resposta });
+}
+
+describe("Prévia das vagas para quem não é filiado", { timeout: 15_000 }, () => {
+  it("mostra o painel, o total e as linhas só com o logo, sem dados das vagas", async () => {
+    abrirPrevia();
+    await painel();
 
     expect(
-      await screen.findByRole("region", { name: "Exclusivo para filiados" }, { timeout: ESPERA }),
+      screen.getByText("Filie-se ao PMI-DF para ver todas as oportunidades de carreira."),
     ).toBeVisible();
+    expect(screen.getByRole("heading", { name: "5 vagas abertas" })).toBeInTheDocument();
+    expect(screen.getByText("5 vagas abertas, exclusivas para filiados")).toHaveClass("sr-only");
+    expect(linhasBloqueadas()).toHaveLength(2);
     expect(screen.queryByRole("list", { name: "Vagas abertas" })).toBeNull();
-    expect(screen.queryByLabelText("Buscar por cargo ou empresa")).toBeNull();
+    expect(screen.queryByRole("link", { name: /Ver vaga/ })).toBeNull();
+    expect(screen.queryByText("O capítulo divulga, não recruta")).toBeNull();
+  });
+
+  it("usa o logo da API e, sem logo, o bloco de cor com iniciais", async () => {
+    abrirPrevia();
+    await painel();
+
+    const [comLogo, semLogo] = linhasBloqueadas();
+    expect(comLogo.querySelector("img")).toHaveAttribute("src", LOGO);
+    expect(semLogo.querySelector("img")).toBeNull();
+    expect(within(semLogo as HTMLElement).getByText("EP")).toBeInTheDocument();
+  });
+
+  it("deixa as linhas inertes e os filtros desabilitados", async () => {
+    abrirPrevia();
+    await painel();
+
+    linhasBloqueadas().forEach((linha) => {
+      expect(linha).toHaveAttribute("inert");
+      expect(linha).toHaveAttribute("aria-hidden", "true");
+    });
+    expect(screen.getByLabelText("Buscar por cargo ou empresa")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Todas" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Remoto" })).toBeDisabled();
+    expect(screen.getByText("Disponível para filiados")).toBeInTheDocument();
+  });
+
+  it("com total zero, avisa que novas oportunidades vêm em breve", async () => {
+    abrirPrevia({ total: 0, itens: [] });
+    await painel();
+
+    expect(screen.getByText("Novas oportunidades em breve.")).toBeVisible();
+    expect(linhasBloqueadas()).toHaveLength(0);
+    expect(screen.queryByRole("heading", { name: /vagas abertas/ })).toBeNull();
+  });
+
+  it("registra a conversão com a origem VITRINE", async () => {
+    const cliques: unknown[] = [];
+    servidor.events.on("request:start", async ({ request }) => {
+      if (new URL(request.url).pathname === "/api/conversao/cta")
+        cliques.push(await request.clone().json());
+    });
+    abrirPrevia();
+    await painel();
+
+    const botao = screen.getByRole("link", { name: /Quero me filiar/ });
+    botao.addEventListener("click", (evento) => evento.preventDefault());
+    await usuario.click(botao);
+
+    await waitFor(() => expect(cliques).toEqual([{ origem: "VITRINE" }]));
   });
 });
