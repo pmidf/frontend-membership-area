@@ -9,13 +9,14 @@ import { conteudoNaoEncontrado, useConteudo } from "../api/conteudos.queries";
 import { CAMINHO_CATALOGO, destinoDeVolta } from "../lib/origem-catalogo";
 import type { ConteudoAcessivel } from "../tipos/conteudo";
 import { BotaoMarcarVisto } from "./BotaoMarcarVisto";
+import { CartaoContinueTrilha } from "./CartaoContinueTrilha";
 import { CartaoMaterial } from "./CartaoMaterial";
 import { CartaoSobreAcesso } from "./CartaoSobreAcesso";
 import { InfoConteudo } from "./InfoConteudo";
 import { LinkVoltarCatalogo } from "./LinkVoltarCatalogo";
 import { PlayerVideo } from "./PlayerVideo";
 
-function DetalheConteudo({ conteudo }: { conteudo: ConteudoAcessivel }) {
+function DetalheConteudo({ conteudo, origem }: { conteudo: ConteudoAcessivel; origem: string }) {
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_21.25rem]">
       <div className="flex min-w-0 flex-col gap-5">
@@ -27,7 +28,10 @@ function DetalheConteudo({ conteudo }: { conteudo: ConteudoAcessivel }) {
         <InfoConteudo conteudo={conteudo} />
         <BotaoMarcarVisto conteudo={conteudo} />
       </div>
-      <CartaoSobreAcesso exclusivo={conteudo.bol_exclusivo} />
+      <div className="flex min-w-0 flex-col gap-5">
+        <CartaoSobreAcesso exclusivo={conteudo.bol_exclusivo} />
+        <CartaoContinueTrilha idConteudo={conteudo.id_conteudo} origem={origem} />
+      </div>
     </div>
   );
 }
@@ -64,7 +68,7 @@ export function PaginaDetalheConteudo() {
         />
       );
     }
-    return <DetalheConteudo conteudo={conteudo} />;
+    return <DetalheConteudo conteudo={conteudo} origem={destinoVolta} />;
   }
 
   return (

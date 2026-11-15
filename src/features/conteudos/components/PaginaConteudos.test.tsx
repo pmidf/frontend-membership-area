@@ -14,9 +14,11 @@ import {
   catalogoPrevia,
   COD_TECNOLOGIA,
   handlersConteudos,
+  handlersTrilhas,
   itemBloqueado,
   materialNovo,
   montarCatalogo,
+  resumosTrilhas,
   videoPublico,
   videoVisto,
 } from "../mocks/conteudos.handlers";
@@ -175,5 +177,33 @@ describe("Resumo para quem não é Filiado", () => {
     const [primeiro] = recentes.getAllByRole("heading", { level: 3 });
     expect(primeiro).toHaveTextContent(itemBloqueado.titulo);
     expect(primeiro.querySelector("a")).toBeNull();
+  });
+});
+
+describe("Seção Trilhas do resumo", () => {
+  it("mostra até 3 trilhas com progresso e o link para todas", async () => {
+    abrir();
+    servidor.use(...handlersTrilhas());
+
+    const trilhas = await secao("Trilhas");
+    expect(trilhas.getAllByRole("listitem")).toHaveLength(3);
+    expect(trilhas.getByRole("link", { name: "Ver todas as trilhas" })).toHaveAttribute(
+      "href",
+      "/conteudos/trilhas",
+    );
+    expect(trilhas.getByRole("link", { name: resumosTrilhas[0].titulo })).toHaveAttribute(
+      "href",
+      `/conteudos/trilhas/${resumosTrilhas[0].id_trilha}?de=%2Fconteudos`,
+    );
+    expect(trilhas.getByText("1 de 3 concluídos")).toBeInTheDocument();
+    expect(trilhas.getByText("Não iniciada · 0 de 5")).toBeInTheDocument();
+    expect(trilhas.getByText("Concluída · 3 de 3")).toBeInTheDocument();
+  });
+
+  it("esconde a seção quando não há trilhas publicadas", async () => {
+    abrir();
+
+    await secao("Adicionados recentemente");
+    expect(screen.queryByRole("heading", { level: 2, name: "Trilhas" })).toBeNull();
   });
 });

@@ -34,6 +34,10 @@ export function publicarConteudo(id: string): Promise<ConteudoAdmin> {
   return api.enviar<ConteudoAdmin>(`${caminhoConteudo(id)}/publicar`);
 }
 
+export function despublicarConteudo(id: string): Promise<ConteudoAdmin> {
+  return api.enviar<ConteudoAdmin>(`${caminhoConteudo(id)}/despublicar`);
+}
+
 export function arquivarConteudo(id: string): Promise<void> {
   return api.remover<void>(caminhoConteudo(id));
 }

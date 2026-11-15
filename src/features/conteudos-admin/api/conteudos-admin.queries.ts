@@ -12,6 +12,7 @@ import {
   arquivarConteudo,
   atualizarConteudo,
   criarConteudo,
+  despublicarConteudo,
   detalharConteudoAdmin,
   listarConteudosAdmin,
   previaYoutube,
@@ -101,6 +102,11 @@ export function useAtualizarConteudo(id: string) {
 export function usePublicarConteudo() {
   const aplicarResposta = useAplicarResposta();
   return useMutation({ mutationFn: publicarConteudo, onSuccess: aplicarResposta });
+}
+
+export function useDespublicarConteudo() {
+  const aplicarResposta = useAplicarResposta();
+  return useMutation({ mutationFn: despublicarConteudo, onSuccess: aplicarResposta });
 }
 
 export function useArquivarConteudo(id: string) {

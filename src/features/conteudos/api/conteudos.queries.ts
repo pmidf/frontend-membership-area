@@ -11,9 +11,12 @@ import {
   abrirPlayer,
   desmarcarVisto,
   detalharConteudo,
+  detalharTrilha,
   listarCatalogo,
   listarCatalogoCompleto,
   listarCategorias,
+  listarTrilhas,
+  listarTrilhasDoConteudo,
   marcarVisto,
 } from "./conteudos.api";
 
@@ -24,11 +27,17 @@ export const chavesConteudos = {
   categorias: ["conteudos", "categorias"] as const,
   detalhe: (id: string) => ["conteudos", "detalhe", id] as const,
   player: (id: string, publico: boolean) => ["conteudos", "player", id, { publico }] as const,
+  trilhasDoConteudo: (id: string) => ["conteudos", "trilhas-do-conteudo", id] as const,
+  trilhas: (filiado: boolean) => ["conteudos", "trilhas", { filiado }] as const,
+  trilha: (id: string, filiado: boolean) => ["conteudos", "trilha", id, { filiado }] as const,
 };
 
 const listasDoCatalogo = [
   ["conteudos", "catalogo"],
   ["conteudos", "catalogo-completo"],
+  ["conteudos", "trilhas-do-conteudo"],
+  ["conteudos", "trilhas"],
+  ["conteudos", "trilha"],
 ] as const;
 
 export function conteudoNaoEncontrado(erro: unknown): boolean {
@@ -77,6 +86,32 @@ export function useConteudo(id: string) {
   return useQuery({
     queryKey: chavesConteudos.detalhe(id),
     queryFn: () => detalharConteudo(id),
+    enabled: estado !== "carregando",
+    retry: (falhas, erro) => !conteudoNaoEncontrado(erro) && falhas < 1,
+  });
+}
+
+export function useTrilhasDoConteudo(id: string) {
+  return useQuery({
+    queryKey: chavesConteudos.trilhasDoConteudo(id),
+    queryFn: () => listarTrilhasDoConteudo(id),
+  });
+}
+
+export function useTrilhas() {
+  const { estado, ehFiliado } = useSessao();
+  return useQuery({
+    queryKey: chavesConteudos.trilhas(ehFiliado),
+    queryFn: listarTrilhas,
+    enabled: estado !== "carregando",
+  });
+}
+
+export function useTrilha(id: string) {
+  const { estado, ehFiliado } = useSessao();
+  return useQuery({
+    queryKey: chavesConteudos.trilha(id, ehFiliado),
+    queryFn: () => detalharTrilha(id),
     enabled: estado !== "carregando",
     retry: (falhas, erro) => !conteudoNaoEncontrado(erro) && falhas < 1,
   });
