@@ -116,35 +116,6 @@
   color: var(--texto-secundario);
 }
 
-.emails {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  list-style: none;
-}
-
-.emails li {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 11px 14px;
-  background: var(--apoio-neutro-100);
-  border-radius: var(--raio-md);
-}
-
-.endereco {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 22px;
-  overflow-wrap: anywhere;
-}
-
-.tipoEmail {
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--texto-secundario);
-}
-
 .acoesDesktop {
   display: flex;
   flex-direction: column;
@@ -243,21 +214,5 @@
 
   .campos dd {
     font-weight: 500;
-  }
-
-  .emails li {
-    padding: 10px 12px;
-    background: var(--fundo-sutil);
-    border-radius: 10px;
-  }
-
-  .endereco {
-    font-size: 12px;
-    line-height: normal;
-  }
-
-  .tipoEmail {
-    font-size: 11px;
-    line-height: normal;
   }
 }

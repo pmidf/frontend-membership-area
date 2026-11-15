@@ -7,13 +7,9 @@ import { Alert } from "@/components/ui/Alert";
 import { classesBotao } from "@/components/ui/Button";
 import { Card, CardTitulo } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
-import {
-  emailsVerificados,
-  obterUsuarioAtual,
-  type EmailUsuario,
-  type Usuario,
-} from "@/lib/sessao";
+import { obterUsuarioAtual, type Usuario } from "@/lib/sessao";
 import { BotaoInscricaoSympla } from "@/features/agenda/components/BotaoInscricaoSympla";
+import { CardPresencaReconhecida } from "@/features/agenda/components/CardPresencaReconhecida";
 import { ComParticipacao } from "@/features/agenda/components/ComParticipacao";
 import { ImagemEvento } from "@/features/agenda/components/ImagemEvento";
 import {
@@ -70,24 +66,15 @@ async function DetalheEvento({
   // A data atual define o que é "próximo" ou "encerrado": calcula na requisição, não no prerender.
   await connection();
   const agora = new Date();
-  const emails = usuario ? emailsVerificados(usuario) : null;
 
   return (
     <ComParticipacao eventos={[eventoBase]} usuario={usuario}>
-      {([evento]) => <ConteudoEvento evento={evento} emails={emails} agora={agora} />}
+      {([evento]) => <ConteudoEvento evento={evento} agora={agora} />}
     </ComParticipacao>
   );
 }
 
-function ConteudoEvento({
-  evento,
-  emails,
-  agora,
-}: {
-  evento: EventoComParticipacao;
-  emails: EmailUsuario[] | null;
-  agora: Date;
-}) {
+function ConteudoEvento({ evento, agora }: { evento: EventoComParticipacao; agora: Date }) {
   const formato = rotuloFormato(formatoDoEvento(evento));
   const encerrado = jaAconteceu(evento, agora);
   const participacao = rotuloParticipacao(evento);
@@ -97,7 +84,7 @@ function ConteudoEvento({
     <>
       {/* RN: evento encerrado ou cancelado não exibe o botão de inscrição. */}
       {aceitaInscricao(evento, agora) && (
-        <BotaoInscricaoSympla urlSympla={evento.urlSympla} emails={emails} larguraTotal />
+        <BotaoInscricaoSympla urlSympla={evento.urlSympla} larguraTotal />
       )}
       {evento.cancelado && <p className={styles.aviso}>Este evento foi cancelado pelo capítulo.</p>}
       {!evento.cancelado && encerrado && <p className={styles.aviso}>Este evento já aconteceu.</p>}
@@ -186,28 +173,7 @@ function ConteudoEvento({
           </Alert>
         </Card>
 
-        {emails && (
-          <Card aria-labelledby="titulo-presenca">
-            <CardTitulo id="titulo-presenca">Como sua presença é reconhecida</CardTitulo>
-            <p className={styles.info}>
-              Cruzamos o e-mail da inscrição no Sympla com os endereços verificados no seu perfil.
-            </p>
-            <ul className={styles.emails}>
-              {emails.map((email) => (
-                <li key={email.endereco}>
-                  <span className={styles.endereco}>{email.endereco}</span>
-                  <span className={styles.tipoEmail}>
-                    {email.tipo === "principal" ? "Principal" : "Alternativo"} · verificado
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {/* TODO: virar link para "Meu perfil > E-mails" (ÉP-02, US-02.03) quando o módulo existir. */}
-            <p className={styles.tipoEmail}>
-              Para usar outro e-mail, cadastre e verifique o endereço no seu perfil.
-            </p>
-          </Card>
-        )}
+        <CardPresencaReconhecida />
       </aside>
     </div>
   );

@@ -2,28 +2,18 @@
 
 import { useId, useRef } from "react";
 import { Button, classesBotao } from "@/components/ui/Button";
-import type { EmailUsuario } from "@/lib/sessao";
+import { useEmailsInscricao } from "../lib/useEmailsInscricao";
 import styles from "./BotaoInscricaoSympla.module.css";
 
 type BotaoInscricaoSymplaProps = {
   urlSympla: string;
-  /** E-mails verificados da pessoa autenticada; `null` para visitante. */
-  emails: EmailUsuario[] | null;
   larguraTotal?: boolean;
 };
 
-/**
- * Abre a página do evento no Sympla em nova aba (US-05.01 c5).
- * Autenticado: antes de sair, avisa com quais e-mails a inscrição precisa ser feita
- * para que a participação seja reconhecida (vínculo por e-mail — RN-05.01.2).
- */
-export function BotaoInscricaoSympla({
-  urlSympla,
-  emails,
-  larguraTotal,
-}: BotaoInscricaoSymplaProps) {
+export function BotaoInscricaoSympla({ urlSympla, larguraTotal }: BotaoInscricaoSymplaProps) {
   const dialogo = useRef<HTMLDialogElement>(null);
   const idTitulo = useId();
+  const emails = useEmailsInscricao();
 
   if (!emails) {
     return (
@@ -50,21 +40,20 @@ export function BotaoInscricaoSympla({
 
       <dialog ref={dialogo} className={styles.dialogo} aria-labelledby={idTitulo}>
         <h2 id={idTitulo} className={styles.titulo}>
-          Inscreva-se com um destes e-mails para que sua participação seja reconhecida
+          Inscreva-se com o e-mail cadastrado na plataforma para que sua participação seja
+          reconhecida
         </h2>
         <ul className={styles.emails}>
           {emails.map((email) => (
-            <li key={email.endereco} className={styles.email}>
-              <span className={styles.endereco}>{email.endereco}</span>
-              <span className={styles.tipo}>
-                {email.tipo === "principal" ? "Principal" : "Alternativo"} · verificado
-              </span>
+            <li key={email} className={styles.email}>
+              <span className={styles.endereco}>{email}</span>
+              <span className={styles.tipo}>Principal</span>
             </li>
           ))}
         </ul>
         <p className={styles.ajuda}>
-          Vai usar outro e-mail no Sympla? Cadastre e verifique esse endereço no seu perfil para que
-          a presença conte.
+          Vai usar outro e-mail no Sympla? Sua presença só é reconhecida pelo e-mail cadastrado no
+          seu perfil.
         </p>
         <div className={styles.acoes}>
           <Button tipo="secundaria" onClick={() => dialogo.current?.close()}>

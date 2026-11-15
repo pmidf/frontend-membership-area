@@ -3,7 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { Card, CardTitulo } from "@/components/ui/Card";
-import { emailsVerificados, obterUsuarioAtual, type Usuario } from "@/lib/sessao";
+import { obterUsuarioAtual, type Usuario } from "@/lib/sessao";
 import { AgendaFiltros } from "@/features/agenda/components/AgendaFiltros";
 import { CalendarioMensal } from "@/features/agenda/components/CalendarioMensal";
 import { CardProximoEvento } from "@/features/agenda/components/CardProximoEvento";
@@ -71,7 +71,6 @@ async function ConteudoAgenda({
   const agora = new Date();
 
   const [eventos, categorias] = await Promise.all([listarEventos(), listarCategorias()]);
-  const emails = usuario ? emailsVerificados(usuario) : null;
 
   if (visao === "calendario") {
     const mes = lerMes(params) ?? chaveMesAtual(agora);
@@ -118,7 +117,6 @@ async function ConteudoAgenda({
             filtrosAtivos={haFiltrosAtivos(filtros)}
             periodoPassados={filtros.periodo === "passados"}
             hrefVerMais={hrefCom(params, { limite: String(lerLimite(params) + PAGINA_PASSADOS) })}
-            emails={emails}
             autenticado={Boolean(usuario)}
             agora={agora}
           />
@@ -186,7 +184,6 @@ function VisaoLista({
   filtrosAtivos,
   periodoPassados,
   hrefVerMais,
-  emails,
   autenticado,
   agora,
 }: {
@@ -195,7 +192,6 @@ function VisaoLista({
   filtrosAtivos: boolean;
   periodoPassados: boolean;
   hrefVerMais: string;
-  emails: ReturnType<typeof emailsVerificados> | null;
   autenticado: boolean;
   agora: Date;
 }) {
@@ -225,7 +221,7 @@ function VisaoLista({
 
   return (
     <>
-      {destaque && <CardProximoEvento evento={destaque} emails={emails} />}
+      {destaque && <CardProximoEvento evento={destaque} />}
 
       <Card aria-labelledby="titulo-proximos" className={styles.secao}>
         <CardTitulo id="titulo-proximos">

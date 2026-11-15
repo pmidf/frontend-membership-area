@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "selenium": "node --test --test-concurrency=1 selenium/*.selenium.mts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.1",
@@ -41,6 +42,7 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/selenium-webdriver": "^4.35.7",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^5.0.5",
     "eslint": "^9",
@@ -52,6 +54,7 @@
     "msw": "^3.0.3",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "selenium-webdriver": "^4.51.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.0.5"

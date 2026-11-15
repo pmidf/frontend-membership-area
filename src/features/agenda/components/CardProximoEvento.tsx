@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { classesBotao } from "@/components/ui/Button";
-import type { EmailUsuario } from "@/lib/sessao";
 import { formatarDataLonga, formatarFaixaHorario } from "../lib/datas";
 import { formatoDoEvento, rotuloFormato, rotuloParticipacao } from "../lib/regras";
 import type { EventoComParticipacao } from "../types";
@@ -12,10 +11,9 @@ import styles from "./CardProximoEvento.module.css";
 
 type CardProximoEventoProps = {
   evento: EventoComParticipacao;
-  emails: EmailUsuario[] | null;
 };
 
-export function CardProximoEvento({ evento, emails }: CardProximoEventoProps) {
+export function CardProximoEvento({ evento }: CardProximoEventoProps) {
   const local = evento.endereco
     ? `${evento.endereco.nome}, ${evento.endereco.logradouro}`
     : "Online";
@@ -47,7 +45,7 @@ export function CardProximoEvento({ evento, emails }: CardProximoEventoProps) {
               Ver detalhes
             </Link>
           ) : (
-            <BotaoInscricaoSympla urlSympla={evento.urlSympla} emails={emails} />
+            <BotaoInscricaoSympla urlSympla={evento.urlSympla} />
           )}
           <a href={`/agenda/${evento.id}/ics`} className={classesBotao({ tipo: "link" })} download>
             Adicionar ao meu calendário

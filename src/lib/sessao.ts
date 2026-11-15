@@ -3,18 +3,11 @@
 
 export type StatusFiliacao = "filiado" | "nao-filiado";
 
-export type EmailUsuario = {
-  endereco: string;
-  tipo: "principal" | "alternativo";
-  verificado: boolean;
-};
-
 export type Usuario = {
   id: string;
   nome: string;
   statusFiliacao: StatusFiliacao;
   filiacaoValidaAte?: string; // "MM/AAAA"
-  emails: EmailUsuario[];
 };
 
 const usuarioMock: Usuario = {
@@ -23,10 +16,6 @@ const usuarioMock: Usuario = {
   nome: "Maria Souza",
   statusFiliacao: "filiado",
   filiacaoValidaAte: "03/2027",
-  emails: [
-    { endereco: "maria.souza@email.com", tipo: "principal", verificado: true },
-    { endereco: "maria.s@empresa.com.br", tipo: "alternativo", verificado: true },
-  ],
 };
 
 /** Retorna o usuário autenticado ou `null` para visitante (a agenda é pública). */
@@ -40,11 +29,6 @@ export type Admin = { nome: string; papel: string };
 /** Admin do console. TODO(auth): virá da sessão autenticada, com o papel validado no servidor. */
 export async function obterAdminAtual(): Promise<Admin> {
   return { nome: "Rafael Lima", papel: "Super admin" };
-}
-
-/** E-mails que permitem vincular a participação no Sympla (RN-05.02.3: só verificados). */
-export function emailsVerificados(usuario: Usuario): EmailUsuario[] {
-  return usuario.emails.filter((email) => email.verificado);
 }
 
 export function iniciais(nome: string): string {
