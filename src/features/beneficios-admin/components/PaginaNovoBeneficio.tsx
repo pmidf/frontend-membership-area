@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { aplicarErrosDeCampo } from "@/shared/api/aplicar-erros-de-campo";
 import { ehErroApi } from "@/shared/api/erro-api";
@@ -14,7 +14,7 @@ import { CartaoPublicacao } from "@/shared/publicacao/CartaoPublicacao";
 import { rotulosSituacao } from "@/shared/publicacao/situacao";
 import { Botao, CabecalhoPagina, LinkVoltar, Modal, SeloStatus, useAvisos } from "@/shared/ui";
 
-import type { BeneficioAdmin } from "../api/beneficios-admin.api";
+import type { BeneficioAdmin, Parceiro } from "../api/beneficios-admin.api";
 import {
   useCriarBeneficio,
   useParceiros,
@@ -23,6 +23,7 @@ import {
 import { dadosParaCriar, VALORES_NOVO_BENEFICIO } from "../lib/valores-beneficio";
 import { esquemaNovoBeneficio, type DadosNovoBeneficio } from "../schemas/beneficio.schema";
 import { FormularioBeneficio } from "./FormularioBeneficio";
+import { ModalNovoParceiro } from "./ModalNovoParceiro";
 import { PreviaCardBeneficio } from "./PreviaCardBeneficio";
 import { SeletorParceiro } from "./SeletorParceiro";
 
@@ -37,15 +38,16 @@ export function PaginaNovoBeneficio() {
   const parceiros = useParceiros();
   const [acao, setAcao] = useState<"rascunho" | "publicar" | null>(null);
   const [previaAberta, setPreviaAberta] = useState(false);
+  const [novoParceiroAberto, setNovoParceiroAberto] = useState(false);
   const formulario = useForm<DadosNovoBeneficio>({
     resolver: zodResolver(esquemaNovoBeneficio),
     defaultValues: VALORES_NOVO_BENEFICIO,
   });
   const {
     control,
-    register,
     handleSubmit,
     setError,
+    setValue,
     formState: { isDirty, errors },
   } = formulario;
   const codParceiro = useWatch({ control, name: "cod_parceiro" });
@@ -53,6 +55,11 @@ export function PaginaNovoBeneficio() {
     parceiros.data?.find((parceiro) => parceiro.cod_parceiro === codParceiro)?.nome ?? "Parceiro";
 
   useAvisoAoSair(isDirty && acao === null);
+
+  function selecionarParceiroCriado(parceiro: Parceiro) {
+    setNovoParceiroAberto(false);
+    setValue("cod_parceiro", parceiro.cod_parceiro, { shouldDirty: true, shouldValidate: true });
+  }
 
   async function criar(dados: DadosNovoBeneficio): Promise<BeneficioAdmin | null> {
     try {
@@ -118,13 +125,21 @@ export function PaginaNovoBeneficio() {
               <legend className="sr-only">Dados do benefício</legend>
               <FormularioBeneficio
                 campoParceiro={
-                  <SeletorParceiro
-                    parceiros={parceiros.data}
-                    carregando={parceiros.isPending}
-                    indisponivel={parceiros.isError}
-                    aoTentarNovamente={() => void parceiros.refetch()}
-                    erro={errors.cod_parceiro?.message}
-                    {...register("cod_parceiro")}
+                  <Controller
+                    control={control}
+                    name="cod_parceiro"
+                    render={({ field }) => (
+                      <SeletorParceiro
+                        parceiros={parceiros.data}
+                        carregando={parceiros.isPending}
+                        indisponivel={parceiros.isError}
+                        aoTentarNovamente={() => void parceiros.refetch()}
+                        aoNovoParceiro={() => setNovoParceiroAberto(true)}
+                        erro={errors.cod_parceiro?.message}
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    )}
                   />
                 }
                 formaResgateTravada={false}
@@ -168,6 +183,11 @@ export function PaginaNovoBeneficio() {
       >
         <PreviaCardBeneficio parceiro={nomeParceiro} semMoldura />
       </Modal>
+      <ModalNovoParceiro
+        aberto={novoParceiroAberto}
+        aoFechar={() => setNovoParceiroAberto(false)}
+        aoCriar={selecionarParceiroCriado}
+      />
     </FormProvider>
   );
 }

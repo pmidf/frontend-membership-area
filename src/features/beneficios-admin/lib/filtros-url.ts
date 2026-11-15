@@ -19,8 +19,11 @@ import {
 
 export const TAMANHO_MAXIMO_BUSCA = 100;
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export type FiltrosTela = {
   q: string;
+  cod_parceiro: string;
   situacao: SituacaoBeneficio | "";
   tipo_resgate: TipoResgate | "";
   categoria: CategoriaBeneficio | "";
@@ -36,6 +39,9 @@ function permitido<T extends string>(lista: readonly T[], valor: string | null):
 export function filtrosDaUrl(parametros: Pick<URLSearchParams, "get">): FiltrosTela {
   return {
     q: (parametros.get("q") ?? "").trim().slice(0, TAMANHO_MAXIMO_BUSCA),
+    cod_parceiro: UUID.test(parametros.get("cod_parceiro") ?? "")
+      ? (parametros.get("cod_parceiro") as string)
+      : "",
     situacao: permitido(SITUACOES_BENEFICIO, parametros.get("situacao")),
     tipo_resgate: permitido(TIPOS_RESGATE, parametros.get("tipo_resgate")),
     categoria: permitido(CATEGORIAS_BENEFICIO, parametros.get("categoria")),
@@ -47,6 +53,7 @@ export function filtrosDaUrl(parametros: Pick<URLSearchParams, "get">): FiltrosT
 
 export function filtrosDeExportacao({
   q,
+  cod_parceiro,
   situacao,
   tipo_resgate,
   categoria,
@@ -54,6 +61,7 @@ export function filtrosDeExportacao({
 }: FiltrosTela): FiltrosBeneficiosAdmin {
   return {
     ...(q && { q }),
+    ...(cod_parceiro && { cod_parceiro }),
     ...(situacao && { situacao }),
     ...(tipo_resgate && { tipo_resgate }),
     ...(categoria && { categoria }),

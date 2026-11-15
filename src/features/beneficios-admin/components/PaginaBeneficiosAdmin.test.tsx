@@ -9,7 +9,7 @@ import { renderizar } from "@/test/renderizar";
 import { servidor } from "@/test/servidor";
 
 import { anoAtual } from "../lib/relatorio-resgates";
-import { relatorioResgatesTeste } from "../mocks/beneficios-admin.handlers";
+import { parceirosTeste, relatorioResgatesTeste } from "../mocks/beneficios-admin.handlers";
 import { PaginaBeneficiosAdmin } from "./PaginaBeneficiosAdmin";
 
 let usuario: ReturnType<typeof userEvent.setup>;
@@ -131,6 +131,25 @@ describe("Lista de benefícios do Admin", { timeout: 15_000 }, () => {
     await usuario.selectOptions(screen.getByLabelText(rotulo), valor);
 
     await substituicao(`/admin/beneficios?${parametro}=${valor}`);
+  });
+
+  it("filtra pelo parceiro, grava na URL e restaura", async () => {
+    const impactHub = parceirosTeste[2];
+    const { unmount } = abrir();
+    await tabela();
+
+    await screen.findByRole("option", { name: impactHub.nome });
+    await usuario.selectOptions(screen.getByLabelText("Parceiro"), impactHub.cod_parceiro);
+
+    await substituicao(`/admin/beneficios?cod_parceiro=${impactHub.cod_parceiro}`);
+    await waitFor(async () => expect(await linhas()).toHaveLength(2));
+    unmount();
+
+    abrir(`cod_parceiro=${impactHub.cod_parceiro}`);
+    await waitFor(async () => expect(await linhas()).toHaveLength(2));
+    await waitFor(() =>
+      expect(screen.getByLabelText("Parceiro")).toHaveValue(impactHub.cod_parceiro),
+    );
   });
 
   it("busca depois do atraso e grava na URL", async () => {

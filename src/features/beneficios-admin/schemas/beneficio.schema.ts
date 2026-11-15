@@ -9,7 +9,7 @@ const DIA = /^\d{4}-\d{2}-\d{2}$/;
 
 export const TAMANHO_MAXIMO_LEGENDA = 90;
 
-function ehEnderecoHttp(valor: string): boolean {
+export function ehEnderecoHttp(valor: string): boolean {
   try {
     const { protocol, hostname } = new URL(valor);
     return (protocol === "http:" || protocol === "https:") && hostname.includes(".");

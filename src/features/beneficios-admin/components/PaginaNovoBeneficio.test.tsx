@@ -8,7 +8,12 @@ import { definirNavegacao, roteadorFalso } from "@/test/navegacao-falsa";
 import { renderizar } from "@/test/renderizar";
 import { servidor } from "@/test/servidor";
 
-import { ID_BENEFICIO_CRIADO, parceirosTeste } from "../mocks/beneficios-admin.handlers";
+import {
+  handlersParceiros,
+  ID_BENEFICIO_CRIADO,
+  ID_PARCEIRO_CRIADO,
+  parceirosTeste,
+} from "../mocks/beneficios-admin.handlers";
 import { PaginaNovoBeneficio } from "./PaginaNovoBeneficio";
 
 const ESPERA = 4000;
@@ -288,5 +293,156 @@ describe("Novo benefício", { timeout: 15_000 }, () => {
     expect(
       await screen.findByRole("option", { name: PMI.nome }, { timeout: ESPERA }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("Parceiro do novo benefício", { timeout: 15_000 }, () => {
+  let criacoes: unknown[];
+
+  beforeEach(() => {
+    servidor.use(...handlersParceiros());
+    criacoes = [];
+    servidor.events.on("request:start", async ({ request }) => {
+      if (request.method !== "POST") return;
+      if (new URL(request.url).pathname !== "/api/admin/parceiros") return;
+      criacoes.push(await request.clone().json());
+    });
+  });
+
+  const opcoesDoSeletor = () =>
+    within(screen.getByLabelText("Parceiro"))
+      .getAllByRole("option")
+      .map((opcao) => opcao.textContent);
+
+  const dialogo = () => within(screen.getByRole("dialog", { name: "Novo parceiro" }));
+
+  async function abrirModal() {
+    await usuario.click(botao("Novo parceiro"));
+    return within(await screen.findByRole("dialog", { name: "Novo parceiro" }));
+  }
+
+  it("busca o parceiro pelo nome, sem acentos, sem esconder o já escolhido", async () => {
+    await abrir();
+    await usuario.selectOptions(screen.getByLabelText("Parceiro"), PMI.cod_parceiro);
+
+    await usuario.type(screen.getByRole("searchbox", { name: "Buscar parceiro" }), "educacao");
+
+    expect(opcoesDoSeletor()).toEqual(["Selecione o parceiro", PMI.nome, BRISK.nome]);
+    expect(screen.getByLabelText("Parceiro")).toHaveValue(PMI.cod_parceiro);
+  });
+
+  it("avisa quando a busca não encontra parceiro", async () => {
+    await abrir();
+
+    await usuario.type(screen.getByRole("searchbox", { name: "Buscar parceiro" }), "zzz{Enter}");
+
+    expect(opcoesDoSeletor()).toEqual(["Nenhum parceiro encontrado"]);
+    expect(chamadas).toHaveLength(0);
+  });
+
+  it("cadastra um parceiro no modal e já o seleciona", async () => {
+    await abrir();
+    const modal = await abrirModal();
+    expect(modal.getByLabelText("Nome do parceiro")).toHaveFocus();
+
+    await usuario.type(modal.getByLabelText("Nome do parceiro"), "  Escola Ágil ");
+    await usuario.type(modal.getByLabelText("Descrição (opcional)"), "Cursos de agilidade");
+    await usuario.type(modal.getByLabelText("Site (opcional)"), "https://escolaagil.com.br");
+    await usuario.click(modal.getByRole("button", { name: "Salvar parceiro" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(criacoes).toEqual([
+      {
+        nome: "Escola Ágil",
+        descricao: "Cursos de agilidade",
+        site_url: "https://escolaagil.com.br",
+      },
+    ]);
+    expect(avisos().getByText("Parceiro Escola Ágil cadastrado")).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Escola Ágil" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Parceiro")).toHaveValue(ID_PARCEIRO_CRIADO);
+    expect(previa().getByText("Parceiro: Escola Ágil")).toBeInTheDocument();
+    expect(chamadas).toHaveLength(0);
+  });
+
+  it("envia só o nome quando descrição e site ficam vazios", async () => {
+    await abrir();
+    const modal = await abrirModal();
+
+    await usuario.type(modal.getByLabelText("Nome do parceiro"), "Só Nome");
+    await usuario.click(modal.getByRole("button", { name: "Salvar parceiro" }));
+
+    await waitFor(() => expect(criacoes).toEqual([{ nome: "Só Nome" }]));
+  });
+
+  it("valida nome e site sem chamar o backend", async () => {
+    await abrir();
+    const modal = await abrirModal();
+
+    await usuario.type(modal.getByLabelText("Site (opcional)"), "escola agil");
+    await usuario.click(modal.getByRole("button", { name: "Salvar parceiro" }));
+
+    expect(await modal.findByText("Informe o nome do parceiro")).toBeInTheDocument();
+    expect(modal.getByText("Informe uma URL http(s) válida")).toBeInTheDocument();
+    expect(criacoes).toHaveLength(0);
+  });
+
+  it("mostra no campo nome quando o parceiro já existe", async () => {
+    await abrir();
+    const modal = await abrirModal();
+
+    await usuario.type(modal.getByLabelText("Nome do parceiro"), "impact hub");
+    await usuario.click(modal.getByRole("button", { name: "Salvar parceiro" }));
+
+    expect(await modal.findByText("Já existe um parceiro com esse nome.")).toBeInTheDocument();
+    expect(modal.getByLabelText("Nome do parceiro")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText("Parceiro")).toHaveValue("");
+  });
+
+  it("leva os erros de campo do backend para o modal", async () => {
+    servidor.use(
+      http.post("*/api/admin/parceiros", () =>
+        HttpResponse.json(
+          { codigo: "DADOS_INVALIDOS", campos: { site_url: ["site_url must be a URL address"] } },
+          { status: 422 },
+        ),
+      ),
+    );
+    await abrir();
+    const modal = await abrirModal();
+
+    await usuario.type(modal.getByLabelText("Nome do parceiro"), "Nova Escola");
+    await usuario.click(modal.getByRole("button", { name: "Salvar parceiro" }));
+
+    expect(await modal.findByText("site_url must be a URL address")).toBeInTheDocument();
+  });
+
+  it("avisa erro genérico e mantém o modal aberto", async () => {
+    servidor.use(http.post("*/api/admin/parceiros", () => HttpResponse.json({}, { status: 500 })));
+    await abrir();
+    const modal = await abrirModal();
+
+    await usuario.type(modal.getByLabelText("Nome do parceiro"), "Nova Escola");
+    await usuario.click(modal.getByRole("button", { name: "Salvar parceiro" }));
+
+    expect(
+      await avisos().findByText("Não foi possível concluir a ação. Tente novamente."),
+    ).toBeInTheDocument();
+    expect(dialogo().getByLabelText("Nome do parceiro")).toHaveValue("Nova Escola");
+  });
+
+  it("cancela sem cadastrar e limpa o modal ao reabrir", async () => {
+    await abrir();
+    const modal = await abrirModal();
+
+    await usuario.type(modal.getByLabelText("Nome do parceiro"), "Desisti");
+    await usuario.click(modal.getByRole("button", { name: "Cancelar" }));
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(criacoes).toHaveLength(0);
+    expect(screen.getByLabelText("Parceiro")).toHaveValue("");
+
+    const reaberto = await abrirModal();
+    expect(reaberto.getByLabelText("Nome do parceiro")).toHaveValue("");
   });
 });

@@ -2,7 +2,12 @@ import { http, HttpResponse } from "msw/http";
 
 import type { Pagina } from "@/shared/api/tipos";
 
-import type { BeneficioAdmin, CriarBeneficio, Parceiro } from "../api/beneficios-admin.api";
+import type {
+  BeneficioAdmin,
+  CriarBeneficio,
+  CriarParceiro,
+  Parceiro,
+} from "../api/beneficios-admin.api";
 import type { ItemBeneficioAdmin } from "../tipos/beneficio-admin";
 import type { RelatorioResgates } from "../tipos/relatorio-resgates";
 
@@ -65,10 +70,13 @@ export function filtrarBeneficiosAdmin(
   const ordenar = parametros.get("ordenar");
   const coincide = (campo: "situacao" | "tipo_resgate" | "categoria", valor: string) =>
     !parametros.get(campo) || parametros.get(campo) === valor;
+  const codParceiro = parametros.get("cod_parceiro");
+  const nomeParceiro = parceirosTeste.find((p) => p.cod_parceiro === codParceiro)?.nome;
   const encontrados = itens
     .filter(
       (item) =>
         `${item.titulo} ${item.parceiro}`.toLowerCase().includes(termo) &&
+        (!codParceiro || item.parceiro === nomeParceiro) &&
         coincide("situacao", item.situacao) &&
         coincide("tipo_resgate", item.tipo_resgate) &&
         coincide("categoria", item.categoria),
@@ -172,16 +180,42 @@ export const beneficioAdminTeste: BeneficioAdmin = {
   quantidade_resgates: 0,
 };
 
+const novoParceiroTeste = (numero: number, nome: string): Parceiro => ({
+  cod_parceiro: `50000000-0000-4000-8000-${String(numero).padStart(12, "0")}`,
+  nome,
+  descricao: null,
+  site_url: null,
+});
+
 export const parceirosTeste: Parceiro[] = [
-  { cod_parceiro: "50000000-0000-4000-8000-000000000001", nome: "PMI Global" },
-  { cod_parceiro: "50000000-0000-4000-8000-000000000002", nome: "Brisk Educação" },
-  { cod_parceiro: "50000000-0000-4000-8000-000000000003", nome: "Impact Hub" },
+  novoParceiroTeste(1, "PMI Global"),
+  novoParceiroTeste(2, "Brisk Educação"),
+  novoParceiroTeste(3, "Impact Hub"),
 ];
 
 export const ID_BENEFICIO_CRIADO = id(90);
+export const ID_PARCEIRO_CRIADO = "50000000-0000-4000-8000-000000000090";
 
-export function handlersParceiros(parceiros: Parceiro[] = parceirosTeste) {
-  return [http.get("*/api/admin/parceiros", () => HttpResponse.json(parceiros))];
+export function handlersParceiros(inicial: Parceiro[] = parceirosTeste) {
+  let parceiros = [...inicial];
+  return [
+    http.get("*/api/admin/parceiros", () => HttpResponse.json(parceiros)),
+    http.post("*/api/admin/parceiros", async ({ request }) => {
+      const dados = (await request.json()) as CriarParceiro;
+      const nome = dados.nome.trim();
+      if (parceiros.some((p) => p.nome.toLowerCase() === nome.toLowerCase())) {
+        return HttpResponse.json({ codigo: "PARCEIRO_JA_EXISTE" }, { status: 409 });
+      }
+      const criado: Parceiro = {
+        cod_parceiro: ID_PARCEIRO_CRIADO,
+        nome,
+        descricao: dados.descricao ?? null,
+        site_url: dados.site_url ?? null,
+      };
+      parceiros = [...parceiros, criado].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      return HttpResponse.json(criado, { status: 201 });
+    }),
+  ];
 }
 
 export function handlersNovoBeneficio(parceiros: Parceiro[] = parceirosTeste) {

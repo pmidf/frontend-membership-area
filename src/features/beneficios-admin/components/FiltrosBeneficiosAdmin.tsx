@@ -7,6 +7,7 @@ import { CATEGORIAS_BENEFICIO } from "@/features/beneficios/tipos/beneficio";
 import { opcoesSituacao } from "@/shared/publicacao/situacao";
 import { CampoBusca, CampoSelecao } from "@/shared/ui";
 
+import type { Parceiro } from "../api/beneficios-admin.api";
 import { TAMANHO_MAXIMO_BUSCA, type FiltrosTela } from "../lib/filtros-url";
 import { rotulosVigencia } from "../lib/rotulos";
 import { TIPOS_RESGATE, VIGENCIAS_BENEFICIO } from "../tipos/beneficio-admin";
@@ -25,6 +26,7 @@ const opcoesVigencia = VIGENCIAS_BENEFICIO.map((valor) => ({
 
 type PropsFiltros = {
   filtros: FiltrosTela;
+  parceiros: Parceiro[] | undefined;
   valorInicialBusca: string;
   aoBuscar: (termo: string) => void;
   aoFiltrar: (campo: string, valor: string) => void;
@@ -32,6 +34,7 @@ type PropsFiltros = {
 
 export function FiltrosBeneficiosAdmin({
   filtros,
+  parceiros,
   valorInicialBusca,
   aoBuscar,
   aoFiltrar,
@@ -40,14 +43,24 @@ export function FiltrosBeneficiosAdmin({
     aoFiltrar(campo, evento.target.value);
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))] lg:items-end">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:items-end xl:grid-cols-[minmax(0,2fr)_repeat(5,minmax(0,1fr))]">
       <CampoBusca
         rotulo="Buscar benefício ou parceiro"
         placeholder="Buscar benefício ou parceiro"
         valorInicial={valorInicialBusca}
         maxLength={TAMANHO_MAXIMO_BUSCA}
         aoBuscar={aoBuscar}
-        className="sm:col-span-2 lg:col-span-1 lg:mb-1.5"
+        className="sm:col-span-2 lg:col-span-3 xl:col-span-1 xl:mb-1.5"
+      />
+      <CampoSelecao
+        rotulo="Parceiro"
+        opcoes={(parceiros ?? []).map(({ cod_parceiro, nome }) => ({
+          valor: cod_parceiro,
+          rotulo: nome,
+        }))}
+        textoVazio="Todos"
+        value={filtros.cod_parceiro}
+        onChange={aoMudar("cod_parceiro")}
       />
       <CampoSelecao
         rotulo="Status"

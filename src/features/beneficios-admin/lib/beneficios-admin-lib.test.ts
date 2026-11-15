@@ -9,17 +9,19 @@ import {
 import { textoVigencia } from "./rotulos";
 
 const parametros = (consulta: string) => new URLSearchParams(consulta);
+const PARCEIRO = "50000000-0000-4000-8000-000000000003";
 
 describe("filtrosDaUrl", () => {
   it("lê todos os filtros válidos", () => {
     expect(
       filtrosDaUrl(
         parametros(
-          "q=pmp&situacao=ARQUIVADO&tipo_resgate=CUPOM&categoria=EVENTOS&vigencia=FUTURA&ordenar=resgates_asc&pagina=2",
+          `q=pmp&cod_parceiro=${PARCEIRO}&situacao=ARQUIVADO&tipo_resgate=CUPOM&categoria=EVENTOS&vigencia=FUTURA&ordenar=resgates_asc&pagina=2`,
         ),
       ),
     ).toEqual({
       q: "pmp",
+      cod_parceiro: PARCEIRO,
       situacao: "ARQUIVADO",
       tipo_resgate: "CUPOM",
       categoria: "EVENTOS",
@@ -32,10 +34,13 @@ describe("filtrosDaUrl", () => {
   it("descarta valores inválidos", () => {
     expect(
       filtrosDaUrl(
-        parametros("situacao=X&tipo_resgate=Y&categoria=Z&vigencia=W&ordenar=K&pagina=a"),
+        parametros(
+          "cod_parceiro=nao-e-uuid&situacao=X&tipo_resgate=Y&categoria=Z&vigencia=W&ordenar=K&pagina=a",
+        ),
       ),
     ).toEqual({
       q: "",
+      cod_parceiro: "",
       situacao: "",
       tipo_resgate: "",
       categoria: "",
@@ -69,6 +74,13 @@ describe("consultas à API", () => {
       false,
     );
     expect(temFiltroAplicado(filtros)).toBe(true);
+  });
+
+  it("envia o parceiro na lista e na exportação", () => {
+    const comParceiro = filtrosDaUrl(parametros(`cod_parceiro=${PARCEIRO}&pagina=2`));
+    expect(consultaDaLista(comParceiro)).toEqual({ cod_parceiro: PARCEIRO, page: 2 });
+    expect(filtrosDeExportacao(comParceiro)).toEqual({ cod_parceiro: PARCEIRO });
+    expect(temFiltroAplicado(comParceiro)).toBe(true);
   });
 });
 

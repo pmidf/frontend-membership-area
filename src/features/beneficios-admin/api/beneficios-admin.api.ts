@@ -70,6 +70,14 @@ export type CriarBeneficio = Required<AtualizarBeneficio> & Pick<BeneficioAdmin,
 export type Parceiro = {
   cod_parceiro: string;
   nome: string;
+  descricao: string | null;
+  site_url: string | null;
+};
+
+export type CriarParceiro = {
+  nome: string;
+  descricao?: string;
+  site_url?: string;
 };
 
 const caminhoBeneficio = (id: string) => `/admin/beneficios/${encodeURIComponent(id)}`;
@@ -80,6 +88,10 @@ export function criarBeneficio(dados: CriarBeneficio): Promise<BeneficioAdmin> {
 
 export function listarParceiros(): Promise<Parceiro[]> {
   return api.obter<Parceiro[]>("/admin/parceiros");
+}
+
+export function criarParceiro(dados: CriarParceiro): Promise<Parceiro> {
+  return api.enviar<Parceiro>("/admin/parceiros", dados);
 }
 
 export function detalharBeneficioAdmin(id: string): Promise<BeneficioAdmin> {
