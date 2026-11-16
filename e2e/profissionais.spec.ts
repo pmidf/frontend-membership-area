@@ -34,7 +34,7 @@ test("o Filiado abre a vitrine e vê o convite para aparecer nela", async ({ pag
   await expect(
     page.getByRole("heading", { name: `${itensTeste.length} profissionais` }),
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "Ir para Meu perfil" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Ir para Meu perfil > Preferências" })).toBeVisible();
   await page.screenshot({
     path: `test-results/capturas/profissionais-filiado-${info.project.name}.png`,
     animations: "disabled",

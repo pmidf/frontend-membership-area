@@ -176,11 +176,9 @@ describe("Faixa de convite da vitrine", { timeout: 15_000 }, () => {
     expect(
       convite.getByText("Apareça aqui também — ative a exibição do seu perfil."),
     ).toBeVisible();
-    expect(convite.getByText("A opção de exibição chegará em breve ao seu perfil.")).toBeVisible();
-    expect(convite.getByRole("link", { name: "Ir para Meu perfil" })).toHaveAttribute(
-      "href",
-      "/perfil",
-    );
+    expect(
+      convite.getByRole("link", { name: "Ir para Meu perfil > Preferências" }),
+    ).toHaveAttribute("href", "/perfil#preferencias");
   });
 
   it("não aparece para o filiado que já está na vitrine", async () => {

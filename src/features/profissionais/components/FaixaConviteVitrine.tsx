@@ -26,19 +26,14 @@ export function FaixaConviteVitrine() {
 
   return (
     <section aria-label="Convite para a vitrine" className={classesFaixa}>
-      <div className="flex flex-col gap-1">
-        <p className="text-corpo-pequeno text-texto-secundario">
-          Apareça aqui também — ative a exibição do seu perfil.
-        </p>
-        <p className="text-legenda text-texto-secundario">
-          A opção de exibição chegará em breve ao seu perfil.
-        </p>
-      </div>
+      <p className="text-corpo-pequeno text-texto-secundario">
+        Apareça aqui também — ative a exibição do seu perfil.
+      </p>
       <Link
-        href="/perfil"
+        href="/perfil#preferencias"
         className="text-corpo-pequeno font-medium whitespace-nowrap text-texto-marca underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-acao-destaque"
       >
-        Ir para Meu perfil
+        Ir para Meu perfil &gt; Preferências
       </Link>
     </section>
   );

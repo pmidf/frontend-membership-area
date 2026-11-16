@@ -30,7 +30,7 @@ export function FiltrosProfissionais({
         valorInicial={valorInicialBusca}
         maxLength={TAMANHO_MAXIMO_TEXTO}
         aoBuscar={aoBuscar}
-        className="lg:flex-1"
+        className="lg:mb-1.5 lg:flex-1"
       />
       <CampoSelecao
         rotulo="UF"
@@ -45,7 +45,7 @@ export function FiltrosProfissionais({
         valorInicial={valorInicialCidade}
         maxLength={TAMANHO_MAXIMO_TEXTO}
         aoBuscar={aoFiltrarCidade}
-        className="lg:w-64"
+        className="lg:mb-1.5 lg:w-64"
       />
     </div>
   );
