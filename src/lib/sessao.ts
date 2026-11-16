@@ -23,17 +23,3 @@ export async function obterUsuarioAtual(): Promise<Usuario | null> {
   // TODO(auth): ler a sessão autenticada.
   return usuarioMock;
 }
-
-export type Admin = { nome: string; papel: string };
-
-/** Admin do console. TODO(auth): virá da sessão autenticada, com o papel validado no servidor. */
-export async function obterAdminAtual(): Promise<Admin> {
-  return { nome: "Rafael Lima", papel: "Super admin" };
-}
-
-export function iniciais(nome: string): string {
-  const partes = nome.trim().split(/\s+/);
-  const primeira = partes[0]?.[0] ?? "";
-  const ultima = partes.length > 1 ? partes[partes.length - 1][0] : "";
-  return (primeira + ultima).toUpperCase();
-}

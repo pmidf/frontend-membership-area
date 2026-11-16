@@ -275,6 +275,11 @@
 }
 
 .link {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
   font-size: 12px;
   font-weight: 400;
   line-height: 18px;

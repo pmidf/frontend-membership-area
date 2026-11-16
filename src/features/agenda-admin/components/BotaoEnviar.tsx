@@ -1,37 +1,38 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
 import { Button, type BotaoTipo } from "@/components/ui/Button";
 
 type BotaoEnviarProps = {
   children: React.ReactNode;
   enviando: string;
+  pendente: boolean;
   tipo?: BotaoTipo;
-  formAction?: (formData: FormData) => void | Promise<void>;
+  type?: "submit" | "button";
+  onClick?: () => void;
   disabled?: boolean;
   className?: string;
 };
 
-/** Botão de envio de formulário com estado de carregamento (ações do console). */
 export function BotaoEnviar({
   children,
   enviando,
+  pendente,
   tipo,
-  formAction,
+  type = "submit",
+  onClick,
   disabled,
   className,
 }: BotaoEnviarProps) {
-  const { pending } = useFormStatus();
   return (
     <Button
-      type="submit"
+      type={type}
       tipo={tipo}
-      formAction={formAction}
-      disabled={disabled || pending}
-      aria-busy={pending}
+      onClick={onClick}
+      disabled={disabled || pendente}
+      aria-busy={pendente}
       className={className}
     >
-      {pending ? enviando : children}
+      {pendente ? enviando : children}
     </Button>
   );
 }

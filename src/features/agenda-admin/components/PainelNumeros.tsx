@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Card, CardTitulo } from "@/components/ui/Card";
-import { classesBotao } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { formatarDataCurta } from "@/features/agenda/lib/datas";
 import { rotuloFormato } from "@/features/agenda/lib/regras";
-import { atualizarAgora } from "../acoes";
+import { useAvisos } from "@/shared/ui/aviso/useAvisos";
+import type { FiltrosExportacaoNumeros } from "../api/agenda-admin.api";
+import { useAtualizarAgenda, useExportarNumeros } from "../api/agenda-admin.queries";
 import { filtrarLinhas, type FiltrosNumeros, type LinhaNumeros } from "../linhas-numeros";
 import { agregar, formatarNumero, formatarTaxa } from "../numeros";
 import type { PeriodoAdmin } from "../periodo";
@@ -30,9 +31,19 @@ type PainelNumerosProps = {
   categorias: string[];
   periodo: PeriodoAdmin;
   rotuloPeriodo: string;
+  aoMudarPeriodo: (periodo: PeriodoAdmin) => void;
 };
 
-export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: PainelNumerosProps) {
+export function PainelNumeros({
+  linhas,
+  categorias,
+  periodo,
+  rotuloPeriodo,
+  aoMudarPeriodo,
+}: PainelNumerosProps) {
+  const avisos = useAvisos();
+  const atualizacao = useAtualizarAgenda();
+  const exportacao = useExportarNumeros();
   const [filtros, setFiltros] = useState<FiltrosNumeros>({});
   const [ordem, setOrdem] = useState<{ campo: CampoOrdenacao; desc: boolean }>({
     campo: "inicio",
@@ -69,16 +80,29 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
     setOrdem((atual) => ({ campo, desc: atual.campo === campo ? !atual.desc : true }));
   }
 
-  const hrefExportar = useMemo(() => {
-    const query = new URLSearchParams({ periodo });
-    if (filtros.busca) query.set("q", filtros.busca);
-    if (filtros.situacao) query.set("situacao", filtros.situacao);
-    if (filtros.formato) query.set("formato", filtros.formato);
-    if (filtros.categoria) query.set("categoria", filtros.categoria);
-    if (selecionadasVisiveis.length > 0)
-      query.set("ids", selecionadasVisiveis.map((l) => l.id).join(","));
-    return `/admin/eventos/numeros/exportar?${query}`;
-  }, [periodo, filtros, selecionadasVisiveis]);
+  function exportar() {
+    const filtrosExportacao: FiltrosExportacaoNumeros = {
+      periodo,
+      q: filtros.busca,
+      situacao: filtros.situacao,
+      formato: filtros.formato,
+      categoria: filtros.categoria,
+      ids:
+        selecionadasVisiveis.length > 0
+          ? selecionadasVisiveis.map((l) => l.id).join(",")
+          : undefined,
+    };
+    exportacao.mutate(filtrosExportacao, {
+      onSuccess: () => avisos.sucesso("CSV exportado"),
+      onError: () => avisos.erro("Não foi possível exportar. Tente novamente."),
+    });
+  }
+
+  function atualizarAgora() {
+    atualizacao.mutate(undefined, {
+      onError: () => avisos.erro("Não foi possível atualizar agora. Tente novamente."),
+    });
+  }
 
   const atualizar = (mudanca: Partial<FiltrosNumeros>) =>
     setFiltros((atual) => ({ ...atual, ...mudanca }));
@@ -96,15 +120,23 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
             </p>
           </div>
           <div className={styles.acoes}>
-            <form action={atualizarAgora}>
-              <BotaoEnviar tipo="secundaria" enviando="Atualizando…">
-                Atualizar agora
-              </BotaoEnviar>
-            </form>
-            {/* A exportação fica registrada na auditoria (RN-05.05.5). */}
-            <a href={hrefExportar} className={classesBotao()} download>
+            <BotaoEnviar
+              type="button"
+              tipo="secundaria"
+              enviando="Atualizando…"
+              pendente={atualizacao.isPending}
+              onClick={atualizarAgora}
+            >
+              Atualizar agora
+            </BotaoEnviar>
+            <BotaoEnviar
+              type="button"
+              enviando="Exportando…"
+              pendente={exportacao.isPending}
+              onClick={exportar}
+            >
               Exportar CSV
-            </a>
+            </BotaoEnviar>
           </div>
         </div>
 
@@ -160,7 +192,7 @@ export function PainelNumeros({ linhas, categorias, periodo, rotuloPeriodo }: Pa
             </option>
           ))}
         </SeletorFiltro>
-        <PeriodoLink periodo={periodo} />
+        <BotaoPeriodo periodo={periodo} aoMudar={aoMudarPeriodo} />
       </div>
 
       <Card aria-label="Números por evento">
@@ -275,15 +307,20 @@ function BotaoOrdenar({
   );
 }
 
-/** O período troca os dados carregados no servidor, então é uma navegação (e não um filtro local). */
-function PeriodoLink({ periodo }: { periodo: PeriodoAdmin }) {
-  return periodo === "12m" ? (
-    <Link href="/admin/eventos/numeros" className={styles.botaoFiltro}>
-      Ver só os últimos 90 dias
-    </Link>
-  ) : (
-    <Link href="/admin/eventos/numeros?periodo=12m" className={styles.botaoFiltro}>
-      Incluir últimos 12 meses
-    </Link>
+function BotaoPeriodo({
+  periodo,
+  aoMudar,
+}: {
+  periodo: PeriodoAdmin;
+  aoMudar: (periodo: PeriodoAdmin) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={styles.botaoFiltro}
+      onClick={() => aoMudar(periodo === "12m" ? "recentes" : "12m")}
+    >
+      {periodo === "12m" ? "Ver só os últimos 90 dias" : "Incluir últimos 12 meses"}
+    </button>
   );
 }

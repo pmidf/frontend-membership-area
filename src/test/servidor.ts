@@ -1,5 +1,6 @@
 import { setupServer } from "msw/node";
 
+import { handlersAgendaAdmin } from "@/features/agenda-admin/mocks/agenda-admin.handlers";
 import {
   handlersAuth,
   handlersCadastro,
@@ -44,5 +45,6 @@ export const servidor = setupServer(
   ...handlersPerfil(),
   ...handlersPessoasAdmin(),
   ...handlersDetalhePessoa(),
+  ...handlersAgendaAdmin(),
   ...handlersSessao(null),
 );

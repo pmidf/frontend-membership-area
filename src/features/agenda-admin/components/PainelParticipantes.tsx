@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardTitulo } from "@/components/ui/Card";
-import { classesBotao } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
+import { useAvisos } from "@/shared/ui/aviso/useAvisos";
+import { useExportarParticipantes } from "../api/agenda-admin.queries";
 import {
   filtrarParticipantes,
   rotuloCheckIn,
@@ -12,6 +13,7 @@ import {
   type LinhaParticipante,
 } from "../linhas-participantes";
 import { formatarNumero } from "../numeros";
+import { BotaoEnviar } from "./BotaoEnviar";
 import { SeletorFiltro } from "./SeletorFiltro";
 import styles from "./admin.module.css";
 
@@ -34,24 +36,37 @@ export function PainelParticipantes({
   const atualizar = (mudanca: Partial<FiltrosParticipantes>) =>
     setFiltros((atual) => ({ ...atual, ...mudanca }));
 
-  const hrefExportar = useMemo(() => {
-    const query = new URLSearchParams();
-    if (filtros.busca) query.set("q", filtros.busca);
-    if (filtros.checkIn) query.set("checkin", filtros.checkIn);
-    if (filtros.tipo) query.set("tipo", filtros.tipo);
-    if (filtros.vinculo) query.set("vinculo", filtros.vinculo);
-    return `/admin/eventos/${eventoId}/participantes/exportar?${query}`;
-  }, [eventoId, filtros]);
+  const avisos = useAvisos();
+  const exportacao = useExportarParticipantes(eventoId);
+
+  function exportar() {
+    exportacao.mutate(
+      {
+        q: filtros.busca,
+        checkin: filtros.checkIn,
+        tipo: filtros.tipo,
+        vinculo: filtros.vinculo,
+      },
+      {
+        onSuccess: () => avisos.sucesso("CSV exportado"),
+        onError: () => avisos.erro("Não foi possível exportar. Tente novamente."),
+      },
+    );
+  }
 
   return (
     <>
       <Card aria-labelledby="titulo-tipos">
         <div className={styles.cardCabecalho}>
           <CardTitulo id="titulo-tipos">Por tipo de ingresso</CardTitulo>
-          {/* A exportação fica registrada na auditoria (RN-05.05.5). */}
-          <a href={hrefExportar} className={classesBotao()} download>
+          <BotaoEnviar
+            type="button"
+            enviando="Exportando…"
+            pendente={exportacao.isPending}
+            onClick={exportar}
+          >
             Exportar participantes (CSV)
-          </a>
+          </BotaoEnviar>
         </div>
         {porTipo.length === 0 ? (
           <p className={styles.texto}>Nenhum inscrito ainda.</p>
