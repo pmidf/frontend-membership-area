@@ -9,6 +9,8 @@ import {
 import {
   handlersBeneficioAdmin,
   handlersBeneficiosAdmin,
+  handlersNovoBeneficio,
+  handlersParceiros,
 } from "@/features/beneficios-admin/mocks/beneficios-admin.handlers";
 import {
   handlersBeneficios,
@@ -36,6 +38,8 @@ export const servidor = setupServer(
   ...handlersResgates(),
   ...handlersBeneficiosAdmin(),
   ...handlersBeneficioAdmin(),
+  ...handlersNovoBeneficio(),
+  ...handlersParceiros(),
   ...handlersSeguranca(),
   ...handlersPerfil(),
   ...handlersPessoasAdmin(),

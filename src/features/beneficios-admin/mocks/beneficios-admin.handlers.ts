@@ -2,8 +2,14 @@ import { http, HttpResponse } from "msw/http";
 
 import type { Pagina } from "@/shared/api/tipos";
 
-import type { BeneficioAdmin } from "../api/beneficios-admin.api";
+import type {
+  BeneficioAdmin,
+  CriarBeneficio,
+  CriarParceiro,
+  Parceiro,
+} from "../api/beneficios-admin.api";
 import type { ItemBeneficioAdmin } from "../tipos/beneficio-admin";
+import type { RelatorioResgates } from "../tipos/relatorio-resgates";
 
 const id = (numero: number) => `40000000-0000-4000-8000-${String(numero).padStart(12, "0")}`;
 
@@ -64,10 +70,13 @@ export function filtrarBeneficiosAdmin(
   const ordenar = parametros.get("ordenar");
   const coincide = (campo: "situacao" | "tipo_resgate" | "categoria", valor: string) =>
     !parametros.get(campo) || parametros.get(campo) === valor;
+  const codParceiro = parametros.get("cod_parceiro");
+  const nomeParceiro = parceirosTeste.find((p) => p.cod_parceiro === codParceiro)?.nome;
   const encontrados = itens
     .filter(
       (item) =>
         `${item.titulo} ${item.parceiro}`.toLowerCase().includes(termo) &&
+        (!codParceiro || item.parceiro === nomeParceiro) &&
         coincide("situacao", item.situacao) &&
         coincide("tipo_resgate", item.tipo_resgate) &&
         coincide("categoria", item.categoria),
@@ -95,6 +104,60 @@ export function handlersBeneficiosAdmin(itens: ItemBeneficioAdmin[] = beneficios
         headers: { "Content-Disposition": 'attachment; filename="beneficios-2026-11-09.csv"' },
       }),
     ),
+    ...handlersRelatorioResgates(),
+  ];
+}
+
+export function relatorioResgatesTeste(ano: number): RelatorioResgates {
+  const fator = ano % 2 === 0 ? 1 : 2;
+  return {
+    ano,
+    total_resgates: 318 * fator,
+    filiados_ativos: 1250,
+    filiados_distintos: 205 * fator,
+    taxa: Math.round(((205 * fator) / 1250) * 10_000) / 10_000,
+    por_beneficio: [
+      {
+        id_beneficio: id(3),
+        titulo: "Curso de liderança",
+        parceiro: "Impact Hub",
+        resgates: 200 * fator,
+        filiados_distintos: 150 * fator,
+      },
+      {
+        id_beneficio: id(1),
+        titulo: "Voucher do exame PMP",
+        parceiro: "PMI Global",
+        resgates: 118 * fator,
+        filiados_distintos: 90 * fator,
+      },
+      {
+        id_beneficio: id(4),
+        titulo: "Benefício 01",
+        parceiro: "Parceiro Geral",
+        resgates: 0,
+        filiados_distintos: 0,
+      },
+    ],
+  };
+}
+
+export function handlersRelatorioResgates(
+  gerar: (ano: number) => RelatorioResgates = relatorioResgatesTeste,
+) {
+  const anoDaUrl = (url: string) =>
+    Number(new URL(url).searchParams.get("ano") ?? new Date().getFullYear());
+  return [
+    http.get("*/api/admin/beneficios/relatorio", ({ request }) =>
+      HttpResponse.json(gerar(anoDaUrl(request.url))),
+    ),
+    http.get("*/api/admin/beneficios/relatorio.csv", ({ request }) =>
+      HttpResponse.text("data do resgate;benefício\n05/11/2026, 11:20;Voucher", {
+        headers: {
+          "Content-Disposition": `attachment; filename="relatorio-resgates-${anoDaUrl(request.url)}.csv"`,
+        },
+      }),
+    ),
   ];
 }
 
@@ -116,6 +179,68 @@ export const beneficioAdminTeste: BeneficioAdmin = {
   data_publicacao: null,
   quantidade_resgates: 0,
 };
+
+const novoParceiroTeste = (numero: number, nome: string): Parceiro => ({
+  cod_parceiro: `50000000-0000-4000-8000-${String(numero).padStart(12, "0")}`,
+  nome,
+  descricao: null,
+  site_url: null,
+});
+
+export const parceirosTeste: Parceiro[] = [
+  novoParceiroTeste(1, "PMI Global"),
+  novoParceiroTeste(2, "Brisk Educação"),
+  novoParceiroTeste(3, "Impact Hub"),
+];
+
+export const ID_BENEFICIO_CRIADO = id(90);
+export const ID_PARCEIRO_CRIADO = "50000000-0000-4000-8000-000000000090";
+
+export function handlersParceiros(inicial: Parceiro[] = parceirosTeste) {
+  let parceiros = [...inicial];
+  return [
+    http.get("*/api/admin/parceiros", () => HttpResponse.json(parceiros)),
+    http.post("*/api/admin/parceiros", async ({ request }) => {
+      const dados = (await request.json()) as CriarParceiro;
+      const nome = dados.nome.trim();
+      if (parceiros.some((p) => p.nome.toLowerCase() === nome.toLowerCase())) {
+        return HttpResponse.json({ codigo: "PARCEIRO_JA_EXISTE" }, { status: 409 });
+      }
+      const criado: Parceiro = {
+        cod_parceiro: ID_PARCEIRO_CRIADO,
+        nome,
+        descricao: dados.descricao ?? null,
+        site_url: dados.site_url ?? null,
+      };
+      parceiros = [...parceiros, criado].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      return HttpResponse.json(criado, { status: 201 });
+    }),
+  ];
+}
+
+export function handlersNovoBeneficio(parceiros: Parceiro[] = parceirosTeste) {
+  return [
+    http.post("*/api/admin/beneficios", async ({ request }) => {
+      const dados = (await request.json()) as CriarBeneficio;
+      const parceiro = parceiros.find(({ cod_parceiro }) => cod_parceiro === dados.cod_parceiro);
+      if (!parceiro) {
+        return HttpResponse.json(
+          { codigo: "DADOS_INVALIDOS", campos: { cod_parceiro: ["Parceiro não encontrado"] } },
+          { status: 422 },
+        );
+      }
+      const criado: BeneficioAdmin = {
+        ...dados,
+        id_beneficio: ID_BENEFICIO_CRIADO,
+        parceiro: parceiro.nome,
+        situacao: "RASCUNHO",
+        data_publicacao: null,
+        quantidade_resgates: 0,
+      };
+      return HttpResponse.json(criado, { status: 201 });
+    }),
+  ];
+}
 
 export function handlersBeneficioAdmin(inicial: BeneficioAdmin = beneficioAdminTeste) {
   let beneficio = inicial;

@@ -10,6 +10,7 @@ import type {
   ItemBeneficioAdmin,
   SituacaoBeneficio,
 } from "../tipos/beneficio-admin";
+import type { RelatorioResgates } from "../tipos/relatorio-resgates";
 
 export function listarBeneficiosAdmin(
   consulta: ConsultaBeneficiosAdmin = {},
@@ -19,6 +20,14 @@ export function listarBeneficiosAdmin(
 
 export function exportarBeneficios(filtros: FiltrosBeneficiosAdmin): Promise<string> {
   return baixarArquivo("/admin/beneficios/export.csv", `beneficios-${hojeNoFuso()}.csv`, filtros);
+}
+
+export function obterRelatorioResgates(ano: number): Promise<RelatorioResgates> {
+  return api.obter<RelatorioResgates>("/admin/beneficios/relatorio", { consulta: { ano } });
+}
+
+export function exportarRelatorioResgates(ano: number): Promise<string> {
+  return baixarArquivo("/admin/beneficios/relatorio.csv", `relatorio-resgates-${ano}.csv`, { ano });
 }
 
 export type BeneficioAdmin = {
@@ -56,7 +65,34 @@ export type AtualizarBeneficio = Partial<
   >
 >;
 
+export type CriarBeneficio = Required<AtualizarBeneficio> & Pick<BeneficioAdmin, "cod_parceiro">;
+
+export type Parceiro = {
+  cod_parceiro: string;
+  nome: string;
+  descricao: string | null;
+  site_url: string | null;
+};
+
+export type CriarParceiro = {
+  nome: string;
+  descricao?: string;
+  site_url?: string;
+};
+
 const caminhoBeneficio = (id: string) => `/admin/beneficios/${encodeURIComponent(id)}`;
+
+export function criarBeneficio(dados: CriarBeneficio): Promise<BeneficioAdmin> {
+  return api.enviar<BeneficioAdmin>("/admin/beneficios", dados);
+}
+
+export function listarParceiros(): Promise<Parceiro[]> {
+  return api.obter<Parceiro[]>("/admin/parceiros");
+}
+
+export function criarParceiro(dados: CriarParceiro): Promise<Parceiro> {
+  return api.enviar<Parceiro>("/admin/parceiros", dados);
+}
 
 export function detalharBeneficioAdmin(id: string): Promise<BeneficioAdmin> {
   return api.obter<BeneficioAdmin>(caminhoBeneficio(id));

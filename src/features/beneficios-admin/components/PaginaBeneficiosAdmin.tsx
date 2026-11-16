@@ -17,7 +17,11 @@ import {
 } from "@/shared/ui";
 import { classesBotao } from "@/shared/ui/botao/Botao";
 
-import { useBeneficiosAdmin, useExportarBeneficios } from "../api/beneficios-admin.queries";
+import {
+  useBeneficiosAdmin,
+  useExportarBeneficios,
+  useParceiros,
+} from "../api/beneficios-admin.queries";
 import {
   consultaDaLista,
   filtrosDaUrl,
@@ -26,10 +30,12 @@ import {
 } from "../lib/filtros-url";
 import { FiltrosBeneficiosAdmin } from "./FiltrosBeneficiosAdmin";
 import { IndicadoresBeneficios } from "./IndicadoresBeneficios";
+import { RelatorioResgates } from "./RelatorioResgates";
 import { TabelaBeneficiosAdmin } from "./TabelaBeneficiosAdmin";
 
 const CAMPOS_DE_FILTRO = {
   q: null,
+  cod_parceiro: null,
   situacao: null,
   tipo_resgate: null,
   categoria: null,
@@ -43,6 +49,7 @@ export function PaginaBeneficiosAdmin() {
   const filtros = filtrosDaUrl(parametros);
   const beneficios = useBeneficiosAdmin(consultaDaLista(filtros));
   const exportacao = useExportarBeneficios();
+  const parceiros = useParceiros();
   const [limpezas, setLimpezas] = useState(0);
   const { data, isPlaceholderData } = beneficios;
 
@@ -92,6 +99,7 @@ export function PaginaBeneficiosAdmin() {
         <FiltrosBeneficiosAdmin
           key={limpezas}
           filtros={filtros}
+          parceiros={parceiros.data}
           valorInicialBusca={limpezas === 0 ? filtros.q : ""}
           aoBuscar={(termo) => atualizar({ q: termo.trim(), pagina: null })}
           aoFiltrar={(campo, valor) => atualizar({ [campo]: valor, pagina: null })}
@@ -134,6 +142,7 @@ export function PaginaBeneficiosAdmin() {
           aoMudar={(destino) => atualizar({ pagina: destino > 1 ? destino : null })}
         />
       </Cartao>
+      <RelatorioResgates />
     </div>
   );
 }

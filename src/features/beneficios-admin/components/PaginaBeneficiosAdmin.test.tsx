@@ -8,6 +8,8 @@ import { definirNavegacao, roteadorFalso } from "@/test/navegacao-falsa";
 import { renderizar } from "@/test/renderizar";
 import { servidor } from "@/test/servidor";
 
+import { anoAtual } from "../lib/relatorio-resgates";
+import { parceirosTeste, relatorioResgatesTeste } from "../mocks/beneficios-admin.handlers";
 import { PaginaBeneficiosAdmin } from "./PaginaBeneficiosAdmin";
 
 let usuario: ReturnType<typeof userEvent.setup>;
@@ -44,8 +46,9 @@ const tabela = () =>
   screen.findByRole("table", { name: "Benefícios cadastrados" }, { timeout: ESPERA_DA_TABELA });
 
 async function linhas() {
-  await tabela();
-  return within(screen.getByRole("table")).getAllByRole("row").slice(1);
+  return within(await tabela())
+    .getAllByRole("row")
+    .slice(1);
 }
 
 const substituicao = (destino: string) =>
@@ -73,14 +76,22 @@ describe("Lista de benefícios do Admin", { timeout: 15_000 }, () => {
     await waitFor(() => expect(publicados).toHaveTextContent("23Publicados"));
     const rascunhos = screen.getByText("Em rascunho").parentElement!;
     await waitFor(() => expect(rascunhos).toHaveTextContent("1Em rascunho"));
+    const ano = anoAtual();
+    const resgates = screen.getByText(`Resgates em ${ano}`).parentElement!;
+    await waitFor(() =>
+      expect(resgates).toHaveTextContent(
+        `${relatorioResgatesTeste(ano).total_resgates}Resgates em ${ano}`,
+      ),
+    );
+    expect(screen.getByRole("region", { name: "Relatório de resgates" })).toBeInTheDocument();
     expect(screen.getByText("Página 1 de 2")).toBeInTheDocument();
   });
 
   it("descreve cada benefício", async () => {
     abrir();
-    await tabela();
+    const lista = within(await tabela());
 
-    const voucher = within(screen.getByRole("row", { name: /Voucher do exame PMP/ }));
+    const voucher = within(lista.getByRole("row", { name: /Voucher do exame PMP/ }));
     expect(voucher.getByText("Categoria: Certificação")).toBeInTheDocument();
     expect(voucher.getByText("PMI Global")).toBeInTheDocument();
     expect(voucher.getByText("Cupom compartilhado")).toBeInTheDocument();
@@ -92,7 +103,7 @@ describe("Lista de benefícios do Admin", { timeout: 15_000 }, () => {
       "/admin/beneficios/40000000-0000-4000-8000-000000000001",
     );
 
-    const consultoria = within(screen.getByRole("row", { name: /Consultoria de carreira/ }));
+    const consultoria = within(lista.getByRole("row", { name: /Consultoria de carreira/ }));
     expect(consultoria.getByText("Instrução por texto")).toBeInTheDocument();
     expect(consultoria.getByText("Sem data de término")).toBeInTheDocument();
     expect(consultoria.getByText("Rascunho")).toBeInTheDocument();
@@ -120,6 +131,25 @@ describe("Lista de benefícios do Admin", { timeout: 15_000 }, () => {
     await usuario.selectOptions(screen.getByLabelText(rotulo), valor);
 
     await substituicao(`/admin/beneficios?${parametro}=${valor}`);
+  });
+
+  it("filtra pelo parceiro, grava na URL e restaura", async () => {
+    const impactHub = parceirosTeste[2];
+    const { unmount } = abrir();
+    await tabela();
+
+    await screen.findByRole("option", { name: impactHub.nome });
+    await usuario.selectOptions(screen.getByLabelText("Parceiro"), impactHub.cod_parceiro);
+
+    await substituicao(`/admin/beneficios?cod_parceiro=${impactHub.cod_parceiro}`);
+    await waitFor(async () => expect(await linhas()).toHaveLength(2));
+    unmount();
+
+    abrir(`cod_parceiro=${impactHub.cod_parceiro}`);
+    await waitFor(async () => expect(await linhas()).toHaveLength(2));
+    await waitFor(() =>
+      expect(screen.getByLabelText("Parceiro")).toHaveValue(impactHub.cod_parceiro),
+    );
   });
 
   it("busca depois do atraso e grava na URL", async () => {

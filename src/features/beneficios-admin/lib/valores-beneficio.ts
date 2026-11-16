@@ -1,7 +1,25 @@
 import { camposDiferentes } from "@/shared/lib/campos-diferentes";
 
-import type { AtualizarBeneficio, BeneficioAdmin } from "../api/beneficios-admin.api";
-import type { DadosBeneficio } from "../schemas/beneficio.schema";
+import type {
+  AtualizarBeneficio,
+  BeneficioAdmin,
+  CriarBeneficio,
+} from "../api/beneficios-admin.api";
+import type { DadosBeneficio, DadosNovoBeneficio } from "../schemas/beneficio.schema";
+
+export const VALORES_NOVO_BENEFICIO: DadosNovoBeneficio = {
+  titulo: "",
+  legenda: "",
+  descricao: "",
+  imagem: "",
+  categoria: "EDUCACAO",
+  cod_parceiro: "",
+  tipo_resgate: "CUPOM",
+  cod_cupom: "",
+  desc_instrucao: "",
+  vigencia_inicio: "",
+  vigencia_fim: "",
+};
 
 export function valoresDoBeneficio(beneficio: BeneficioAdmin): DadosBeneficio {
   return {
@@ -18,7 +36,7 @@ export function valoresDoBeneficio(beneficio: BeneficioAdmin): DadosBeneficio {
   };
 }
 
-function normalizar(dados: DadosBeneficio): AtualizarBeneficio {
+function normalizar(dados: DadosBeneficio): Required<AtualizarBeneficio> {
   return {
     titulo: dados.titulo.trim(),
     legenda: dados.legenda.trim(),
@@ -31,6 +49,10 @@ function normalizar(dados: DadosBeneficio): AtualizarBeneficio {
     vigencia_inicio: dados.vigencia_inicio,
     vigencia_fim: dados.vigencia_fim || null,
   };
+}
+
+export function dadosParaCriar(dados: DadosNovoBeneficio): CriarBeneficio {
+  return { ...normalizar(dados), cod_parceiro: dados.cod_parceiro };
 }
 
 export function camposAlteradosDoBeneficio(

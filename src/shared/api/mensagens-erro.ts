@@ -25,6 +25,7 @@ const mensagens: Record<string, string> = {
   BENEFICIO_JA_PUBLICADO: "Este benefício já está publicado.",
   BENEFICIO_ARQUIVADO: "Este benefício foi arquivado e não pode ser alterado.",
   BENEFICIO_NAO_ARQUIVADO: "Só é possível duplicar um benefício arquivado.",
+  PARCEIRO_JA_EXISTE: "Já existe um parceiro com esse nome.",
   TIPO_BLOQUEADO: "Já houve resgates: a forma de resgate não pode mais mudar.",
   OPORTUNIDADE_NAO_ENCONTRADA: "Vaga não encontrada.",
   OPORTUNIDADE_NAO_PUBLICADA: "Só vagas publicadas podem ser encerradas.",

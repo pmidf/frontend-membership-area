@@ -26,6 +26,7 @@ export type ItemBeneficioAdmin = {
 
 export type FiltrosBeneficiosAdmin = {
   q?: string;
+  cod_parceiro?: string;
   situacao?: SituacaoBeneficio;
   tipo_resgate?: TipoResgate;
   categoria?: CategoriaBeneficio;
