@@ -59,5 +59,5 @@ test("o login leva ao destino pedido com a casca do Admin", async ({ page }) => 
   await page.getByRole("button", { name: "Entrar" }).click();
 
   await expect(page).toHaveURL(/\/conquistas$/);
-  await expect(page.getByRole("heading", { name: "Minhas conquistas", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Seus quebra-cabeças", level: 1 })).toBeVisible();
 });
