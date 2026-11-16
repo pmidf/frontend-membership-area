@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { PaginaQuebraCabecasAdmin } from "@/features/gamificacao-admin/components/PaginaQuebraCabecasAdmin";
 
 export const metadata: Metadata = { title: "Quebra-cabeças" };
 
-export default function PaginaAdminQuebraCabecas() {
-  return <EmConstrucao titulo="Quebra-cabeças" />;
+export default function Pagina() {
+  return <PaginaQuebraCabecasAdmin />;
 }

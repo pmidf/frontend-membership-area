@@ -11,6 +11,10 @@
   --color-aqua-50: #eefafa;
   --color-aqua-600: #005c77;
   --color-neutro-100: #f8f8f8;
+  --color-neutro-200: #e6e8eb;
+  --color-peca-vazia: #d9dadd;
+  --color-peca-contorno: #c9c9ce;
+  --color-laranja-400: #e0743f;
   --color-branco: #ffffff;
 
   --color-acao-primaria: #4f17a8;
@@ -58,6 +62,38 @@
   --text-botao--font-weight: 500;
   --text-legenda: 0.75rem;
   --text-legenda--line-height: 1.125rem;
+
+  --animate-rolar-dado: rolar-dado 0.7s ease-in-out infinite;
+  --animate-encaixar-peca: encaixar-peca 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+  @keyframes encaixar-peca {
+    0% {
+      opacity: 0;
+      transform: scale(0.4) rotate(-12deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0);
+    }
+  }
+
+  @keyframes rolar-dado {
+    0% {
+      transform: rotate(9deg) translateY(0);
+    }
+    25% {
+      transform: rotate(-80deg) translateY(-18px);
+    }
+    50% {
+      transform: rotate(-190deg) translateY(-26px);
+    }
+    75% {
+      transform: rotate(-290deg) translateY(-12px);
+    }
+    100% {
+      transform: rotate(-351deg) translateY(0);
+    }
+  }
 }
 
 @layer base {
