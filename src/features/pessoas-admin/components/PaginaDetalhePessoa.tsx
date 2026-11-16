@@ -11,6 +11,7 @@ import { classesBotao } from "@/shared/ui/botao/Botao";
 import { pessoaNaoEncontrada, usePessoa } from "../api/pessoas-admin.queries";
 import { CabecalhoPessoaAdmin } from "./CabecalhoPessoaAdmin";
 import { DadosPessoaisLeitura } from "./DadosPessoaisLeitura";
+import { SecaoVitrinePessoa } from "./SecaoVitrinePessoa";
 import { SessoesPessoa } from "./SessoesPessoa";
 import { SituacaoConta } from "./SituacaoConta";
 
@@ -70,6 +71,9 @@ function ConteudoDetalhe({ id, destinoVolta }: { id: string; destinoVolta: strin
           filiado={dados.papeis.filiado}
           visao="admin"
         />
+      </Secao>
+      <Secao id="vitrine" titulo="Vitrine — Profissionais da comunidade">
+        <SecaoVitrinePessoa pessoa={dados} />
       </Secao>
       <Secao id="sessoes" titulo="Sessões ativas">
         <SessoesPessoa sessoes={dados.sessoes_ativas} />
