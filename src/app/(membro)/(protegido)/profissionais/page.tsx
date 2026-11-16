@@ -1,9 +1,22 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { EmConstrucao } from "@/shared/layout/EmConstrucao";
+import { PaginaProfissionais } from "@/features/profissionais/components/PaginaProfissionais";
+import { Esqueleto } from "@/shared/ui";
 
-export const metadata: Metadata = { title: "Comunidade" };
+export const metadata: Metadata = {
+  title: "Profissionais da comunidade",
+  robots: { index: false, follow: false },
+};
 
-export default function PaginaProfissionais() {
-  return <EmConstrucao titulo="Comunidade" />;
+export default function Pagina() {
+  return (
+    <Suspense
+      fallback={
+        <Esqueleto variante="cartao" quantidade={4} rotulo="Carregando os profissionais…" />
+      }
+    >
+      <PaginaProfissionais />
+    </Suspense>
+  );
 }

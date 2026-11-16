@@ -7,6 +7,7 @@ import { CabecalhoPerfil } from "./CabecalhoPerfil";
 import { SecaoDadosPessoais } from "./SecaoDadosPessoais";
 import { SecaoExcluirConta } from "./SecaoExcluirConta";
 import { SecaoFiliacao } from "./SecaoFiliacao";
+import { SecaoPreferencias } from "./SecaoPreferencias";
 
 export function PaginaPerfil() {
   const { perfil } = useSessao();
@@ -19,6 +20,7 @@ export function PaginaPerfil() {
       <CabecalhoPerfil perfil={perfil} />
       <SecaoDadosPessoais perfil={perfil} />
       <SecaoFiliacao perfil={perfil} />
+      <SecaoPreferencias perfil={perfil} />
       <SecaoSeguranca />
       <SecaoExcluirConta />
     </div>

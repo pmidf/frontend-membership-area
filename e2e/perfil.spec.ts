@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
+import { preferenciasTeste } from "../src/features/perfil/mocks/perfil.handlers";
 import { sessoesTeste } from "../src/features/seguranca/mocks/seguranca.handlers";
 import type { Perfil } from "../src/shared/sessao/tipos";
 import {
@@ -25,10 +26,42 @@ async function abrirPerfil(page: Page, perfilInicial: Perfil, caminho = "/perfil
     return rota.fulfill({ json: perfil });
   });
   await page.route("**/api/me/sessoes**", (rota) => rota.fulfill({ json: sessoesTeste }));
+  let preferencias = preferenciasTeste;
+  await page.route("**/api/me/preferencias", (rota) => {
+    if (rota.request().method() !== "PATCH") return rota.fulfill({ json: preferencias });
+    preferencias = { ...preferencias, ...rota.request().postDataJSON() };
+    return rota.fulfill({ json: preferencias });
+  });
   await page.goto(caminho);
   await expect(page.getByRole("heading", { name: "Dados pessoais" })).toBeVisible();
   return corpos;
 }
+
+test("o Filiado liga a vitrine pelas preferências depois de ver os dados exibidos", async ({
+  page,
+}, info) => {
+  await abrirPerfil(page, perfilFiliado, "/perfil#preferencias");
+
+  const secao = page.getByRole("region", { name: "Preferências" });
+  const vitrine = secao.getByRole("switch", { name: /Exibir meu perfil/ });
+  await expect(vitrine).not.toBeChecked();
+  await vitrine.click({ force: true });
+
+  const dialogo = page.getByRole("dialog", { name: "Exibir seu perfil na vitrine?" });
+  await expect(dialogo.getByText(perfilFiliado.cargo)).toBeVisible();
+  await page.screenshot({
+    path: `test-results/capturas/preferencias-vitrine-${info.project.name}.png`,
+    animations: "disabled",
+  });
+  const { violations } = await new AxeBuilder({ page }).analyze();
+  expect(violations.filter(({ impact }) => impact === "serious" || impact === "critical")).toEqual(
+    [],
+  );
+
+  await dialogo.getByRole("button", { name: "Exibir meu perfil" }).click();
+  await expect(vitrine).toBeChecked();
+  await expect(page.getByText("Preferência salva")).toBeVisible();
+});
 
 test("edita os dados pessoais e a mini bio, e os valores continuam depois de recarregar", async ({
   page,

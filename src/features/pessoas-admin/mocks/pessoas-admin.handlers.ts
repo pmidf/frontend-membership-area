@@ -118,5 +118,40 @@ export function handlersDetalhePessoa(inicial: PessoaDetalheAdmin = pessoaDetalh
       pessoa = { ...pessoa, situacao_conta: "ATIVA" };
       return semConteudo();
     }),
+    http.post("*/api/admin/pessoas/:id/vitrine/ocultar", async ({ request }) => {
+      const { motivo } = (await request.json()) as { motivo: string };
+      pessoa = {
+        ...pessoa,
+        exibida_na_vitrine: false,
+        vitrine_oculta: true,
+        data_vitrine_oculta: "2026-11-10T15:00:00.000Z",
+        motivo_vitrine_oculta: motivo,
+      };
+      return semConteudo();
+    }),
+    http.delete("*/api/admin/pessoas/:id/vitrine/ocultar", () => {
+      pessoa = {
+        ...pessoa,
+        exibida_na_vitrine: true,
+        vitrine_oculta: false,
+        data_vitrine_oculta: null,
+        motivo_vitrine_oculta: null,
+      };
+      return semConteudo();
+    }),
   ];
 }
+
+export const pessoaNaVitrine: PessoaDetalheAdmin = {
+  ...pessoaDetalheTeste,
+  papeis: { admin: false, filiado: true },
+  exibida_na_vitrine: true,
+};
+
+export const pessoaOcultaNaVitrine: PessoaDetalheAdmin = {
+  ...pessoaNaVitrine,
+  exibida_na_vitrine: false,
+  vitrine_oculta: true,
+  data_vitrine_oculta: "2026-11-05T15:00:00.000Z",
+  motivo_vitrine_oculta: "Mini bio com conteúdo promocional.",
+};

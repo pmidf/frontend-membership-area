@@ -1,12 +1,15 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { chavesProfissionais } from "@/features/profissionais/api/profissionais.queries";
 import { ehErroApi } from "@/shared/api/erro-api";
 
 import { adaptarPagina } from "../lib/adaptar-pagina";
 import {
   detalharPessoa,
   listarPessoas,
+  ocultarDaVitrine,
   reativarPessoa,
+  reexibirNaVitrine,
   suspenderPessoa,
 } from "./pessoas-admin.api";
 
@@ -71,4 +74,31 @@ export function useSuspenderPessoa(id: string) {
 export function useReativarPessoa(id: string) {
   const invalidar = useInvalidarPessoas();
   return useMutation({ mutationFn: () => reativarPessoa(id), onSuccess: invalidar });
+}
+
+function useInvalidarVitrine(id: string) {
+  const clienteConsultas = useQueryClient();
+  return () =>
+    Promise.all([
+      clienteConsultas.invalidateQueries({ queryKey: chavesPessoasAdmin.detalhe(id) }),
+      clienteConsultas.invalidateQueries({ queryKey: chavesProfissionais.todas }),
+    ]);
+}
+
+export function useOcultarDaVitrine(id: string) {
+  const invalidar = useInvalidarVitrine(id);
+  return useMutation({
+    mutationFn: (motivo: string) => ocultarDaVitrine(id, motivo),
+    onSuccess: invalidar,
+    onError: (erro) => (pessoaNaoEncontrada(erro) ? invalidar() : undefined),
+  });
+}
+
+export function useReexibirNaVitrine(id: string) {
+  const invalidar = useInvalidarVitrine(id);
+  return useMutation({
+    mutationFn: () => reexibirNaVitrine(id),
+    onSuccess: invalidar,
+    onError: (erro) => (pessoaNaoEncontrada(erro) ? invalidar() : undefined),
+  });
 }

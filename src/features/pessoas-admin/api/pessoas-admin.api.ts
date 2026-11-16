@@ -49,3 +49,13 @@ export function suspenderPessoa(id: string, motivo: string): Promise<void> {
 export function reativarPessoa(id: string): Promise<void> {
   return api.enviar<void>(`${caminhoPessoa(id)}/reativar`);
 }
+
+const caminhoOcultacaoVitrine = (id: string) => `${caminhoPessoa(id)}/vitrine/ocultar`;
+
+export function ocultarDaVitrine(id: string, motivo: string): Promise<void> {
+  return api.enviar<void>(caminhoOcultacaoVitrine(id), { motivo });
+}
+
+export function reexibirNaVitrine(id: string): Promise<void> {
+  return api.remover<void>(caminhoOcultacaoVitrine(id));
+}
