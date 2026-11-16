@@ -43,6 +43,14 @@ async function preencherObrigatorios() {
   await usuario.type(screen.getByLabelText("Descrição"), "Apoiar o PMO.");
 }
 
+async function esperarFormularioLimpo() {
+  await waitFor(() => expect(screen.getByLabelText("Título da vaga")).toHaveValue(""));
+  expect(screen.getByLabelText("Empresa")).toHaveValue("");
+  expect(screen.getByLabelText("Descrição")).toHaveValue("");
+  expect(screen.getByLabelText("URL de candidatura")).toHaveValue("");
+  expect(botao("Salvar como rascunho")).toBeEnabled();
+}
+
 describe("Nova vaga", { timeout: 15_000 }, () => {
   it("salva o rascunho com link e leva para a edição", async () => {
     await abrir();
@@ -62,6 +70,7 @@ describe("Nova vaga", { timeout: 15_000 }, () => {
       expect(roteadorFalso.push).toHaveBeenCalledWith(`/admin/vagas/${ID_CRIADA}`),
     );
     expect(avisos().getByText("Rascunho salvo")).toBeInTheDocument();
+    await esperarFormularioLimpo();
     expect(chamadas).toEqual([
       {
         caminho: "/api/admin/oportunidades",
@@ -226,6 +235,7 @@ describe("Nova vaga", { timeout: 15_000 }, () => {
 
     await waitFor(() => expect(roteadorFalso.push).toHaveBeenCalledWith("/admin/vagas"));
     expect(avisos().getByText("Vaga publicada")).toBeInTheDocument();
+    await esperarFormularioLimpo();
     expect(chamadas.map(({ caminho }) => caminho)).toEqual([
       "/api/admin/oportunidades",
       `/api/admin/oportunidades/${ID_CRIADA}/publicar`,

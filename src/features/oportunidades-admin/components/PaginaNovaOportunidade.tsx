@@ -32,11 +32,18 @@ export function PaginaNovaOportunidade() {
   });
   const {
     handleSubmit,
+    reset,
     setError,
     formState: { isDirty },
   } = formulario;
 
   useAvisoAoSair(isDirty && acao === null);
+
+  function recomecarEIr(caminho: string) {
+    reset(VALORES_NOVA_OPORTUNIDADE);
+    setAcao(null);
+    roteador.push(caminho);
+  }
 
   async function criar(dados: DadosOportunidade): Promise<OportunidadeAdmin | null> {
     try {
@@ -55,7 +62,7 @@ export function PaginaNovaOportunidade() {
       if (!criada) return setAcao(null);
       avisos.sucesso("Rascunho salvo");
       const consulta = acaoEscolhida === "previsualizar" ? `${PARAMETRO_PREVIA}=1` : "";
-      roteador.push(caminhoDaVaga(criada.id_oportunidade, consulta));
+      recomecarEIr(caminhoDaVaga(criada.id_oportunidade, consulta));
     });
   }
 
@@ -67,10 +74,10 @@ export function PaginaNovaOportunidade() {
     try {
       await publicacao.mutateAsync(criada.id_oportunidade);
       avisos.sucesso("Vaga publicada");
-      roteador.push(CAMINHO_VAGAS_ADMIN);
+      recomecarEIr(CAMINHO_VAGAS_ADMIN);
     } catch (erro) {
       avisos.erro(`O rascunho foi salvo, mas a vaga não foi publicada. ${mensagemDeErro(erro)}`);
-      roteador.push(caminhoDaVaga(criada.id_oportunidade));
+      recomecarEIr(caminhoDaVaga(criada.id_oportunidade));
     }
   });
 
