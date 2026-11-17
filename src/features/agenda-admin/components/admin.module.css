@@ -176,6 +176,53 @@
   color: var(--texto-secundario);
 }
 
+.tiposIngresso {
+  columns: 280px;
+  column-gap: 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tipoIngresso {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--borda-padrao);
+  break-inside: avoid;
+}
+
+.tipoIngressoNome {
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.tipoIngressoValor {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tipoIngressoBarra {
+  grid-column: 1 / -1;
+  height: 4px;
+  overflow: hidden;
+  background: var(--fundo-sutil);
+  border-radius: var(--raio-pill);
+}
+
+.tipoIngressoBarra > span {
+  display: block;
+  height: 100%;
+  background: var(--acao-primaria);
+  border-radius: inherit;
+}
+
 /* Filtros */
 .filtros {
   display: flex;

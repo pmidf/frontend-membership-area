@@ -246,6 +246,15 @@ describe("Console de eventos · Participantes", () => {
       await screen.findByRole("heading", { name: "Webinar de Agilidade · Participantes" }),
     ).toBeInTheDocument();
     expect(screen.getByText("2 inscritos")).toBeInTheDocument();
+    expect(
+      screen.getByText("2 tipos de ingresso · 2 inscritos no total", {
+        normalizer: (t) => t.replace(/\s+/g, " ").trim(),
+      }),
+    ).toBeInTheDocument();
+    const tiposIngresso = within(screen.getByRole("region", { name: "Por tipo de ingresso" }))
+      .getAllByRole("listitem")
+      .map((item) => item.textContent);
+    expect(tiposIngresso).toEqual(["Filiado1 inscrito", "Público geral1 inscrito"]);
     expect(screen.getByText("vínculo manual")).toBeInTheDocument();
 
     await usuario.selectOptions(screen.getByRole("combobox", { name: "Vínculo" }), "nao-vinculado");

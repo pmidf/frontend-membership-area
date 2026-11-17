@@ -33,6 +33,12 @@ export function PainelParticipantes({
   const [filtros, setFiltros] = useState<FiltrosParticipantes>({});
   const filtradas = useMemo(() => filtrarParticipantes(linhas, filtros), [linhas, filtros]);
   const tipos = useMemo(() => [...new Set(linhas.map((l) => l.tipoIngresso))].sort(), [linhas]);
+  const ordenadosPorTipo = useMemo(
+    () => [...porTipo].sort((a, b) => b.inscritos - a.inscritos || a.tipo.localeCompare(b.tipo)),
+    [porTipo],
+  );
+  const totalInscritos = porTipo.reduce((total, { inscritos }) => total + inscritos, 0);
+  const maiorInscritos = Math.max(1, ...porTipo.map(({ inscritos }) => inscritos));
   const atualizar = (mudanca: Partial<FiltrosParticipantes>) =>
     setFiltros((atual) => ({ ...atual, ...mudanca }));
 
@@ -58,7 +64,16 @@ export function PainelParticipantes({
     <>
       <Card aria-labelledby="titulo-tipos">
         <div className={styles.cardCabecalho}>
-          <CardTitulo id="titulo-tipos">Por tipo de ingresso</CardTitulo>
+          <div className={styles.cardCabecalhoTexto}>
+            <CardTitulo id="titulo-tipos">Por tipo de ingresso</CardTitulo>
+            {porTipo.length > 0 && (
+              <p className={styles.texto}>
+                {formatarNumero(porTipo.length)}{" "}
+                {porTipo.length === 1 ? "tipo de ingresso" : "tipos de ingresso"} ·{" "}
+                {formatarNumero(totalInscritos)} inscritos no total
+              </p>
+            )}
+          </div>
           <BotaoEnviar
             type="button"
             enviando="Exportando…"
@@ -71,14 +86,19 @@ export function PainelParticipantes({
         {porTipo.length === 0 ? (
           <p className={styles.texto}>Nenhum inscrito ainda.</p>
         ) : (
-          <div className={styles.totais}>
-            {porTipo.map(({ tipo, inscritos }) => (
-              <div key={tipo} className={styles.total}>
-                <span className={styles.totalValor}>{formatarNumero(inscritos)} inscritos</span>
-                <span className={styles.totalRotulo}>{tipo}</span>
-              </div>
+          <ul className={styles.tiposIngresso}>
+            {ordenadosPorTipo.map(({ tipo, inscritos }) => (
+              <li key={tipo} className={styles.tipoIngresso}>
+                <span className={styles.tipoIngressoNome}>{tipo}</span>
+                <span className={styles.tipoIngressoValor}>
+                  {formatarNumero(inscritos)} {inscritos === 1 ? "inscrito" : "inscritos"}
+                </span>
+                <span className={styles.tipoIngressoBarra} aria-hidden="true">
+                  <span style={{ width: `${(inscritos / maiorInscritos) * 100}%` }} />
+                </span>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </Card>
 
