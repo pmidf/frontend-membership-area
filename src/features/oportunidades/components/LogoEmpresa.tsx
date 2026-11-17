@@ -14,7 +14,7 @@ type PropsLogoEmpresa = {
 
 export function LogoEmpresa({ empresa, logo, className }: PropsLogoEmpresa) {
   const [falhou, setFalhou] = useState(false);
-  const classes = cn("relative size-16 shrink-0 overflow-hidden rounded-md", className);
+  const classes = cn("relative inline-flex size-16 shrink-0 overflow-hidden rounded-md", className);
 
   if (logo && !falhou) {
     return (
@@ -38,7 +38,7 @@ export function LogoEmpresa({ empresa, logo, className }: PropsLogoEmpresa) {
       aria-label={`Logo da ${empresa}`}
       className={cn(
         classes,
-        "inline-flex items-center justify-center bg-aqua-600 text-corpo font-medium text-texto-inverso",
+        "items-center justify-center bg-aqua-600 text-corpo font-medium text-texto-inverso",
       )}
     >
       <span aria-hidden="true">{iniciais(empresa)}</span>
