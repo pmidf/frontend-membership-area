@@ -32,11 +32,18 @@ export function PaginaNovoConteudo() {
   });
   const {
     handleSubmit,
+    reset,
     setError,
     formState: { isDirty },
   } = formulario;
 
   useAvisoAoSair(isDirty && acao === null);
+
+  function recomecarEIr(caminho: string) {
+    reset(VALORES_NOVO_CONTEUDO);
+    setAcao(null);
+    roteador.push(caminho);
+  }
 
   async function criar(dados: DadosConteudo): Promise<ConteudoAdmin | null> {
     try {
@@ -53,7 +60,7 @@ export function PaginaNovoConteudo() {
     const criado = await criar(dados);
     if (!criado) return setAcao(null);
     avisos.sucesso("Rascunho salvo");
-    roteador.push(`${CAMINHO_BIBLIOTECA}/${criado.id_conteudo}`);
+    recomecarEIr(`${CAMINHO_BIBLIOTECA}/${criado.id_conteudo}`);
   });
 
   const publicar = handleSubmit(async (dados) => {
@@ -64,10 +71,10 @@ export function PaginaNovoConteudo() {
     try {
       await publicacao.mutateAsync(criado.id_conteudo);
       avisos.sucesso("Conteúdo publicado");
-      roteador.push(CAMINHO_BIBLIOTECA);
+      recomecarEIr(CAMINHO_BIBLIOTECA);
     } catch {
       avisos.erro("O rascunho foi salvo, mas não foi possível publicar. Tente de novo por aqui.");
-      roteador.push(`${CAMINHO_BIBLIOTECA}/${criado.id_conteudo}`);
+      recomecarEIr(`${CAMINHO_BIBLIOTECA}/${criado.id_conteudo}`);
     }
   });
 
