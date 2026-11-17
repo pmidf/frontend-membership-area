@@ -14,6 +14,11 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
+    "e2e:producao": "playwright test -c playwright.producao.config.ts --project=producao",
+    "e2e:popular": "playwright test -c playwright.producao.config.ts --project=popular",
+    "e2e:admin": "playwright test -c playwright.producao.config.ts --project=producao e2e-producao/admin.spec.ts",
+    "e2e:filiado": "playwright test -c playwright.producao.config.ts --project=producao e2e-producao/filiado.spec.ts",
+    "e2e:nao-filiado": "playwright test -c playwright.producao.config.ts --project=producao e2e-producao/nao-filiado.spec.ts",
     "prepare": "husky",
     "selenium": "node --test --test-concurrency=1 selenium/*.selenium.mts"
   },
