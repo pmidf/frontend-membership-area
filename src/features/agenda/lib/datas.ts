@@ -85,10 +85,10 @@ export function formatarDiaSemana(iso: string) {
   return capitalizar(partes(iso).diaSemana.replace("-feira", ""));
 }
 
-/** { dia: "26", mes: "NOV" } para o selo de data dos itens da lista. */
+/** { dia: "26", mes: "NOV", ano: "2026" } para o selo de data dos itens da lista. */
 export function seloData(iso: string) {
-  const { dia, mes } = partes(iso);
-  return { dia: String(dia).padStart(2, "0"), mes: MESES_CURTOS[mes - 1] };
+  const { dia, mes, ano } = partes(iso);
+  return { dia: String(dia).padStart(2, "0"), mes: MESES_CURTOS[mes - 1], ano: String(ano) };
 }
 
 /** Chave "AAAA-MM-DD" do dia do evento no fuso da agenda (para agrupar no calendário). */

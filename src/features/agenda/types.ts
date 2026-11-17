@@ -34,6 +34,8 @@ export type EventoComParticipacao = Evento & {
   participacao: StatusParticipacao | null;
 };
 
+export type SituacaoNoEvento = { eventoId: string; status: StatusParticipacao };
+
 export type VisaoAgenda = "lista" | "calendario";
 
 export type PeriodoAgenda = "proximos" | "30d" | "90d" | "passados";
