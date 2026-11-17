@@ -100,7 +100,7 @@ test("a filiação vencida mostra o aviso, que pode ser dispensado", async ({ pa
   await aviso.getByRole("button", { name: "Dispensar aviso" }).click();
   await expect(aviso).toBeHidden();
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Início", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Olá, /, level: 1 })).toBeVisible();
   await expect(page.getByText("Sua filiação venceu em 30/09.")).toBeHidden();
 });
 
