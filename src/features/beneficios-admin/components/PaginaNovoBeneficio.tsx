@@ -46,6 +46,7 @@ export function PaginaNovoBeneficio() {
   const {
     control,
     handleSubmit,
+    reset,
     setError,
     setValue,
     formState: { isDirty, errors },
@@ -55,6 +56,12 @@ export function PaginaNovoBeneficio() {
     parceiros.data?.find((parceiro) => parceiro.cod_parceiro === codParceiro)?.nome ?? "Parceiro";
 
   useAvisoAoSair(isDirty && acao === null);
+
+  function recomecarEIr(caminho: string) {
+    reset(VALORES_NOVO_BENEFICIO);
+    setAcao(null);
+    roteador.push(caminho);
+  }
 
   function selecionarParceiroCriado(parceiro: Parceiro) {
     setNovoParceiroAberto(false);
@@ -73,7 +80,7 @@ export function PaginaNovoBeneficio() {
   function tratarErroDaPublicacao(erro: unknown, criado: BeneficioAdmin) {
     if (ehErroApi(erro) && erro.codigo === "BENEFICIO_JA_PUBLICADO") {
       avisos.informacao(mensagemDeErro(erro));
-      roteador.push(CAMINHO_LISTA);
+      recomecarEIr(CAMINHO_LISTA);
       return;
     }
     avisos.erro(
@@ -81,7 +88,7 @@ export function PaginaNovoBeneficio() {
         ? "Este benefício foi arquivado e não pode ser publicado."
         : "O rascunho foi salvo, mas não foi possível publicar. Tente de novo por aqui.",
     );
-    roteador.push(`${CAMINHO_LISTA}/${criado.id_beneficio}`);
+    recomecarEIr(`${CAMINHO_LISTA}/${criado.id_beneficio}`);
   }
 
   const salvarRascunho = handleSubmit(async (dados) => {
@@ -90,7 +97,7 @@ export function PaginaNovoBeneficio() {
     const criado = await criar(dados);
     if (!criado) return setAcao(null);
     avisos.sucesso("Rascunho salvo");
-    roteador.push(`${CAMINHO_LISTA}/${criado.id_beneficio}`);
+    recomecarEIr(`${CAMINHO_LISTA}/${criado.id_beneficio}`);
   });
 
   const publicar = handleSubmit(async (dados) => {
@@ -101,7 +108,7 @@ export function PaginaNovoBeneficio() {
     try {
       await publicacao.mutateAsync(criado.id_beneficio);
       avisos.sucesso("Benefício publicado");
-      roteador.push(CAMINHO_LISTA);
+      recomecarEIr(CAMINHO_LISTA);
     } catch (erro) {
       tratarErroDaPublicacao(erro, criado);
     }

@@ -64,6 +64,15 @@ async function preencher({ legenda = "Desconto no exame" } = {}) {
   await usuario.type(screen.getByLabelText("Início da vigência"), "2026-12-01");
 }
 
+async function esperarFormularioLimpo() {
+  await waitFor(() => expect(screen.getByLabelText("Título da vantagem")).toHaveValue(""));
+  expect(screen.getByLabelText("Legenda curta")).toHaveValue("");
+  expect(screen.getByLabelText("URL da imagem")).toHaveValue("");
+  expect(screen.getByLabelText("Código do cupom")).toHaveValue("");
+  expect(botao("Salvar rascunho")).toBeEnabled();
+  expect(botao("Publicar benefício")).toBeEnabled();
+}
+
 describe("Novo benefício", { timeout: 15_000 }, () => {
   it("começa como rascunho, com cupom e a nota de publicação", async () => {
     await abrir();
@@ -166,6 +175,7 @@ describe("Novo benefício", { timeout: 15_000 }, () => {
       expect(roteadorFalso.push).toHaveBeenCalledWith(`/admin/beneficios/${ID_BENEFICIO_CRIADO}`),
     );
     expect(avisos().getByText("Rascunho salvo")).toBeInTheDocument();
+    await esperarFormularioLimpo();
     expect(chamadas).toEqual([
       {
         metodo: "POST",
@@ -195,6 +205,7 @@ describe("Novo benefício", { timeout: 15_000 }, () => {
 
     await waitFor(() => expect(roteadorFalso.push).toHaveBeenCalledWith("/admin/beneficios"));
     expect(avisos().getByText("Benefício publicado")).toBeInTheDocument();
+    await esperarFormularioLimpo();
     expect(chamadas.map(({ caminho }) => caminho)).toEqual([
       "/api/admin/beneficios",
       `/api/admin/beneficios/${ID_BENEFICIO_CRIADO}/publicar`,

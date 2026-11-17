@@ -38,11 +38,18 @@ export function PaginaNovaTrilha() {
   });
   const {
     handleSubmit,
+    reset,
     setError,
     formState: { isDirty },
   } = formulario;
 
   useAvisoAoSair(isDirty && acao === null);
+
+  function recomecarEIr(caminho: string) {
+    reset(VALORES_NOVA_TRILHA);
+    setAcao(null);
+    roteador.push(caminho);
+  }
 
   async function criar(dados: DadosTrilha): Promise<TrilhaAdmin | null> {
     try {
@@ -59,7 +66,7 @@ export function PaginaNovaTrilha() {
     const criada = await criar(dados);
     if (!criada) return setAcao(null);
     avisos.sucesso("Rascunho salvo");
-    roteador.push(caminhoTrilha(criada.id_trilha));
+    recomecarEIr(caminhoTrilha(criada.id_trilha));
   });
 
   const publicar = handleSubmit(async (dados) => {
@@ -74,12 +81,12 @@ export function PaginaNovaTrilha() {
     try {
       await publicacao.mutateAsync(criada.id_trilha);
       avisos.sucesso("Trilha publicada");
-      roteador.push(CAMINHO_LISTA_TRILHAS);
+      recomecarEIr(CAMINHO_LISTA_TRILHAS);
     } catch (erro) {
       avisos.erro(
         `O rascunho foi salvo, mas não foi possível publicar. ${motivoDaFalhaAoPublicar(erro)}`,
       );
-      roteador.push(caminhoTrilha(criada.id_trilha));
+      recomecarEIr(caminhoTrilha(criada.id_trilha));
     }
   });
 

@@ -64,6 +64,14 @@ async function preencher() {
   await usuario.type(screen.getByLabelText("Descrição"), "Do PMBOK 7 ao canvas.");
 }
 
+async function esperarFormularioLimpo() {
+  await waitFor(() => expect(screen.getByLabelText("Título da trilha")).toHaveValue(""));
+  expect(screen.getByLabelText("Descrição")).toHaveValue("");
+  expect(screen.getByText("Nenhum conteúdo na trilha ainda.")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Salvar rascunho" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Publicar trilha" })).toBeEnabled();
+}
+
 async function adicionar(...titulos: string[]) {
   await usuario.click(screen.getByRole("button", { name: "+ Adicionar conteúdo da biblioteca" }));
   await modal().findByRole("list", { name: "Conteúdos da biblioteca" }, { timeout: ESPERA });
@@ -114,6 +122,7 @@ describe("Nova trilha", { timeout: 15_000 }, () => {
       },
     ]);
     expect(avisos().getByText("Rascunho salvo")).toBeInTheDocument();
+    await esperarFormularioLimpo();
   });
 
   it("busca e filtra por tipo no seletor e pagina a biblioteca", async () => {
@@ -189,6 +198,7 @@ describe("Nova trilha", { timeout: 15_000 }, () => {
       `POST /api/admin/trilhas/${ID_TRILHA_CRIADA}/publicar`,
     ]);
     expect(avisos().getByText("Trilha publicada")).toBeInTheDocument();
+    await esperarFormularioLimpo();
   });
 
   it("leva para a edição quando cria mas não consegue publicar", async () => {

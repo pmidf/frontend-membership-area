@@ -50,6 +50,14 @@ async function preencher({ url = "https://youtu.be/dQw4w9WgXcQ", minutos = "45" 
   if (minutos) await usuario.type(screen.getByLabelText("Duração (minutos)"), minutos);
 }
 
+async function esperarFormularioLimpo() {
+  await waitFor(() => expect(screen.getByLabelText("Título")).toHaveValue(""));
+  expect(screen.getByLabelText("URL")).toHaveValue("");
+  expect(screen.getByLabelText("Descrição")).toHaveValue("");
+  expect(screen.getByRole("button", { name: "Salvar rascunho" })).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Publicar conteúdo" })).toBeEnabled();
+}
+
 describe("Novo conteúdo", { timeout: 15_000 }, () => {
   it("mostra o ID e a prévia do vídeo ao sair do campo URL", async () => {
     await abrir();
@@ -129,6 +137,7 @@ describe("Novo conteúdo", { timeout: 15_000 }, () => {
       expect(roteadorFalso.push).toHaveBeenCalledWith(`/admin/conteudos/${ID_CRIADO}`),
     );
     expect(avisos().getByText("Rascunho salvo")).toBeInTheDocument();
+    await esperarFormularioLimpo();
     const criacao = chamadas.find(({ caminho }) => caminho === "/api/admin/conteudos");
     expect(criacao?.corpo).toEqual({
       titulo: "Gestão de riscos em contratos públicos",
@@ -149,6 +158,7 @@ describe("Novo conteúdo", { timeout: 15_000 }, () => {
 
     await waitFor(() => expect(roteadorFalso.push).toHaveBeenCalledWith("/admin/conteudos"));
     expect(avisos().getByText("Conteúdo publicado")).toBeInTheDocument();
+    await esperarFormularioLimpo();
     expect(chamadas.map(({ caminho }) => caminho)).toEqual(
       expect.arrayContaining([
         "/api/admin/conteudos",
