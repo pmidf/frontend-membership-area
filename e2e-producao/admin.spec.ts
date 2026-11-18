@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   aguardarCaminho,
   aguardarCarregamento,
+  digitar,
   exigirCredenciais,
   passo,
   sairEConferirBloqueio,
@@ -81,7 +82,7 @@ async function salvarAlteracoes(page: Page, aviso: string) {
 }
 
 async function buscarNaLista(page: Page, rotuloDaBusca: string, termo: string) {
-  await page.getByRole("searchbox", { name: rotuloDaBusca }).fill(termo);
+  await digitar(page.getByRole("searchbox", { name: rotuloDaBusca }), termo);
   await aguardarCarregamento(page);
 }
 
@@ -111,7 +112,7 @@ test("o administrador cadastra, edita e acompanha itens em todas as áreas do co
 
   await passo(page, "cadastra um benefício como rascunho, edita e arquiva", async () => {
     await cadastrarBeneficio(page, beneficio(nomes.beneficioRascunho, false));
-    await campo(page, "Legenda curta").fill("Benefício editado pelo teste e2e");
+    await digitar(campo(page, "Legenda curta"), "Benefício editado pelo teste e2e");
     await salvarAlteracoes(page, "Alterações salvas.");
     await page.getByRole("button", { name: "Arquivar", exact: true }).click();
     await confirmarDialogo(page, "Arquivar benefício?", "Arquivar");
@@ -210,7 +211,7 @@ test("o administrador cadastra, edita e acompanha itens em todas as áreas do co
       categoria: nomes.categoria,
       publicar: false,
     });
-    await campo(page, "Descrição").fill(EDITADO);
+    await digitar(campo(page, "Descrição"), EDITADO);
     await salvarAlteracoes(page, "Conteúdo atualizado");
   });
 
@@ -259,7 +260,7 @@ test("o administrador cadastra, edita e acompanha itens em todas as áreas do co
 
   await passo(page, "cadastra uma vaga como rascunho e edita a localidade", async () => {
     await cadastrarVaga(page, vaga(nomes.vagaRascunho, false));
-    await campo(page, "Localidade").fill("Brasília/DF");
+    await digitar(campo(page, "Localidade"), "Brasília/DF");
     await salvarAlteracoes(page, "Rascunho salvo");
   });
 

@@ -6,6 +6,7 @@ import {
   abrirPrimeiroProfissional,
   aguardarCaminho,
   aguardarCarregamento,
+  digitar,
   conferirBloqueioDoConsole,
   entrar,
   exigirCredenciais,
@@ -67,7 +68,7 @@ test("o filiado percorre a área do membro com tudo liberado", async ({ page }) 
     const titulo = await textoDe(beneficios.first());
     const termo = titulo.split(" ").slice(0, 3).join(" ");
 
-    await page.getByRole("searchbox").fill(termo);
+    await digitar(page.getByRole("searchbox"), termo);
     await page.waitForURL((url) => url.searchParams.get("q") === termo);
     await aguardarCarregamento(page);
     await beneficios.filter({ hasText: titulo }).first().click();

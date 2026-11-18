@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
-import { abrirMenuDaConta, aguardarCaminho, entrar, tituloDaPagina } from "./apoio";
+import { abrirMenuDaConta, aguardarCaminho, digitar, entrar, tituloDaPagina } from "./apoio";
 
 const FUSO = "America/Sao_Paulo";
 const CLOUDINARY = "https://res.cloudinary.com/demo/image/upload";
@@ -118,21 +118,21 @@ export async function cadastrarBeneficio(page: Page, beneficio: Beneficio) {
   await aguardarCaminho(page, "/admin/beneficios/novo");
   await expect(tituloDaPagina(page, "Novo benefício")).toBeVisible();
 
-  await campo(page, "Título da vantagem").fill(beneficio.titulo);
-  await campo(page, "Legenda curta").fill(beneficio.legenda);
-  await campo(page, "Descrição completa").fill(beneficio.descricao);
+  await digitar(campo(page, "Título da vantagem"), beneficio.titulo);
+  await digitar(campo(page, "Legenda curta"), beneficio.legenda);
+  await digitar(campo(page, "Descrição completa"), beneficio.descricao);
   await campo(page, "Categoria").selectOption({ label: beneficio.categoria });
   const parceiro = campo(page, "Parceiro");
   await expect(parceiro.locator("option").nth(1)).toBeAttached();
   const totalDeParceiros = (await parceiro.locator("option").count()) - 1;
   await parceiro.selectOption({ index: 1 + (beneficio.parceiro % totalDeParceiros) });
-  await campo(page, "URL da imagem").fill(beneficio.imagem);
+  await digitar(campo(page, "URL da imagem"), beneficio.imagem);
   if ("cupom" in beneficio.resgate) {
     await escolherOpcao(page, "Cupom compartilhado");
-    await campo(page, "Código do cupom").fill(beneficio.resgate.cupom);
+    await digitar(campo(page, "Código do cupom"), beneficio.resgate.cupom);
   } else {
     await escolherOpcao(page, "Instrução por texto");
-    await campo(page, "Instrução de resgate").fill(beneficio.resgate.instrucao);
+    await digitar(campo(page, "Instrução de resgate"), beneficio.resgate.instrucao);
   }
   await campo(page, "Início da vigência").fill(beneficio.inicio);
   if (beneficio.fim) await campo(page, "Fim da vigência (opcional)").fill(beneficio.fim);
@@ -158,7 +158,7 @@ export async function garantirCategoria(page: Page, nome: string) {
   await expect(lista).toBeVisible();
   const existente = lista.getByRole("listitem").filter({ hasText: nome });
   if ((await existente.count()) === 0) {
-    await dialogo.getByLabel("Nova categoria", { exact: true }).fill(nome);
+    await digitar(dialogo.getByLabel("Nova categoria", { exact: true }), nome);
     await dialogo.getByRole("button", { name: "+ Adicionar" }).click();
     await expect(existente).toBeVisible();
   }
@@ -172,10 +172,10 @@ export async function cadastrarConteudo(page: Page, conteudo: Conteudo) {
   await aguardarCaminho(page, "/admin/conteudos/novo");
   await expect(tituloDaPagina(page, "Novo conteúdo")).toBeVisible();
 
-  await campo(page, "Título").fill(conteudo.titulo);
+  await digitar(campo(page, "Título"), conteudo.titulo);
   await campo(page, "Tipo").selectOption(conteudo.tipo);
-  await campo(page, "URL").fill(conteudo.url);
-  await campo(page, "Descrição").fill(conteudo.descricao);
+  await digitar(campo(page, "URL"), conteudo.url);
+  await digitar(campo(page, "Descrição"), conteudo.descricao);
   await campo(page, "Categoria").selectOption({ label: conteudo.categoria });
   if (conteudo.acesso) await campo(page, "Nível de acesso").selectOption(conteudo.acesso);
 
@@ -203,13 +203,13 @@ export async function cadastrarTrilha(page: Page, trilha: Trilha) {
   await aguardarCaminho(page, "/admin/conteudos/trilhas/novo");
   await expect(tituloDaPagina(page, "Nova trilha de conhecimento")).toBeVisible();
 
-  await campo(page, "Título da trilha").fill(trilha.titulo);
-  await campo(page, "Descrição").fill(trilha.descricao);
+  await digitar(campo(page, "Título da trilha"), trilha.titulo);
+  await digitar(campo(page, "Descrição"), trilha.descricao);
 
   await page.getByRole("button", { name: "+ Adicionar conteúdo da biblioteca" }).click();
   const modal = page.getByRole("dialog", { name: "Adicionar conteúdos" });
   for (const titulo of trilha.conteudos) {
-    await modal.getByLabel("Buscar na biblioteca", { exact: true }).fill(titulo);
+    await digitar(modal.getByLabel("Buscar na biblioteca", { exact: true }), titulo);
     await modal
       .getByRole("button", { name: `Adicionar ${titulo}`, exact: true })
       .first()
@@ -250,18 +250,18 @@ export async function cadastrarVaga(page: Page, vaga: Vaga) {
   await aguardarCaminho(page, "/admin/vagas/nova");
   await expect(tituloDaPagina(page, "Nova vaga")).toBeVisible();
 
-  await campo(page, "Título da vaga").fill(vaga.titulo);
-  await campo(page, "Empresa").fill(vaga.empresa);
-  await campo(page, "Descrição").fill(vaga.descricao);
-  if (vaga.localidade) await campo(page, "Localidade").fill(vaga.localidade);
+  await digitar(campo(page, "Título da vaga"), vaga.titulo);
+  await digitar(campo(page, "Empresa"), vaga.empresa);
+  await digitar(campo(page, "Descrição"), vaga.descricao);
+  if (vaga.localidade) await digitar(campo(page, "Localidade"), vaga.localidade);
   if (vaga.modalidade) await escolherOpcao(page, vaga.modalidade);
   if (vaga.encerramento) await campo(page, "Data de encerramento").fill(vaga.encerramento);
   if ("link" in vaga.candidatura) {
     await escolherOpcao(page, "Link de candidatura");
-    await campo(page, "URL de candidatura").fill(vaga.candidatura.link);
+    await digitar(campo(page, "URL de candidatura"), vaga.candidatura.link);
   } else {
     await escolherOpcao(page, "E-mail do recrutador");
-    await campo(page, "E-mail do recrutador").fill(vaga.candidatura.email);
+    await digitar(campo(page, "E-mail do recrutador"), vaga.candidatura.email);
   }
 
   if (vaga.publicar) {
@@ -294,12 +294,12 @@ export async function cadastrarQuebraCabeca(page: Page, quebraCabeca: QuebraCabe
   await expect(tituloDaPagina(page, "Novo quebra-cabeça")).toBeVisible();
 
   const { completa, pecas } = urlsDoQuebraCabeca(quebraCabeca.imagem);
-  await campo(page, "Nome do quebra-cabeça").fill(quebraCabeca.nome);
-  await campo(page, "Legenda curta").fill(quebraCabeca.legenda);
-  await campo(page, "História por trás da imagem").fill(quebraCabeca.historia);
-  await campo(page, "URL da imagem completa").fill(completa);
+  await digitar(campo(page, "Nome do quebra-cabeça"), quebraCabeca.nome);
+  await digitar(campo(page, "Legenda curta"), quebraCabeca.legenda);
+  await digitar(campo(page, "História por trás da imagem"), quebraCabeca.historia);
+  await digitar(campo(page, "URL da imagem completa"), completa);
   for (const [indice, url] of pecas.entries()) {
-    await campo(page, `URL da peça ${indice + 1}`).fill(url);
+    await digitar(campo(page, `URL da peça ${indice + 1}`), url);
   }
 
   await page

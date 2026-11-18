@@ -2,7 +2,22 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 
 type Credenciais = { email: string; senha: string };
 
-const PAUSA_ENTRE_PASSOS_MS = Number(process.env.E2E_PAUSA_MS ?? 2000);
+function milissegundos(valor: string | undefined, padraoEmSegundos: number) {
+  const segundos = valor === undefined || valor === "" ? padraoEmSegundos : Number(valor);
+  return Math.round(segundos * 1000);
+}
+
+const PAUSA_ENTRE_PASSOS_MS = milissegundos(process.env.E2E_PAUSA, 2);
+const ATRASO_DA_DIGITACAO_MS = milissegundos(process.env.E2E_DELAY_DIGITACAO, 0.05);
+
+export async function digitar(campo: Locator, texto: string) {
+  if (test.info().project.name === "popular" || ATRASO_DA_DIGITACAO_MS === 0) {
+    await campo.fill(texto);
+    return;
+  }
+  await campo.clear();
+  await campo.pressSequentially(texto, { delay: ATRASO_DA_DIGITACAO_MS });
+}
 
 export async function passo(page: Page, titulo: string, corpo: () => Promise<void>) {
   await test.step(titulo, corpo);
@@ -50,8 +65,8 @@ export async function abrirMenuDaConta(page: Page) {
 export async function entrar(page: Page, { email, senha }: Credenciais) {
   await page.goto("/login");
   await expect(tituloDaPagina(page, "Bem-vindo de volta")).toBeVisible();
-  await page.getByLabel("E-mail").filter({ visible: true }).fill(email);
-  await page.getByLabel("Senha", { exact: true }).filter({ visible: true }).fill(senha);
+  await digitar(page.getByLabel("E-mail").filter({ visible: true }), email);
+  await digitar(page.getByLabel("Senha", { exact: true }).filter({ visible: true }), senha);
   await page.getByRole("button", { name: "Entrar" }).click();
   await aguardarCaminho(page, "/inicio");
   await expect(page.getByRole("heading", { level: 1, name: /^Olá, / })).toBeVisible();
