@@ -27,6 +27,8 @@ type PropsAlerta = {
   children?: ReactNode;
   acao?: ReactNode;
   aoFechar?: () => void;
+  /** Sobrescreve o papel ARIA. Use "status" num aviso de erro fixo, que não surge de repente. */
+  papel?: "alert" | "status";
   className?: string;
 };
 
@@ -36,13 +38,14 @@ export function Alerta({
   children,
   acao,
   aoFechar,
+  papel,
   className,
 }: PropsAlerta) {
   const { classe, icone: Icone, cor } = estilos[tom];
 
   return (
     <div
-      role={tom === "erro" ? "alert" : "status"}
+      role={papel ?? (tom === "erro" ? "alert" : "status")}
       className={cn("flex gap-3 rounded-md border p-4", classe, className)}
     >
       <Icone aria-hidden="true" className={cn("mt-0.5 size-5 shrink-0", cor)} />

@@ -5,13 +5,25 @@ import Link from "next/link";
 import { BotaoQueroSerFiliado } from "@/features/conversao/components/BotaoQueroSerFiliado";
 import { useSessao } from "@/shared/sessao/useSessao";
 
+import { AvisoVitrineBloqueada } from "./AvisoVitrineBloqueada";
+
 const classesFaixa =
   "flex flex-col gap-3 rounded-md bg-violeta-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between md:px-5";
 
 export function FaixaConviteVitrine() {
   const { perfil, ehFiliado } = useSessao();
 
-  if (!perfil || (ehFiliado && perfil.exibindo_na_vitrine)) return null;
+  if (!perfil) return null;
+
+  if (perfil.vitrine_bloqueada) {
+    return (
+      <section aria-label="Perfil ocultado da vitrine">
+        <AvisoVitrineBloqueada motivo={perfil.motivo_vitrine_oculta} />
+      </section>
+    );
+  }
+
+  if (ehFiliado && perfil.exibindo_na_vitrine) return null;
 
   if (!ehFiliado) {
     return (

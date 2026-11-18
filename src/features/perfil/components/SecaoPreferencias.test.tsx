@@ -5,7 +5,12 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { chavesProfissionais } from "@/features/profissionais/api/profissionais.queries";
 import type { Perfil } from "@/shared/sessao/tipos";
-import { perfilFiliado, perfilNaoFiliado } from "@/test/fixtures/pessoas";
+import {
+  MOTIVO_VITRINE_OCULTA_TESTE,
+  perfilFiliado,
+  perfilFiliadoVitrineBloqueada,
+  perfilNaoFiliado,
+} from "@/test/fixtures/pessoas";
 import { renderizar } from "@/test/renderizar";
 import { servidor } from "@/test/servidor";
 
@@ -145,6 +150,56 @@ describe("Preferências", () => {
       await avisos().findByText("Este recurso é exclusivo para filiados com filiação ativa."),
     ).toBeVisible();
     await waitFor(() => expect(interruptor("E-mail marketing")).not.toBeChecked());
+  });
+
+  describe("com o perfil ocultado da vitrine pelo Admin", () => {
+    it("mostra o aviso com o motivo e trava o interruptor desligado", async () => {
+      await abrir(perfilFiliadoVitrineBloqueada, { ...preferenciasTeste, exibir_vitrine: true });
+
+      const aviso = within(
+        screen
+          .getByText("Seu perfil foi ocultado da vitrine pelo PMI-DF.")
+          .closest("[role=status]") as HTMLElement,
+      );
+      expect(aviso.getByText(MOTIVO_VITRINE_OCULTA_TESTE)).toBeVisible();
+      expect(aviso.getByText("Para resolver, fale com a diretoria do PMI-DF.")).toBeVisible();
+
+      const vitrine = interruptor(VITRINE);
+      expect(vitrine).not.toBeChecked();
+      expect(vitrine).toBeDisabled();
+      expect(vitrine).toHaveAccessibleDescription(
+        expect.stringContaining(MOTIVO_VITRINE_OCULTA_TESTE),
+      );
+    });
+
+    it("não abre a confirmação nem salva ao clicar no interruptor travado", async () => {
+      await abrir(perfilFiliadoVitrineBloqueada);
+
+      await usuario.click(interruptor(VITRINE));
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(corpos).toEqual([]);
+    });
+
+    it("mostra 'não informado' quando o motivo não vem", async () => {
+      await abrir({ ...perfilFiliadoVitrineBloqueada, motivo_vitrine_oculta: null });
+
+      expect(screen.getByText("não informado", { exact: false })).toBeVisible();
+    });
+
+    it("continua salvando as outras preferências", async () => {
+      await abrir(perfilFiliadoVitrineBloqueada);
+
+      await usuario.click(interruptor("Gamificação"));
+
+      await waitFor(() => expect(corpos).toEqual([{ gamificacao: false }]));
+    });
+  });
+
+  it("não mostra o aviso de bloqueio para quem não foi ocultado", async () => {
+    await abrir();
+
+    expect(screen.queryByText("Seu perfil foi ocultado da vitrine pelo PMI-DF.")).toBeNull();
   });
 
   it("mostra erro com tentar de novo quando não carrega as preferências", async () => {

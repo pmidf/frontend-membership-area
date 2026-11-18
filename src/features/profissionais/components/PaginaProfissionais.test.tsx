@@ -4,7 +4,12 @@ import { http, HttpResponse } from "msw/http";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { Perfil } from "@/shared/sessao/tipos";
-import { perfilFiliado, perfilNaoFiliado } from "@/test/fixtures/pessoas";
+import {
+  MOTIVO_VITRINE_OCULTA_TESTE,
+  perfilFiliado,
+  perfilFiliadoVitrineBloqueada,
+  perfilNaoFiliado,
+} from "@/test/fixtures/pessoas";
 import { definirNavegacao, roteadorFalso } from "@/test/navegacao-falsa";
 import { renderizar } from "@/test/renderizar";
 import { servidor } from "@/test/servidor";
@@ -186,6 +191,27 @@ describe("Faixa de convite da vitrine", { timeout: 15_000 }, () => {
     await lista();
 
     expect(faixa()).toBeNull();
+  });
+
+  it("avisa quem foi ocultado pelo Admin, com o motivo, no lugar do convite", async () => {
+    abrir("", perfilFiliadoVitrineBloqueada);
+    await lista();
+
+    expect(faixa()).toBeNull();
+    const aviso = within(screen.getByRole("region", { name: "Perfil ocultado da vitrine" }));
+    expect(aviso.getByText("Seu perfil foi ocultado da vitrine pelo PMI-DF.")).toBeVisible();
+    expect(aviso.getByText(MOTIVO_VITRINE_OCULTA_TESTE)).toBeVisible();
+    expect(aviso.getByText("Para resolver, fale com a diretoria do PMI-DF.")).toBeVisible();
+    expect(aviso.queryByRole("link")).toBeNull();
+  });
+
+  it("mostra o aviso de bloqueio também para o não filiado ocultado", async () => {
+    abrir("", { ...perfilNaoFiliado, vitrine_bloqueada: true, motivo_vitrine_oculta: null });
+    await lista();
+
+    expect(faixa()).toBeNull();
+    const aviso = within(screen.getByRole("region", { name: "Perfil ocultado da vitrine" }));
+    expect(aviso.getByText("não informado", { exact: false })).toBeVisible();
   });
 
   it("explica ao não filiado que só filiados se apresentam e registra a conversão", async () => {

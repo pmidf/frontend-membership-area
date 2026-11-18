@@ -25,6 +25,9 @@ export function handlersPreferencias(
       if (alteracao.exibir_vitrine && !perfil.papeis.filiado) {
         return HttpResponse.json({ codigo: "FILIACAO_NECESSARIA" }, { status: 403 });
       }
+      if (alteracao.exibir_vitrine && perfil.vitrine_bloqueada) {
+        return HttpResponse.json({ codigo: "VITRINE_BLOQUEADA" }, { status: 403 });
+      }
       preferencias = { ...preferencias, ...alteracao };
       return HttpResponse.json(preferencias);
     }),
