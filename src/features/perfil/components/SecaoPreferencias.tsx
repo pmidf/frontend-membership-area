@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { AvisoVitrineBloqueada } from "@/features/profissionais/components/AvisoVitrineBloqueada";
 import { mensagemDeErro } from "@/shared/api/mensagens-erro";
 import { useFocoNaAncora } from "@/shared/hooks/useFocoNaAncora";
 import type { Perfil } from "@/shared/sessao/tipos";
@@ -9,6 +10,9 @@ import { Botao, Cartao, EstadoErro, Esqueleto, Interruptor, Modal, useAvisos } f
 
 import type { AtualizarPreferencias } from "../api/preferencias.api";
 import { useAtualizarPreferencias, usePreferencias } from "../api/preferencias.queries";
+
+const ID_INTERRUPTOR_VITRINE = "preferencia-vitrine";
+const ID_AVISO_VITRINE_BLOQUEADA = "aviso-vitrine-bloqueada";
 
 function DadosExibidos({ perfil }: { perfil: Perfil }) {
   const dados = [
@@ -48,6 +52,7 @@ export function SecaoPreferencias({ perfil }: { perfil: Perfil }) {
   const atualizacao = useAtualizarPreferencias();
   const [confirmandoVitrine, setConfirmandoVitrine] = useState(false);
   const { filiado } = perfil.papeis;
+  const vitrineBloqueada = perfil.vitrine_bloqueada;
 
   function salvar(alteracao: AtualizarPreferencias) {
     atualizacao.mutate(alteracao, {
@@ -57,6 +62,7 @@ export function SecaoPreferencias({ perfil }: { perfil: Perfil }) {
   }
 
   function alternarVitrine(ligar: boolean) {
+    if (vitrineBloqueada) return;
     if (ligar) setConfirmandoVitrine(true);
     else salvar({ exibir_vitrine: false });
   }
@@ -90,20 +96,35 @@ export function SecaoPreferencias({ perfil }: { perfil: Perfil }) {
           onChange={(evento) => salvar({ email_marketing: evento.target.checked })}
           className="py-4"
         />
-        <Interruptor
-          rotulo="Exibir meu perfil em “Profissionais da comunidade”"
-          descricao={
-            <>
-              Mostra nome, foto, cargo, empresa, cidade/UF, mini bio e LinkedIn na vitrine do
-              capítulo.
-              {!filiado && <span className="mt-1 block font-medium">Disponível para filiados</span>}
-            </>
-          }
-          checked={filiado && exibir_vitrine}
-          disabled={!filiado}
-          onChange={(evento) => alternarVitrine(evento.target.checked)}
-          className="py-4"
-        />
+        <div className="flex flex-col gap-3 py-4">
+          <Interruptor
+            id={ID_INTERRUPTOR_VITRINE}
+            rotulo="Exibir meu perfil em “Profissionais da comunidade”"
+            descricao={
+              <>
+                Mostra nome, foto, cargo, empresa, cidade/UF, mini bio e LinkedIn na vitrine do
+                capítulo.
+                {!filiado && (
+                  <span className="mt-1 block font-medium">Disponível para filiados</span>
+                )}
+              </>
+            }
+            checked={filiado && exibir_vitrine && !vitrineBloqueada}
+            disabled={!filiado || vitrineBloqueada}
+            aria-describedby={
+              vitrineBloqueada
+                ? `${ID_INTERRUPTOR_VITRINE}-descricao ${ID_AVISO_VITRINE_BLOQUEADA}`
+                : undefined
+            }
+            onChange={(evento) => alternarVitrine(evento.target.checked)}
+          />
+          {vitrineBloqueada && (
+            <AvisoVitrineBloqueada
+              id={ID_AVISO_VITRINE_BLOQUEADA}
+              motivo={perfil.motivo_vitrine_oculta}
+            />
+          )}
+        </div>
       </Cartao>
     );
   }

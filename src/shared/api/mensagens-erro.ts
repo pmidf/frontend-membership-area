@@ -14,6 +14,8 @@ const mensagens: Record<string, string> = {
   TOKEN_INVALIDO: "Este link expirou ou já foi usado. Peça um novo.",
   DADOS_INVALIDOS: "Confira os campos destacados.",
   FILIACAO_NECESSARIA: "Este recurso é exclusivo para filiados com filiação ativa.",
+  VITRINE_BLOQUEADA:
+    "Seu perfil foi ocultado da vitrine pelo PMI-DF. Fale com a diretoria para resolver.",
   ADMIN_NECESSARIO: "Você não tem permissão para acessar o console administrativo.",
   NOME_DEFINIDO_PELO_PMI: "O nome vem da base do PMI e não pode ser alterado aqui.",
   AUTOSSUSPENSAO: "Você não pode suspender a própria conta.",

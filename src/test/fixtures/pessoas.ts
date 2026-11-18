@@ -36,10 +36,20 @@ const base: Perfil = {
   data_ultimo_acesso: "2026-11-01T11:14:00.000Z",
   papeis: { admin: false, filiado: true },
   exibindo_na_vitrine: false,
+  vitrine_bloqueada: false,
+  motivo_vitrine_oculta: null,
   filiacao: filiacaoAprovada,
 };
 
 export const perfilFiliado: Perfil = base;
+
+export const MOTIVO_VITRINE_OCULTA_TESTE = "Mini bio com conteúdo promocional.";
+
+export const perfilFiliadoVitrineBloqueada: Perfil = {
+  ...base,
+  vitrine_bloqueada: true,
+  motivo_vitrine_oculta: MOTIVO_VITRINE_OCULTA_TESTE,
+};
 
 export const perfilNaoFiliado: Perfil = {
   ...base,

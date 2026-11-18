@@ -53,5 +53,9 @@ export type Perfil = {
   data_ultimo_acesso: string | null;
   papeis: { admin: boolean; filiado: boolean };
   exibindo_na_vitrine: boolean;
+  /** Um Admin ocultou a pessoa da vitrine. */
+  vitrine_bloqueada: boolean;
+  /** Preenchido só quando `vitrine_bloqueada` é true. */
+  motivo_vitrine_oculta: string | null;
   filiacao: FiliacaoPerfil | null;
 };
