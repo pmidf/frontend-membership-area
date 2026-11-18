@@ -162,7 +162,7 @@ describe("Novo quebra-cabeça", () => {
     preencherBasico();
     preencherRecortes();
 
-    await userEvent.click(screen.getByRole("button", { name: "🔍 Pré-visualizar" }));
+    await userEvent.click(screen.getByRole("button", { name: "Pré-visualizar" }));
     const modal = within(await screen.findByRole("dialog", { name: "Pré-visualização" }));
     expect(modal.getByText("Quebra-cabeça surpresa")).toBeInTheDocument();
     expect(modal.getByRole("img", { name: "3 de 8 peças coletadas" })).toBeInTheDocument();

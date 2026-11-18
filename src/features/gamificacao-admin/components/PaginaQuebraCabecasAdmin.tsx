@@ -44,7 +44,7 @@ export function PaginaQuebraCabecasAdmin() {
           href="/admin/quebra-cabecas/estatisticas"
           className={classesBotao({ variante: "secundario" })}
         >
-          📊 Ver estatísticas
+          Ver estatísticas
         </Link>
       </div>
       <Cartao className="p-0 md:p-2">

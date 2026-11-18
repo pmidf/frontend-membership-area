@@ -53,7 +53,7 @@ function colunas({
             aria-label={`Editar ${item.nome}`}
             className={classesBotao({ variante: "secundario", tamanho: "sm" })}
           >
-            ✎ Editar
+            Editar
           </Link>
           {acoesPorSituacao(item.situacao).includes("publicar") && (
             <button

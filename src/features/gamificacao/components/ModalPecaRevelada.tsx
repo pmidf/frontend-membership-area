@@ -20,9 +20,7 @@ function Celebracao() {
       {CONFETES.map((classes) => (
         <span key={classes} className={cn("absolute rounded-pill", classes)} />
       ))}
-      <span className="flex size-22 items-center justify-center rounded-pill bg-linear-135 from-violeta-500 to-laranja-400 text-[40px] shadow-[0_10px_20px_rgb(79_23_168/0.35)]">
-        🎉
-      </span>
+      <span className="flex size-22 items-center justify-center rounded-pill bg-linear-135 from-violeta-500 to-laranja-400 text-[40px] shadow-[0_10px_20px_rgb(79_23_168/0.35)]" />
     </div>
   );
 }

@@ -21,11 +21,6 @@ export function ModalQuebraCabecaConcluido({
     <Modal
       aberto
       aoFechar={aoFechar}
-      topo={
-        <span aria-hidden="true" className="block text-center text-[48px] leading-none">
-          🏆
-        </span>
-      }
       titulo={
         <span className="block text-center text-h3">Parabéns! Você completou o quebra-cabeça!</span>
       }

@@ -51,7 +51,7 @@ function abrir(linhas: LinhaRanking[] = ranking, removidas: string[] = []) {
 }
 
 describe("Ranking de gamificação", () => {
-  it("lista os 10 filiados na ordem, com medalhas nos 3 primeiros", async () => {
+  it("lista os 10 filiados na ordem, com a posição de cada um", async () => {
     abrir();
 
     expect(await screen.findByRole("link", { name: "Maria Souza" })).toHaveAttribute(
@@ -59,10 +59,6 @@ describe("Ranking de gamificação", () => {
       `/admin/pessoas/${id(1)}`,
     );
     expect(await screen.findByRole("link", { name: "Pedro Henrique Dias" })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "1º lugar" })).toHaveTextContent("🥇");
-    expect(screen.getByRole("img", { name: "2º lugar" })).toHaveTextContent("🥈");
-    expect(screen.getByRole("img", { name: "3º lugar" })).toHaveTextContent("🥉");
-    expect(screen.queryByRole("img", { name: "4º lugar" })).not.toBeInTheDocument();
 
     const primeira = within(
       screen
