@@ -10,7 +10,7 @@ export function SemCreditos({ faltam }: { faltam: number }) {
         evento do capítulo: cada presença confirmada vira 1 crédito.
       </p>
       <Botao disabled className="w-full max-w-90">
-        🎲 Vá a um evento para ganhar um crédito
+        Vá a um evento para ganhar um crédito
       </Botao>
       <Link
         href="/agenda"

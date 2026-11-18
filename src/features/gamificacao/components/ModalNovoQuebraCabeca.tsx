@@ -16,11 +16,6 @@ export function ModalNovoQuebraCabeca({ aberto, aoFechar }: PropsModalNovoQuebra
     <Modal
       aberto={aberto}
       aoFechar={aoFechar}
-      topo={
-        <span aria-hidden="true" className="block text-center text-[56px] leading-none">
-          🎉
-        </span>
-      }
       titulo={
         <span className="block text-center text-h3 md:text-h2">
           Parabéns! Você tem um novo quebra-cabeça!
@@ -31,7 +26,6 @@ export function ModalNovoQuebraCabeca({ aberto, aoFechar }: PropsModalNovoQuebra
         <ul className="flex w-full flex-col gap-4 rounded-md bg-violeta-50 p-5 text-corpo-pequeno font-medium">
           {DICAS.map((dica) => (
             <li key={dica} className="flex gap-2.5">
-              <span aria-hidden="true">🔸</span>
               {dica}
             </li>
           ))}

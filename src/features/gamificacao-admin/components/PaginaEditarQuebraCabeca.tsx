@@ -213,7 +213,7 @@ function EdicaoQuebraCabeca({ quebraCabeca }: { quebraCabeca: QuebraCabecaAdmin 
             aria-haspopup="dialog"
             onClick={() => setPrevia(true)}
           >
-            🔍 Pré-visualizar
+            Pré-visualizar
           </Botao>
           <Cartao className="flex flex-col gap-4 p-5 md:p-6">
             <header className="flex flex-col gap-1">

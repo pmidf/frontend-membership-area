@@ -91,9 +91,6 @@ export function FormularioQuebraCabeca({ imagemBloqueada = false }: { imagemBloq
         subtitulo="Regra fixa da plataforma — não é configurável por quebra-cabeça."
       >
         <div className="flex gap-3 rounded-lg border-2 border-acao-primaria bg-violeta-50 p-4">
-          <span aria-hidden="true" className="text-xl leading-none">
-            🔀
-          </span>
           <div className="flex flex-col gap-1">
             <p className="font-medium">Sempre em ordem aleatória</p>
             <p className="text-corpo-pequeno text-texto-secundario">

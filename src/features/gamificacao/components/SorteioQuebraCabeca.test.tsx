@@ -72,7 +72,7 @@ describe("Sorteio de um novo quebra-cabeça", () => {
     responderSorteio(() => HttpResponse.json({ codigo: "COLECAO_COMPLETA" }, { status: 409 }));
 
     await userEvent.click(await dado());
-    expect(await screen.findByText("🏆 Coleção completa!")).toBeInTheDocument();
+    expect(await screen.findByText("Coleção completa!")).toBeInTheDocument();
     expect(screen.getByText(/Seus créditos continuam guardados/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Sortear/ })).not.toBeInTheDocument();
   });

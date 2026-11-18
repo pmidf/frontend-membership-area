@@ -2,7 +2,7 @@
 
 import { ehErroApi } from "@/shared/api/erro-api";
 import { useConsultaMidia } from "@/shared/hooks/useConsultaMidia";
-import { Botao, cn, useAvisos } from "@/shared/ui";
+import { Botao, useAvisos } from "@/shared/ui";
 
 import { useSortearPeca } from "../api/gamificacao.queries";
 import { TOTAL_PECAS, type PecaSorteada } from "../tipos/gamificacao";
@@ -53,9 +53,6 @@ export function AreaSorteioPeca({ pecasObtidas, creditos, aoRevelar }: PropsArea
         data-animando={animando}
         className="w-full max-w-90"
       >
-        <span aria-hidden="true" className={cn("inline-block", animando && "animate-rolar-dado")}>
-          🎲
-        </span>
         Sortear nova peça
       </Botao>
     </div>

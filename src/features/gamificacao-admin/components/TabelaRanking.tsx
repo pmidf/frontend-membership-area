@@ -9,22 +9,10 @@ import type { NomeNoRanking } from "../api/ranking.queries";
 import { TOTAL_RECORTES } from "../schemas/quebra-cabeca.schema";
 import type { LinhaRanking } from "../tipos/quebra-cabeca-admin";
 
-const MEDALHAS = ["🥇", "🥈", "🥉"];
-
 type LinhaComPosicao = LinhaRanking & { posicao: number };
 
 function Posicao({ posicao }: { posicao: number }) {
-  const medalha = MEDALHAS[posicao - 1];
-  return (
-    <span className="inline-flex items-center gap-1 font-bold text-texto-marca">
-      {medalha && (
-        <span role="img" aria-label={`${posicao}º lugar`}>
-          {medalha}
-        </span>
-      )}
-      <span aria-hidden={medalha ? true : undefined}>{posicao}</span>
-    </span>
-  );
+  return <span className="font-bold text-texto-marca">{posicao}</span>;
 }
 
 function Nome({ id, nome }: { id: string; nome: NomeNoRanking | undefined }) {

@@ -2,7 +2,7 @@ import type { MotivoSemSorteio } from "../api/gamificacao.queries";
 
 const TEXTOS: Record<MotivoSemSorteio, { titulo: string; destaque: string; detalhe: string }> = {
   COLECAO_COMPLETA: {
-    titulo: "🏆 Coleção completa!",
+    titulo: "Coleção completa!",
     destaque: "Você montou todos os quebra-cabeças publicados",
     detalhe:
       "Assim que soltarmos um quebra-cabeça novo, você já começa nele. Seus créditos continuam guardados.",
