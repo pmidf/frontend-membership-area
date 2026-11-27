@@ -81,8 +81,8 @@ function pendente(filiacao: FiliacaoPerfil, agora: Date): ApresentacaoFiliacao {
     tom: "alerta",
     mensagem:
       filiacao.motivo_pendencia === "PMI_INDISPONIVEL"
-        ? "Não conseguimos consultar o PMI na última tentativa. Sua filiação será verificada novamente no seu próximo acesso."
-        : "Sua filiação será verificada novamente no seu próximo acesso.",
+        ? "Não conseguimos consultar o PMI na última tentativa. Para concluir a verificação, fale com a diretoria do PMI-DF."
+        : "Sua filiação aguarda a verificação junto ao PMI. Para concluir, fale com a diretoria do PMI-DF.",
     pmiId: null,
     dados: [],
     mostrarRenovacao: false,

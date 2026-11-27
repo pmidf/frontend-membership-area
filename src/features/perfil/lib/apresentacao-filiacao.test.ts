@@ -87,7 +87,9 @@ describe("apresentarFiliacao", () => {
       agora,
     );
 
-    expect(mensagem).toBe("Sua filiação será verificada novamente no seu próximo acesso.");
+    expect(mensagem).toBe(
+      "Sua filiação aguarda a verificação junto ao PMI. Para concluir, fale com a diretoria do PMI-DF.",
+    );
   });
 
   it("descreve a confirmação pendente", () => {

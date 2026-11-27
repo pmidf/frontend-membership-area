@@ -41,7 +41,7 @@ export const apresentacoesResultado: Record<ResultadoVinculacao, ApresentacaoRes
     filiado: false,
     tom: "alerta",
     alerta: "Não conseguimos consultar o PMI agora.",
-    detalhe: "Sua filiação será verificada novamente mais tarde.",
+    detalhe: "Para concluir a verificação, fale com a diretoria do PMI-DF.",
   },
   OUTRO_CAPITULO: {
     titulo: CONTA_CRIADA,
