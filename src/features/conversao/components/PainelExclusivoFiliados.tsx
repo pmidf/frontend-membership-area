@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { CAMINHO_VINCULAR_FILIACAO } from "@/features/filiacao/lib/caminhos-filiacao";
 import { useSessao } from "@/shared/sessao/useSessao";
 import { classesBotao } from "@/shared/ui/botao/Botao";
 import { cn } from "@/shared/ui/lib/cn";
@@ -28,7 +29,7 @@ export function PainelExclusivoFiliados({
   className,
 }: PropsPainelExclusivoFiliados) {
   const { estado } = useSessao();
-  const destinoJaSouFiliado = estado === "autenticado" ? "/perfil#filiacao" : "/login";
+  const destinoJaSouFiliado = estado === "autenticado" ? CAMINHO_VINCULAR_FILIACAO : "/login";
 
   return (
     <section

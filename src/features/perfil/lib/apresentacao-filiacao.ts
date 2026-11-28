@@ -18,7 +18,8 @@ const SEM_VALOR = "—";
 const NAO_VINCULADO: ApresentacaoFiliacao = {
   rotuloSelo: "Não vinculado",
   tom: "neutro",
-  mensagem: "Você ainda não tem uma filiação reconhecida pelo PMI-DF.",
+  mensagem:
+    "Você ainda não tem uma filiação reconhecida pelo PMI-DF. Se já é filiado, informe seu PMI ID.",
   pmiId: null,
   dados: [],
   mostrarRenovacao: false,
@@ -57,7 +58,7 @@ function vencida({ data_expiracao: expiracao }: FiliacaoPerfil): ApresentacaoFil
       : "Filiação vencida",
     tom: "erro",
     mensagem:
-      "Seu acesso exclusivo foi suspenso. Renove sua filiação no PMI para recuperar o acesso.",
+      "Seu acesso exclusivo foi suspenso. Renove sua filiação no PMI e, depois, use “Atualizar situação” para recuperar o acesso.",
     pmiId: null,
     dados: [],
     mostrarRenovacao: true,
@@ -70,7 +71,7 @@ function pendente(filiacao: FiliacaoPerfil, agora: Date): ApresentacaoFiliacao {
       rotuloSelo: "Aguardando localização na base do PMI",
       tom: "alerta",
       mensagem:
-        "Ainda não localizamos sua filiação na base do PMI. Se você se filiou recentemente, a atualização pode levar alguns dias.",
+        "Ainda não localizamos sua filiação na base do PMI. Se você se filiou recentemente, a atualização pode levar alguns dias; depois, use “Atualizar situação”.",
       pmiId: filiacao.pmi_id,
       dados: [dadoVerificacao(filiacao, agora)],
       mostrarRenovacao: false,
@@ -81,8 +82,8 @@ function pendente(filiacao: FiliacaoPerfil, agora: Date): ApresentacaoFiliacao {
     tom: "alerta",
     mensagem:
       filiacao.motivo_pendencia === "PMI_INDISPONIVEL"
-        ? "Não conseguimos consultar o PMI na última tentativa. Para concluir a verificação, fale com a diretoria do PMI-DF."
-        : "Sua filiação aguarda a verificação junto ao PMI. Para concluir, fale com a diretoria do PMI-DF.",
+        ? "Não conseguimos consultar o PMI na última tentativa. Use “Atualizar situação” para tentar de novo."
+        : "Sua filiação aguarda a verificação junto ao PMI. Use “Atualizar situação” para consultar o PMI.",
     pmiId: null,
     dados: [],
     mostrarRenovacao: false,
@@ -107,7 +108,7 @@ export function apresentarFiliacao(
       return {
         rotuloSelo: "Aguardando confirmação",
         tom: "neutro",
-        mensagem: "Sua filiação aguarda uma confirmação adicional.",
+        mensagem: "Falta confirmar o código que enviamos ao e-mail cadastrado no PMI.",
         pmiId: null,
         dados: [],
         mostrarRenovacao: false,

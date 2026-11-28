@@ -18,6 +18,7 @@ import {
   handlersResgates,
 } from "@/features/beneficios/mocks/beneficios.handlers";
 import { handlersConversao } from "@/features/conversao/mocks/conversao.handlers";
+import { handlersFiliacao } from "@/features/filiacao/mocks/filiacao.handlers";
 import { handlersPerfil } from "@/features/perfil/mocks/perfil.handlers";
 import {
   handlersDetalhePessoa,
@@ -43,6 +44,7 @@ export const servidor = setupServer(
   ...handlersParceiros(),
   ...handlersSeguranca(),
   ...handlersPerfil(),
+  ...handlersFiliacao(),
   ...handlersPessoasAdmin(),
   ...handlersDetalhePessoa(),
   ...handlersAgendaAdmin(),
