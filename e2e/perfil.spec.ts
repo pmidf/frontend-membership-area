@@ -26,6 +26,11 @@ async function abrirPerfil(page: Page, perfilInicial: Perfil, caminho = "/perfil
     return rota.fulfill({ json: perfil });
   });
   await page.route("**/api/me/sessoes**", (rota) => rota.fulfill({ json: sessoesTeste }));
+  await page.route("**/api/me/filiacao", (rota) =>
+    rota.fulfill({
+      json: { ...perfil.filiacao, email_pmi_mascarado: null, proxima_atualizacao_em: null },
+    }),
+  );
   let preferencias = preferenciasTeste;
   await page.route("**/api/me/preferencias", (rota) => {
     if (rota.request().method() !== "PATCH") return rota.fulfill({ json: preferencias });

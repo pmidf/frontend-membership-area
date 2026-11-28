@@ -27,13 +27,24 @@ export const apresentacoesResultado: Record<ResultadoVinculacao, ApresentacaoRes
     detalhe:
       "Você já tem acesso ao clube de benefícios, ao conteúdo exclusivo, às oportunidades e às conquistas.",
   },
+  CODIGO_ENVIADO: {
+    titulo: "Falta um passo",
+    descricao:
+      "Sua filiação ao PMI-DF foi localizada, mas o e-mail cadastrado no PMI é diferente do e-mail da sua conta.",
+    filiado: false,
+    tom: "informacao",
+    alerta: "Enviamos um código para o e-mail cadastrado no PMI.",
+    detalhe:
+      "Confirme o código para provar que o e-mail é seu e liberar seu acesso de filiado. Ele passa a fazer parte da sua conta.",
+  },
   NAO_LOCALIZADO: {
     titulo: CONTA_CRIADA,
     descricao: DESCRICAO_NAO_FILIADO,
     filiado: false,
     tom: "alerta",
     alerta: "Não localizamos sua filiação na base do PMI.",
-    detalhe: "Se você se filiou recentemente, a atualização pode levar alguns dias.",
+    detalhe:
+      "Se você se filiou recentemente, a atualização pode levar alguns dias. Depois, use “Atualizar situação” em Meu perfil.",
   },
   PMI_INDISPONIVEL: {
     titulo: CONTA_CRIADA,
@@ -41,7 +52,7 @@ export const apresentacoesResultado: Record<ResultadoVinculacao, ApresentacaoRes
     filiado: false,
     tom: "alerta",
     alerta: "Não conseguimos consultar o PMI agora.",
-    detalhe: "Para concluir a verificação, fale com a diretoria do PMI-DF.",
+    detalhe: "Tente de novo em alguns minutos com “Atualizar situação”, em Meu perfil.",
   },
   OUTRO_CAPITULO: {
     titulo: CONTA_CRIADA,

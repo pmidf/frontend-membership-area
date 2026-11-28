@@ -33,6 +33,7 @@ export type RespostaCadastro = { mensagem: string };
 
 export type ResultadoVinculacao =
   | "APROVADO"
+  | "CODIGO_ENVIADO"
   | "NAO_LOCALIZADO"
   | "OUTRO_CAPITULO"
   | "FILIACAO_INATIVA"
@@ -42,7 +43,11 @@ export type ResultadoVinculacao =
 export type ConfirmarEmail = { email: string; codigo: string };
 
 export type RespostaConfirmacao = SessaoEmitida & {
-  filiacao: { situacao: SituacaoFiliacao; resultado: ResultadoVinculacao | null };
+  filiacao: {
+    situacao: SituacaoFiliacao;
+    resultado: ResultadoVinculacao | null;
+    email_pmi_mascarado?: string;
+  };
 };
 
 export function entrar(dados: DadosLogin): Promise<SessaoEmitida> {

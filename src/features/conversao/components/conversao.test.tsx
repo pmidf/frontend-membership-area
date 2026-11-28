@@ -87,7 +87,7 @@ describe("BotaoQueroSerFiliado", () => {
 });
 
 describe("PainelExclusivoFiliados", () => {
-  it("leva 'Já sou filiado' ao perfil quando logado", async () => {
+  it("leva 'Já sou filiado' ao formulário de vínculo quando logado", async () => {
     renderizar(
       <PainelExclusivoFiliados
         descricao="Filie-se ao PMI-DF para ter acesso ao clube de benefícios."
@@ -101,7 +101,7 @@ describe("PainelExclusivoFiliados", () => {
     await waitFor(() =>
       expect(screen.getByRole("link", { name: "Já sou filiado" })).toHaveAttribute(
         "href",
-        "/perfil#filiacao",
+        "/perfil/filiacao/vincular",
       ),
     );
   });

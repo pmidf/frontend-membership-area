@@ -43,6 +43,11 @@ const mensagens: Record<string, string> = {
   COLECAO_COMPLETA: "Você completou todos os quebra-cabeças disponíveis.",
   IMAGEM_BLOQUEADA: "A imagem não pode mais mudar: filiados já começaram a montar.",
   TRANSICAO_INVALIDA: "A situação mudou. Atualize a página e tente de novo.",
+  FILIACAO_JA_APROVADA: "Sua filiação já está confirmada e o PMI ID não pode mais mudar.",
+  PMI_ID_OBRIGATORIO: "Informe seu PMI ID para consultar o PMI.",
+  AGUARDE_PARA_ATUALIZAR: "Aguarde um pouco antes de consultar o PMI de novo.",
+  SEM_CODIGO_PENDENTE: "Não há código pendente. Informe seu PMI ID de novo.",
+  DADOS_NAO_CONFEREM: "Os dados não conferem com o cadastro do PMI.",
   MUITAS_REQUISICOES: "Muitas tentativas em pouco tempo. Aguarde e tente novamente.",
   SEM_CONEXAO: "Não foi possível conectar ao servidor. Verifique sua conexão.",
 };

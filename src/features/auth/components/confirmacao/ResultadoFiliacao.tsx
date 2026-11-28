@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { CAMINHO_CODIGO_PMI } from "@/features/filiacao/lib/caminhos-filiacao";
 import { URL_FILIACAO } from "@/shared/lib/links-externos";
 import { useSessao } from "@/shared/sessao/useSessao";
 import { Alerta, SeloStatus } from "@/shared/ui";
@@ -62,9 +63,23 @@ export function ResultadoFiliacao({ resultado }: { resultado: ResultadoVinculaca
         </p>
       )}
 
-      <Link href="/inicio" className={classesBotao({ larguraTotal: true })}>
-        Entrar na plataforma
-      </Link>
+      {resultado === "CODIGO_ENVIADO" ? (
+        <div className="flex flex-col gap-3">
+          <Link href={CAMINHO_CODIGO_PMI} className={classesBotao({ larguraTotal: true })}>
+            Confirmar o código
+          </Link>
+          <Link
+            href="/inicio"
+            className={classesBotao({ variante: "secundario", larguraTotal: true })}
+          >
+            Confirmar depois
+          </Link>
+        </div>
+      ) : (
+        <Link href="/inicio" className={classesBotao({ larguraTotal: true })}>
+          Entrar na plataforma
+        </Link>
+      )}
     </div>
   );
 }

@@ -88,7 +88,7 @@ describe("apresentarFiliacao", () => {
     );
 
     expect(mensagem).toBe(
-      "Sua filiação aguarda a verificação junto ao PMI. Para concluir, fale com a diretoria do PMI-DF.",
+      "Sua filiação aguarda a verificação junto ao PMI. Use “Atualizar situação” para consultar o PMI.",
     );
   });
 
@@ -98,7 +98,7 @@ describe("apresentarFiliacao", () => {
     ).toMatchObject({
       rotuloSelo: "Aguardando confirmação",
       tom: "neutro",
-      mensagem: "Sua filiação aguarda uma confirmação adicional.",
+      mensagem: "Falta confirmar o código que enviamos ao e-mail cadastrado no PMI.",
     });
   });
 
@@ -125,7 +125,8 @@ describe("apresentarFiliacao", () => {
     expect(apresentarFiliacao(filiacao, false, agora)).toMatchObject({
       rotuloSelo: "Não vinculado",
       tom: "neutro",
-      mensagem: "Você ainda não tem uma filiação reconhecida pelo PMI-DF.",
+      mensagem:
+        "Você ainda não tem uma filiação reconhecida pelo PMI-DF. Se já é filiado, informe seu PMI ID.",
       pmiId: null,
     });
   });

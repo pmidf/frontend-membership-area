@@ -1,6 +1,7 @@
 "use client";
 
 import { BotaoQueroSerFiliado } from "@/features/conversao/components/BotaoQueroSerFiliado";
+import { AcoesFiliacao } from "@/features/filiacao/components/AcoesFiliacao";
 import { useFocoNaAncora } from "@/shared/hooks/useFocoNaAncora";
 import type { Perfil } from "@/shared/sessao/tipos";
 
@@ -29,9 +30,12 @@ export function SecaoFiliacao({ perfil }: { perfil: Perfil }) {
         filiacao={perfil.filiacao}
         filiado={filiado}
         acoes={
-          !filiado && (
-            <BotaoQueroSerFiliado rotulo="Quero me filiar" variante="secundario" tamanho="sm" />
-          )
+          <>
+            <AcoesFiliacao filiacao={perfil.filiacao} filiado={filiado} />
+            {!filiado && (
+              <BotaoQueroSerFiliado rotulo="Quero me filiar" variante="secundario" tamanho="sm" />
+            )}
+          </>
         }
       />
     </section>
